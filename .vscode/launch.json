@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "extensionHost",
+      "request": "launch",
+      "name": "Run extension",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to extension",
+      "processId": "${command:PickProcess}"
+    }
+  ]
+}

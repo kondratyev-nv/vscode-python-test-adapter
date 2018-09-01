@@ -1,0 +1,59 @@
+{
+  "name": "vscode-python-unittest-adapter",
+  "displayName": "Python Unittest Explorer for Visual Studio Code",
+  "description": "Run your Unittest tests in the Sidebar of Visual Studio Code",
+  "author": "Nikolay Kondratyev",
+  "publisher": "kondratyev-nv",
+  "version": "0.1.0",
+  "license": "MIT",
+  "homepage": "https://github.com/kondratyev-nv/vscode-python-unittest-adapter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kondratyev-nv/vscode-python-unittest-adapter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kondratyev-nv/vscode-python-unittest-adapter/issues"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "unittest",
+    "test",
+    "testing",
+    "pyhton",
+    "unit test"
+  ],
+  "scripts": {
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "clean": "rimraf out *.vsix",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "extensionDependencies": [
+    "hbenl.vscode-test-explorer"
+  ],
+  "dependencies": {
+    "iconv-lite": "^0.4.24",
+    "js-base64": "^2.4.9",
+    "tslib": "^1.9.3",
+    "vscode-test-adapter-api": "^0.4.0"
+  },
+  "devDependencies": {
+    "@types/js-base64": "^2.3.1",
+    "@types/node": "^10.9.4",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.3",
+    "vscode": "^1.1.21"
+  },
+  "engines": {
+    "vscode": "^1.23.0"
+  },
+  "activationEvents": [
+    "onView:test-explorer"
+  ],
+  "main": "out/main.js",
+  "contributes": {}
+}

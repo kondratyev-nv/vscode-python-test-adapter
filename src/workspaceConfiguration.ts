@@ -13,17 +13,21 @@ export class WorkspaceConfiguration {
         this.argumentParser = this.configureArgumentParser();
     }
 
+    public pythonPath() {
+        return this.configuration.get<string>('pythonPath', 'python');
+    }
+
     public parseUnitTestArguments(): IUnitTestArguments {
-        const [known] = this.argumentParser.parseKnownArgs(this.configuration.get<string[]>('unittestArgs'));
+        const [known] = this.argumentParser.parseKnownArgs(this.configuration.get<string[]>('unitTest.unittestArgs'));
         return known;
     }
 
     public getCwd(): string | undefined {
-        return this.configuration.get<string>('cwd');
+        return this.configuration.get<string>('unitTest.cwd');
     }
 
     public isUnitTestEnabled(): boolean | undefined {
-        return this.configuration.get<boolean>('unittestEnabled');
+        return this.configuration.get<boolean>('unitTest.unittestEnabled');
     }
 
     private configureArgumentParser() {

@@ -9,7 +9,7 @@ import {
 } from 'vscode-test-adapter-api';
 
 import { run } from './pythonRunner';
-import { discoverTestsScript, runTestSuitScript } from './pythonScripts';
+import { unittestHelperScript } from './pythonScripts';
 import { ALL_TESTS_SUIT_ID, parseTestStates, parseTestSuits } from './unittestSuitParser';
 import { WorkspaceConfiguration } from './workspaceConfiguration';
 
@@ -33,14 +33,16 @@ export class UnittestTestAdapter implements TestAdapter {
   }
 
   public load(): Promise<TestSuiteInfo | undefined> {
-    const config = new WorkspaceConfiguration(this.getDefaultUnittestConfiguration());
+    const config = new WorkspaceConfiguration(this.getDefaultPythonConfiguration());
     return new Promise<TestSuiteInfo | undefined>((resolve, reject) => {
       if (!config.isUnitTestEnabled()) {
         return resolve();
       }
       const unittestArguments = config.parseUnitTestArguments();
       return run({
-        script: discoverTestsScript(unittestArguments),
+        pythonPath: config.pythonPath(),
+        script: unittestHelperScript(unittestArguments),
+        args: ['discover'],
         cwd: this.getCwd(config),
       })
         .then(output =>
@@ -51,11 +53,12 @@ export class UnittestTestAdapter implements TestAdapter {
   }
 
   public run(info: TestSuiteInfo | TestInfo): Promise<void> {
-    const config = new WorkspaceConfiguration(this.getDefaultUnittestConfiguration());
+    const config = new WorkspaceConfiguration(this.getDefaultPythonConfiguration());
     return run({
-      script: runTestSuitScript(config.parseUnitTestArguments()),
+      pythonPath: config.pythonPath(),
+      script: unittestHelperScript(config.parseUnitTestArguments()),
       cwd: this.getCwd(config),
-      args: info.id !== ALL_TESTS_SUIT_ID ? [info.id] : [],
+      args: info.id !== ALL_TESTS_SUIT_ID ? ['run', info.id] : ['run'],
     })
       .then(output => parseTestStates(output).forEach(state => this.testStatesEmitter.fire(state)))
       .catch(reason => this.setTestStatesRecursive(info, 'failed', reason));
@@ -69,9 +72,9 @@ export class UnittestTestAdapter implements TestAdapter {
     throw new Error('Method not implemented.');
   }
 
-  private getDefaultUnittestConfiguration(): vscode.WorkspaceConfiguration {
+  private getDefaultPythonConfiguration(): vscode.WorkspaceConfiguration {
     return vscode.workspace.getConfiguration(
-      'python.unitTest',
+      'python',
       this.workspaceFolder.uri
     );
   }

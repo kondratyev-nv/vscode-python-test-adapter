@@ -1,7 +1,9 @@
 import * as process from 'child_process';
 import * as iconv from 'iconv-lite';
+import { EOL } from 'os';
 
 export interface IPythonScriptRunConfiguration {
+    pythonPath: string;
     script: string;
     cwd: string;
     args?: string[];
@@ -11,7 +13,7 @@ export async function run(configuration: IPythonScriptRunConfiguration): Promise
     return new Promise<string>(
         (resolve, reject) => {
             const discoveryProcess = process.spawn(
-                'python3',
+                configuration.pythonPath,
                 ['-c', configuration.script].concat(configuration.args || []),
                 {
                     cwd: configuration.cwd,
@@ -25,13 +27,16 @@ export async function run(configuration: IPythonScriptRunConfiguration): Promise
             discoveryProcess.stderr.on('data', chunk => stderrBuffer.push(chunk));
             discoveryProcess.once('close', code => {
                 if (code !== 0) {
-                    const error = iconv.decode(Buffer.concat(stderrBuffer), 'utf8');
-                    reject(`Process exited with code ${code}: ${error}`);
+                    reject(`Process exited with code ${code}: ${decode(stderrBuffer)}`);
                 }
 
-                const output = iconv.decode(Buffer.concat(stdoutBuffer), 'utf8');
+                const output = decode(stdoutBuffer);
                 if (!output) {
-                    reject('Can not decode output from the process');
+                    if (stdoutBuffer.length > 0) {
+                        reject('Can not decode output from the process');
+                    } else {
+                        reject(`Process returned an error:${EOL}${decode(stderrBuffer)}`);
+                    }
                 }
                 resolve(output);
             });
@@ -40,4 +45,8 @@ export async function run(configuration: IPythonScriptRunConfiguration): Promise
             });
         }
     );
+}
+
+function decode(buffers: Buffer[]) {
+    return iconv.decode(Buffer.concat(buffers), 'utf8');
 }

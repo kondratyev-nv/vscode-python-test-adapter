@@ -1,22 +1,5 @@
 
-export function discoverTestsScript(configuration: { startDirectory: string, pattern: string }) {
-    return `
-import unittest
-
-def print_suite(suite):
-    if hasattr(suite, '__iter__'):
-        for x in suite:
-            print_suite(x)
-    else:
-        print(suite.id())
-
-
-loader = unittest.TestLoader()
-suites = loader.discover("${configuration.startDirectory}", pattern="${configuration.pattern}")
-print_suite(suites)`;
-}
-
-export function runTestSuitScript(configuration: { startDirectory: string, pattern: string }) {
+export function unittestHelperScript(configuration: { startDirectory: string, pattern: string }) {
     return `
 from __future__ import print_function
 from unittest import TextTestRunner, TextTestResult, TestLoader
@@ -44,28 +27,43 @@ def get_tests(suite):
         return [suite]
 
 
-def load_tests(test_names):
+def discover_tests():
     loader = TestLoader()
     suites = loader.discover("${configuration.startDirectory}", pattern="${configuration.pattern}")
-    all_tests = get_tests(suites)
+    return get_tests(suites)
+
+
+def load_tests(test_names):
+    all_tests = discover_tests()
     if not test_names:
         return all_tests
     return filter(lambda test: any(test.id().startswith(name) for name in test_names), all_tests)
 
 
-tests = load_tests(sys.argv[1:])
-runner = TextTestRunner(resultclass=TextTestResultWithSuccesses)
-results = [runner.run(test) for test in tests]
+def run_tests(test_names):
+    tests = load_tests(test_names)
+    runner = TextTestRunner(resultclass=TextTestResultWithSuccesses)
+    results = [runner.run(test) for test in tests]
 
-for result in results:
-    for r in result.skipped:
-        print("skipped:", r[0].id(), ":", base64.b64encode(
-            r[1].encode('utf8')).decode('ascii'))
+    for result in results:
+        for r in result.skipped:
+            print("skipped:", r[0].id(), ":", base64.b64encode(
+                r[1].encode('utf8')).decode('ascii'))
 
-    for r in result.failures:
-        print("failed:", r[0].id(), ":", base64.b64encode(
-            r[1].encode('utf8')).decode('ascii'))
+        for r in result.failures:
+            print("failed:", r[0].id(), ":", base64.b64encode(
+                r[1].encode('utf8')).decode('ascii'))
 
-    for r in result.successes:
-        print("passed:", r.id())`;
+        for r in result.successes:
+            print("passed:", r.id())
+
+
+action = sys.argv[1]
+if action == "discover":
+    for test in discover_tests():
+        print(test.id())
+elif action == "run":
+    run_tests(sys.argv[2:])
+else:
+    raise ValueError("invalid command: should be discover or run")`;
 }

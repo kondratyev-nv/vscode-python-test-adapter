@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { TestExplorerExtension, testExplorerExtensionId } from 'vscode-test-adapter-api';
 import { UnittestTestAdapter } from './unittestTestAdapter';
 
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate() {
 
     const testExplorerExtension = vscode.extensions.getExtension<TestExplorerExtension>(testExplorerExtensionId);
 
@@ -22,7 +22,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         }
 
-        vscode.workspace.onDidChangeWorkspaceFolders((event) => {
+        vscode.workspace.onDidChangeWorkspaceFolders(event => {
 
             for (const workspaceFolder of event.removed) {
                 const adapter = registeredAdapters.get(workspaceFolder);

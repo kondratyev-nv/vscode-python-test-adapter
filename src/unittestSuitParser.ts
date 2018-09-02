@@ -1,5 +1,6 @@
+import { Base64 } from 'js-base64';
 import * as path from 'path';
-import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
+import { TestEvent, TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
 export const ALL_TESTS_SUIT_ID = 'ALL_DISCOVERED_TESTS';
 
@@ -7,25 +8,50 @@ export function parseTestSuits(output: string, cwd: string): TestSuiteInfo {
     const allTests = output.split(/\r?\n/g)
         .map(line => line.trim())
         .filter(line => line)
-        .map(line => splitTestId(line));
+        .map(line => splitTestId(line))
+        .filter(line => line)
+        .map(line => line!);
     const suits = Array.from(groupBy(allTests, t => t.suitId).entries())
         .map(([suitId, tests]) => <TestSuiteInfo>{
-            type: 'suite',
-            id: suitId,
-            label: suitId.substring(suitId.lastIndexOf(".") + 1),
-            file: filePathBySuitId(cwd, suitId),
             children: tests.map(test => <TestInfo>{
-                type: 'test',
                 id: test.testId,
-                label: test.testLabel
-            })
+                label: test.testLabel,
+                type: 'test',
+            }),
+            file: filePathBySuitId(cwd, suitId),
+            id: suitId,
+            label: suitId.substring(suitId.lastIndexOf('.') + 1),
+            type: 'suite',
         });
     return {
         type: 'suite',
         id: ALL_TESTS_SUIT_ID,
         label: 'All tests',
-        children: suits
+        children: suits,
+    };
+}
+
+export function parseTestStates(output: string): TestEvent[] {
+    return output
+        .split(/\r?\n/g)
+        .map(line => line.trim())
+        .filter(line => line)
+        .map(line => tryParseTestState(line))
+        .filter(line => line)
+        .map(line => line!);
+}
+
+function tryParseTestState(line: string) {
+    const [result, testId, base64Message = ''] = line.split(':');
+    if (result == null || testId == null) {
+        return null;
     }
+    return <TestEvent>{
+        type: 'test',
+        test: testId.trim(),
+        state: result.trim(),
+        message: base64Message ? Base64.decode(base64Message.trim()) : undefined,
+    };
 }
 
 function groupBy<T, U>(values: T[], key: (v: T) => U) {
@@ -37,18 +63,24 @@ function groupBy<T, U>(values: T[], key: (v: T) => U) {
         }
         return accumulator;
     }, new Map<U, T[]>());
-};
+}
 
 function splitTestId(testId: string) {
-    return {
-        testId: testId,
-        testLabel: testId.substring(testId.lastIndexOf(".") + 1),
-        suitId: testId.substring(0, testId.lastIndexOf("."))
+    const separatorIndex = testId.lastIndexOf('.');
+    if (separatorIndex < 0) {
+        return null;
     }
+    return {
+        suitId: testId.substring(0, separatorIndex),
+        testId,
+        testLabel: testId.substring(separatorIndex + 1),
+    };
 }
 
 function filePathBySuitId(cwd: string, suitId: string) {
-    return path.resolve(
-        cwd,
-        suitId.substring(0, suitId.lastIndexOf(".")).split('.').join('/') + '.py')
+    const separatorIndex = suitId.lastIndexOf('.');
+    if (separatorIndex < 0) {
+        return undefined;
+    }
+    return path.resolve(cwd, suitId.substring(0, separatorIndex).split('.').join('/') + '.py');
 }

@@ -11,10 +11,13 @@
     "strict": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
+    "noUnusedParameters": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "removeComments": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "charset": "utf8",
+    "newLine": "LF"
   },
   "include": [
     "**/*.ts"

@@ -29,6 +29,7 @@
     "clean": "rimraf out *.vsix",
     "build": "tsc",
     "watch": "tsc -w",
+    "test": "mocha -r ts-node/register test/**/*Test.ts",
     "package": "vsce package",
     "publish": "vsce publish"
   },
@@ -36,14 +37,21 @@
     "hbenl.vscode-test-explorer"
   ],
   "dependencies": {
+    "argparse": "^1.0.10",
     "iconv-lite": "^0.4.24",
     "js-base64": "^2.4.9",
     "tslib": "^1.9.3",
     "vscode-test-adapter-api": "^0.4.0"
   },
   "devDependencies": {
+    "@types/argparse": "^1.0.34",
+    "@types/chai": "^4.1.4",
     "@types/js-base64": "^2.3.1",
+    "@types/mocha": "^5.2.5",
     "@types/node": "^10.9.4",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "typescript": "^3.0.3",
     "vscode": "^1.1.21"
@@ -54,6 +62,6 @@
   "activationEvents": [
     "onView:test-explorer"
   ],
-  "main": "out/main.js",
+  "main": "out/src/main.js",
   "contributes": {}
 }

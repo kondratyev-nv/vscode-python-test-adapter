@@ -1,16 +1,17 @@
-import * as vscode from "vscode";
+import * as path from 'path';
+import * as vscode from 'vscode';
 import {
   TestAdapter,
   TestEvent,
   TestInfo,
   TestSuiteEvent,
   TestSuiteInfo
-} from "vscode-test-adapter-api";
-import { Base64 } from 'js-base64';
+} from 'vscode-test-adapter-api';
 
-import { ALL_TESTS_SUIT_ID, parseTestSuits } from "./unittestSuitParser";
-import { DISCOVER_TESTS_SCRIPT, RUN_TEST_SUIT_SCRIPT } from "./pythonScripts";
-import { run } from "./pythonRunner";
+import { run } from './pythonRunner';
+import { discoverTestsScript, runTestSuitScript } from './pythonScripts';
+import { ALL_TESTS_SUIT_ID, parseTestStates, parseTestSuits } from './unittestSuitParser';
+import { WorkspaceConfiguration } from './workspaceConfiguration';
 
 export class UnittestTestAdapter implements TestAdapter {
   private readonly testStatesEmitter = new vscode.EventEmitter<TestSuiteEvent | TestEvent>();
@@ -31,14 +32,17 @@ export class UnittestTestAdapter implements TestAdapter {
     return this.autorunEmitter.event;
   }
 
-  load(): Promise<TestSuiteInfo | undefined> {
-    const config = this.getDefaultUnittestConfiguration();
+  public load(): Promise<TestSuiteInfo | undefined> {
+    const config = new WorkspaceConfiguration(this.getDefaultUnittestConfiguration());
     return new Promise<TestSuiteInfo | undefined>((resolve, reject) => {
-      const isEnabled = this.getEnabledState(config);
-      if (!isEnabled) {
+      if (!config.isUnitTestEnabled()) {
         return resolve();
       }
-      return run(DISCOVER_TESTS_SCRIPT, this.workspaceFolder.uri.fsPath)
+      const unittestArguments = config.parseUnitTestArguments();
+      return run({
+        script: discoverTestsScript(unittestArguments),
+        cwd: this.getCwd(config),
+      })
         .then(output =>
           resolve(parseTestSuits(output, this.workspaceFolder.uri.fsPath))
         )
@@ -46,72 +50,53 @@ export class UnittestTestAdapter implements TestAdapter {
     });
   }
 
-  run(info: TestSuiteInfo | TestInfo): Promise<void> {
-    return run(RUN_TEST_SUIT_SCRIPT, this.workspaceFolder.uri.fsPath, info.id != ALL_TESTS_SUIT_ID ? [info.id] : [])
-      .then(output => {
-        this.updateTestsState(output);
-      })
+  public run(info: TestSuiteInfo | TestInfo): Promise<void> {
+    const config = new WorkspaceConfiguration(this.getDefaultUnittestConfiguration());
+    return run({
+      script: runTestSuitScript(config.parseUnitTestArguments()),
+      cwd: this.getCwd(config),
+      args: info.id !== ALL_TESTS_SUIT_ID ? [info.id] : [],
+    })
+      .then(output => parseTestStates(output).forEach(state => this.testStatesEmitter.fire(state)))
       .catch(reason => this.setTestStatesRecursive(info, 'failed', reason));
   }
 
-  debug(info: TestSuiteInfo | TestInfo): Promise<void> {
-    throw new Error("Method not implemented.");
+  public debug(): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
-  cancel(): void {
-    throw new Error("Method not implemented.");
+  public cancel(): void {
+    throw new Error('Method not implemented.');
   }
 
   private getDefaultUnittestConfiguration(): vscode.WorkspaceConfiguration {
     return vscode.workspace.getConfiguration(
-      "python.unitTest",
+      'python.unitTest',
       this.workspaceFolder.uri
     );
   }
 
-  private updateTestsState(output: string): void {
-    output
-      .split(/\r?\n/g)
-      .map(line => line.trim())
-      .filter(line => line)
-      .map(line => {
-        const [result, testId, base64Message = ''] = line.split(":");
-        this.testStatesEmitter.fire(<TestEvent>{
-          type: "test",
-          test: testId.trim(),
-          state: result.trim(),
-          message: base64Message ? Base64.decode(base64Message.trim()) : undefined
-        });
-      });
-  }
-
-  // private getUnittestArgs(
-  //   config: vscode.WorkspaceConfiguration
-  // ): string[] | undefined {
-  //   return config.get<string[]>("unittestArgs");
-  // }
-
-  private getEnabledState(
-    config: vscode.WorkspaceConfiguration
-  ): boolean | undefined {
-    return config.get<boolean>("unittestEnabled");
+  private getCwd(configuration: WorkspaceConfiguration) {
+    return configuration.getCwd() ?
+      path.resolve(this.workspaceFolder.uri.fsPath, configuration.getCwd()!) :
+      this.workspaceFolder.uri.fsPath;
   }
 
   private setTestStatesRecursive(
     info: TestSuiteInfo | TestInfo,
-    state: "running" | "passed" | "failed" | "skipped",
+    state: 'running' | 'passed' | 'failed' | 'skipped',
     message?: string | undefined
   ) {
-    if (info.type == "suite") {
+    if (info.type === 'suite') {
       info.children.forEach(child =>
         this.setTestStatesRecursive(child, state, message)
       );
     } else {
       this.testStatesEmitter.fire(<TestEvent>{
-        type: "test",
+        type: 'test',
         test: info.id,
-        state: state,
-        message: message
+        state,
+        message,
       });
     }
   }

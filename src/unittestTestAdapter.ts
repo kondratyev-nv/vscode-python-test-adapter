@@ -46,8 +46,7 @@ export class UnittestTestAdapter implements TestAdapter {
         cwd: this.getCwd(config),
       })
         .then(output =>
-          resolve(parseTestSuits(output, this.workspaceFolder.uri.fsPath))
-        )
+          resolve(parseTestSuits(output, path.resolve(this.getCwd(config), unittestArguments.startDirectory))))
         .catch(reason => reject(reason));
     });
   }

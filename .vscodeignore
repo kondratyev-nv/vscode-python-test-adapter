@@ -1,7 +1,7 @@
 src/**
-**/*.map
+test/**
 out/test/**
-package-lock.json
 tsconfig.json
+tslint.json
 .vscode/**
 .gitignore

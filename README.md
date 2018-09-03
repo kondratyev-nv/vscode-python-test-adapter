@@ -18,8 +18,3 @@ Property                        | Description
 `python.unitTest.cwd`           | Optional working directory for unit tests
 `python.unitTest.unittestArgs`  | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered)
 `unitTest.unittestEnabled`      | Whether to enable or disable unit testing using unittest
-
-## Build and run tests
-
-    npm install
-    npm test

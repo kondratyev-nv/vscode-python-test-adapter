@@ -10,6 +10,7 @@ This extension allows you to run your Python [Unittest](https://docs.python.org/
 ## Configuration
 
 Extension uses configuration from [Python extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
+To configure Python for your project see [Getting Started with Python in VS Code](https://code.visualstudio.com/docs/python/python-tutorial).
 List of currently used properties:
 
 Property                        | Description

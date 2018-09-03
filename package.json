@@ -36,6 +36,7 @@
     "publish": "vsce publish"
   },
   "extensionDependencies": [
+    "ms-python.python",
     "hbenl.vscode-test-explorer"
   ],
   "dependencies": {

@@ -1,27 +1,27 @@
 {
-  "name": "vscode-python-unittest-adapter",
-  "displayName": "Python Unittest Explorer for Visual Studio Code",
-  "description": "Run your Unittest tests in the Sidebar of Visual Studio Code",
+  "name": "vscode-python-test-adapter",
+  "displayName": "Python Test Explorer for Visual Studio Code",
+  "description": "Run your Python tests in the Sidebar of Visual Studio Code",
   "author": "Nikolay Kondratyev",
-  "publisher": "kondratyev-nv",
+  "publisher": "littlefoxteam",
   "version": "0.1.0",
   "license": "MIT",
-  "homepage": "https://github.com/kondratyev-nv/vscode-python-unittest-adapter",
+  "homepage": "https://github.com/kondratyev-nv/vscode-python-test-adapter",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kondratyev-nv/vscode-python-unittest-adapter.git"
+    "url": "https://github.com/kondratyev-nv/vscode-python-test-adapter.git"
   },
   "bugs": {
-    "url": "https://github.com/kondratyev-nv/vscode-python-unittest-adapter/issues"
+    "url": "https://github.com/kondratyev-nv/vscode-python-test-adapter/issues"
   },
   "categories": [
     "Other"
   ],
   "keywords": [
+    "python",
     "unittest",
     "test",
     "testing",
-    "pyhton",
     "unit test"
   ],
   "scripts": {

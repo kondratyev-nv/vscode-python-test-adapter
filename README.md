@@ -16,7 +16,7 @@ This extension allows you to run your Python [Unittest](https://docs.python.org/
 
 ## Configuration
 
-Extension uses configuration from [Python extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
+The extension uses the configuration from [Python extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 To configure Python for your project see [Getting Started with Python in VS Code](https://code.visualstudio.com/docs/python/python-tutorial).
 List of currently used properties:
 
@@ -24,5 +24,5 @@ Property                          | Description
 ----------------------------------|---------------------------------------------------------------
 `python.pythonPath`               | Path to Python
 `python.unitTest.cwd`             | Optional working directory for unit tests
+`python.unitTest.unittestEnabled` | Whether to enable or disable unit testing using unittest (enables or disables test discovery for Test Explorer)
 `python.unitTest.unittestArgs`    | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered)
-`python.unitTest.unittestEnabled` | Whether to enable or disable unit testing using unittest

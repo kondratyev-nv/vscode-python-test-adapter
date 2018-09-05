@@ -2,6 +2,7 @@
   "name": "vscode-python-test-adapter",
   "displayName": "Python Test Explorer for Visual Studio Code",
   "description": "Run your Python tests in the Sidebar of Visual Studio Code",
+  "icon": "img/icon.png",
   "author": "Nikolay Kondratyev",
   "publisher": "littlefoxteam",
   "version": "0.1.0",

@@ -1,7 +1,7 @@
 # Python Test Explorer for Visual Studio Code
 
-This extension allows you to run your Python [Unittest](https://docs.python.org/3/library/unittest.html#module-unittest) tests with the 
-[Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer).
+This extension allows you to run your Python [Unittest](https://docs.python.org/3/library/unittest.html#module-unittest) 
+tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer).
 
 ![Screenshot](img/screenshot.png)
 
@@ -12,6 +12,9 @@ This extension allows you to run your Python [Unittest](https://docs.python.org/
 ## Getting started
 * Install the extension
 * Reload VS Code and open the Test view
+* Configure Python extension for Visual Studio Code to discover your tests 
+  (see [Configuration section](#configuration) and 
+       [Unittest documentation](https://docs.python.org/3/library/unittest.html#module-unittest))
 * Run your tests using the ![Run](img/run-button.png) icon in the Test Explorer
 
 ## Configuration

@@ -18,7 +18,9 @@ export class WorkspaceConfiguration {
     }
 
     public parseUnitTestArguments(): IUnitTestArguments {
-        const [known] = this.argumentParser.parseKnownArgs(this.configuration.get<string[]>('unitTest.unittestArgs'));
+        const [known] = this.argumentParser.parseKnownArgs(
+            this.configuration.get<string[]>('unitTest.unittestArgs', [])
+        );
         return known;
     }
 
@@ -26,8 +28,8 @@ export class WorkspaceConfiguration {
         return this.configuration.get<string>('unitTest.cwd');
     }
 
-    public isUnitTestEnabled(): boolean | undefined {
-        return this.configuration.get<boolean>('unitTest.unittestEnabled');
+    public isUnitTestEnabled(): boolean {
+        return this.configuration.get<boolean>('unitTest.unittestEnabled', false);
     }
 
     private configureArgumentParser() {

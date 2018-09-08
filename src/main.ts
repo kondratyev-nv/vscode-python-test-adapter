@@ -1,29 +1,30 @@
 import * as vscode from 'vscode';
 import { TestExplorerExtension, testExplorerExtensionId } from 'vscode-test-adapter-api';
+
+import { nextId } from './idGenerator';
+import { PythonTestAdapter } from './pythonTestAdapter';
 import { UnittestTestAdapter } from './unittestTestAdapter';
 
 export async function activate() {
-
     const testExplorerExtension = vscode.extensions.getExtension<TestExplorerExtension>(testExplorerExtensionId);
 
     if (testExplorerExtension) {
-
         if (!testExplorerExtension.isActive) {
             await testExplorerExtension.activate();
         }
-
-        const registeredAdapters = new Map<vscode.WorkspaceFolder, UnittestTestAdapter>();
-
+        const registeredAdapters = new Map<vscode.WorkspaceFolder, PythonTestAdapter>();
         if (vscode.workspace.workspaceFolders) {
             for (const workspaceFolder of vscode.workspace.workspaceFolders) {
-                const adapter = new UnittestTestAdapter(workspaceFolder);
+                const adapter = new PythonTestAdapter(
+                    workspaceFolder,
+                    new UnittestTestAdapter(nextId(), workspaceFolder)
+                );
                 registeredAdapters.set(workspaceFolder, adapter);
                 testExplorerExtension.exports.registerAdapter(adapter);
             }
         }
 
         vscode.workspace.onDidChangeWorkspaceFolders(event => {
-
             for (const workspaceFolder of event.removed) {
                 const adapter = registeredAdapters.get(workspaceFolder);
                 if (adapter) {
@@ -33,7 +34,10 @@ export async function activate() {
             }
 
             for (const workspaceFolder of event.added) {
-                const adapter = new UnittestTestAdapter(workspaceFolder);
+                const adapter = new PythonTestAdapter(
+                    workspaceFolder,
+                    new UnittestTestAdapter(nextId(), workspaceFolder)
+                );
                 registeredAdapters.set(workspaceFolder, adapter);
                 testExplorerExtension.exports.registerAdapter(adapter);
             }

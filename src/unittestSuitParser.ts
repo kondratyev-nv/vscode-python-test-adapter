@@ -4,14 +4,14 @@ import { TestEvent, TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
 export const ALL_TESTS_SUIT_ID = 'ALL_DISCOVERED_TESTS';
 
-export function parseTestSuits(output: string, cwd: string): TestSuiteInfo {
+export function parseTestSuits(output: string, cwd: string): TestSuiteInfo[] {
     const allTests = output.split(/\r?\n/g)
         .map(line => line.trim())
         .filter(line => line)
         .map(line => splitTestId(line))
         .filter(line => line)
         .map(line => line!);
-    const suits = Array.from(groupBy(allTests, t => t.suitId).entries())
+    return Array.from(groupBy(allTests, t => t.suitId).entries())
         .map(([suitId, tests]) => <TestSuiteInfo>{
             children: tests.map(test => <TestInfo>{
                 id: test.testId,
@@ -23,12 +23,6 @@ export function parseTestSuits(output: string, cwd: string): TestSuiteInfo {
             label: suitId.substring(suitId.lastIndexOf('.') + 1),
             type: 'suite',
         });
-    return {
-        type: 'suite',
-        id: ALL_TESTS_SUIT_ID,
-        label: 'All tests',
-        children: suits,
-    };
 }
 
 export function parseTestStates(output: string): TestEvent[] {

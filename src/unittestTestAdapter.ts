@@ -8,11 +8,14 @@ import {
 
 import { run } from './pythonRunner';
 import { unittestHelperScript } from './unittestScripts';
-import { ALL_TESTS_SUIT_ID, parseTestStates, parseTestSuits } from './unittestSuitParser';
+import { parseTestStates, parseTestSuits } from './unittestSuitParser';
 import { WorkspaceConfiguration } from './workspaceConfiguration';
 
 export class UnittestTestAdapter {
-  constructor(public readonly workspaceFolder: vscode.WorkspaceFolder) { }
+  constructor(
+    public readonly adapterId: string,
+    private readonly workspaceFolder: vscode.WorkspaceFolder
+  ) { }
 
   public async load(): Promise<TestSuiteInfo | undefined> {
     const config = new WorkspaceConfiguration(this.getDefaultPythonConfiguration());
@@ -26,7 +29,13 @@ export class UnittestTestAdapter {
       args: ['discover'],
       cwd: this.getCwd(config),
     });
-    return parseTestSuits(output, path.resolve(this.getCwd(config), unittestArguments.startDirectory));
+    const suites = parseTestSuits(output, path.resolve(this.getCwd(config), unittestArguments.startDirectory));
+    return {
+      type: 'suite',
+      id: this.adapterId,
+      label: 'All tests',
+      children: suites,
+    };
   }
 
   public async run(info: TestSuiteInfo | TestInfo): Promise<TestEvent[]> {
@@ -35,7 +44,7 @@ export class UnittestTestAdapter {
       pythonPath: config.pythonPath(),
       script: unittestHelperScript(config.parseUnitTestArguments()),
       cwd: this.getCwd(config),
-      args: info.id !== ALL_TESTS_SUIT_ID ? ['run', info.id] : ['run'],
+      args: info.id !== this.adapterId ? ['run', info.id] : ['run'],
     });
     return parseTestStates(output);
   }

@@ -2,23 +2,17 @@ import { expect } from 'chai';
 import 'mocha';
 import { TestSuiteInfo } from 'vscode-test-adapter-api';
 
-import { ALL_TESTS_SUIT_ID, parseTestStates, parseTestSuits } from '../src/unittestSuitParser';
-
-function notEmptyRootSuit(suite?: TestSuiteInfo) {
-    return suite != null && suite.id === ALL_TESTS_SUIT_ID;
-}
+import { parseTestStates, parseTestSuits } from '../src/unittestSuitParser';
 
 describe('Unittest suite parser', () => {
     it('should return empty root suite for empty output', () => {
-        const rootSuit = parseTestSuits('', '/some/prefix/path');
-        expect(rootSuit).to.satisfies(notEmptyRootSuit);
-        expect(rootSuit.children).to.be.empty;
+        const suites = parseTestSuits('', '/some/prefix/path');
+        expect(suites).to.be.empty;
     });
 
     it('should return empty suit when input can not be parsed', () => {
-        const rootSuit = parseTestSuits('some string without dots', '/some/prefix/path');
-        expect(rootSuit).to.satisfies(notEmptyRootSuit);
-        expect(rootSuit.children).to.be.empty;
+        const suites = parseTestSuits('some string without dots', '/some/prefix/path');
+        expect(suites).to.be.empty;
     });
 
     it('should create single test and suite for a single test', () => {
@@ -28,13 +22,11 @@ describe('Unittest suite parser', () => {
         const expectedTestLabel = 'test_function';
         const expectedTestId = expectedSuitId + '.test_function';
 
-        const rootSuit = parseTestSuits('some_test_module.TestCase1.test_function', prefixPath);
-        expect(rootSuit).to.satisfies(notEmptyRootSuit);
-        expect(rootSuit.children).to.be.not.empty;
-        expect(rootSuit.children).to.have.length(1);
-        expect(rootSuit.children[0].type).to.be.eq('suite');
+        const suites = parseTestSuits('some_test_module.TestCase1.test_function', prefixPath);
+        expect(suites).to.have.length(1);
+        expect(suites[0].type).to.be.eq('suite');
 
-        const singleSuit: TestSuiteInfo = rootSuit.children[0] as TestSuiteInfo;
+        const singleSuit: TestSuiteInfo = suites[0] as TestSuiteInfo;
         expect(singleSuit).to.be.not.null;
         expect(singleSuit).to.be.deep.eq({
             type: 'suite',
@@ -58,13 +50,11 @@ describe('Unittest suite parser', () => {
             label,
         }));
 
-        const rootSuit = parseTestSuits(expectedTests.map(t => t.id).join('\n'), prefixPath);
-        expect(rootSuit).to.satisfies(notEmptyRootSuit);
-        expect(rootSuit.children).to.be.not.empty;
-        expect(rootSuit.children).to.have.length(1);
-        expect(rootSuit.children[0].type).to.be.eq('suite');
+        const suites = parseTestSuits(expectedTests.map(t => t.id).join('\n'), prefixPath);
+        expect(suites).to.have.length(1);
+        expect(suites[0].type).to.be.eq('suite');
 
-        const singleSuit: TestSuiteInfo = rootSuit.children[0] as TestSuiteInfo;
+        const singleSuit: TestSuiteInfo = suites[0] as TestSuiteInfo;
         expect(singleSuit).to.be.not.null;
         expect(singleSuit).to.be.deep.eq({
             type: 'suite',
@@ -88,13 +78,11 @@ describe('Unittest suite parser', () => {
             label,
         }));
 
-        const rootSuit = parseTestSuits(expectedTests.map(t => t.id).join('\n'), prefixPath);
-        expect(rootSuit).to.satisfies(notEmptyRootSuit);
-        expect(rootSuit.children).to.be.not.empty;
-        expect(rootSuit.children).to.have.length(1);
-        expect(rootSuit.children[0].type).to.be.eq('suite');
+        const suites = parseTestSuits(expectedTests.map(t => t.id).join('\n'), prefixPath);
+        expect(suites).to.have.length(1);
+        expect(suites[0].type).to.be.eq('suite');
 
-        const singleSuit: TestSuiteInfo = rootSuit.children[0] as TestSuiteInfo;
+        const singleSuit: TestSuiteInfo = suites[0] as TestSuiteInfo;
         expect(singleSuit).to.be.not.null;
         expect(singleSuit).to.be.deep.eq({
             type: 'suite',

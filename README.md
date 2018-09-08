@@ -8,6 +8,7 @@ tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?ite
 ## Features
 * Shows a Test Explorer in the Test view in VS Code's sidebar with all detected tests and suites and their state
 * Shows a failed test's log when the test is selected in the explorer
+* Supports multi-root workspaces
 
 ## Getting started
 * Install the extension

@@ -6,7 +6,6 @@ from unittest import TextTestRunner, TextTestResult, TestLoader
 import sys
 import base64
 
-loader = TestLoader()
 
 class TextTestResultWithSuccesses(TextTestResult):
     def __init__(self, *args, **kwargs):
@@ -28,21 +27,21 @@ def get_tests(suite):
         return [suite]
 
 
+def discover_with_loader():
+    loader = TestLoader()
+    return loader.discover("${configuration.startDirectory}", pattern="${configuration.pattern}")
+
+
 def discover_tests():
-    suites = loader.discover("${configuration.startDirectory}", pattern="${configuration.pattern}")
-    return get_tests(suites)
-
-
-def load_tests(test_names):
-    all_tests = discover_tests()
-    if not test_names:
-        return all_tests
-    return filter(lambda test: any(test.id().startswith(name) for name in test_names), all_tests)
+    return get_tests(discover_with_loader())
 
 
 def run_tests(test_names):
     runner = TextTestRunner(resultclass=TextTestResultWithSuccesses)
-    results = [runner.run(loader.loadTestsFromName(name)) for name in test_names]
+    if not test_names:
+        results = [runner.run(discover_with_loader())]
+    else:
+        results = [runner.run(loader.loadTestsFromName(name)) for name in test_names]
     print("==TEST RESULTS==")
 
     for result in results:

@@ -1,8 +1,6 @@
 import { Base64 } from 'js-base64';
 import * as path from 'path';
-import { TestEvent, TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
-
-export const ALL_TESTS_SUIT_ID = 'ALL_DISCOVERED_TESTS';
+import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 
 export function parseTestSuits(output: string, cwd: string): TestSuiteInfo[] {
     const allTests = getTestOutputBySplittingString(output, '==DISCOVERED TESTS==')
@@ -13,17 +11,17 @@ export function parseTestSuits(output: string, cwd: string): TestSuiteInfo[] {
         .filter(line => line)
         .map(line => line!);
     return Array.from(groupBy(allTests, t => t.suitId).entries())
-        .map(([suitId, tests]) => <TestSuiteInfo>{
-            children: tests.map(test => <TestInfo>{
-                id: test.testId,
-                label: test.testLabel,
-                type: 'test',
-            }),
-            file: filePathBySuitId(cwd, suitId),
+        .map(([suitId, tests]) => ({
+            type: 'suite' as 'suite',
             id: suitId,
             label: suitId.substring(suitId.lastIndexOf('.') + 1),
-            type: 'suite',
-        });
+            file: filePathBySuitId(cwd, suitId),
+            children: tests.map(test => ({
+                id: test.testId,
+                label: test.testLabel,
+                type: 'test' as 'test',
+            })),
+        }));
 }
 
 export function parseTestStates(output: string): TestEvent[] {
@@ -36,15 +34,19 @@ export function parseTestStates(output: string): TestEvent[] {
         .map(line => line!);
 }
 
-function tryParseTestState(line: string) {
+function tryParseTestState(line: string): TestEvent | undefined {
     const [result, testId, base64Message = ''] = line.split(':');
     if (result == null || testId == null) {
-        return null;
+        return undefined;
     }
-    return <TestEvent>{
+    const state = toState(result.trim());
+    if (!state) {
+        return undefined;
+    }
+    return {
         type: 'test',
         test: testId.trim(),
-        state: result.trim(),
+        state,
         message: base64Message ? Base64.decode(base64Message.trim()) : undefined,
     };
 }
@@ -52,6 +54,13 @@ function tryParseTestState(line: string) {
 function getTestOutputBySplittingString(output: string, stringToSplitWith: string): string {
     const split = output.split(stringToSplitWith);
     return split && split.pop() || '';
+}
+
+function toState(value: string): 'running' | 'passed' | 'failed' | 'skipped' | undefined {
+    if (value === 'running' || value === 'passed' || value === 'failed' || value === 'skipped') {
+        return value;
+    }
+    return undefined;
 }
 
 function groupBy<T, U>(values: T[], key: (v: T) => U) {

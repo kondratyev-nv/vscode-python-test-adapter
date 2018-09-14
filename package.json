@@ -30,6 +30,7 @@
     "clean": "rimraf out *.vsix",
     "build": "tsc",
     "watchbuild": "tsc -w",
+    "lint": "tslint --project tsconfig.json",
     "test": "mocha -r ts-node/register test/**/*Test.ts",
     "watchtest": "npm test -- --watch-extensions ts --watch -R min ",
     "vscode:prepublish": "tsc",

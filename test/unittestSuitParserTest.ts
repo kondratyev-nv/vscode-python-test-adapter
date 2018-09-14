@@ -108,9 +108,9 @@ describe('Unittest test states parser', () => {
     it('should return events for different states', () => {
         const testOutput = [
             'failed:some_module.TestCase1.test_function1:c29tZSBtdWx0aWxpbmUKZXJyb3IgbWVzc2FnZQ==',
-            'success:some_module.TestCase1.test_function2',
+            'passed:some_module.TestCase1.test_function2',
             'skipped:some_module.TestCase1.test_function3',
-            'success:some_other_module.TestCase2.test_function'
+            'passed:some_other_module.TestCase2.test_function'
         ];
         const states = parseTestStates(testOutput.join('\n'));
         expect(states).to.be.not.empty;
@@ -125,7 +125,7 @@ error message`,
                 },
                 {
                     type: 'test',
-                    state: 'success',
+                    state: 'passed',
                     test: 'some_module.TestCase1.test_function2',
                     message: undefined,
                 },
@@ -137,7 +137,7 @@ error message`,
                 },
                 {
                     type: 'test',
-                    state: 'success',
+                    state: 'passed',
                     test: 'some_other_module.TestCase2.test_function',
                     message: undefined,
                 }

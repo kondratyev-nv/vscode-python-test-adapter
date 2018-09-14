@@ -1,5 +1,7 @@
 {
     "typescript.preferences.quoteStyle": "single",
     "javascript.preferences.quoteStyle": "single",
-    "typescript.implementationsCodeLens.enabled": true
+    "typescript.implementationsCodeLens.enabled": true,
+    "tslint.enable": true,
+    "tslint.alwaysShowStatus": true
 }

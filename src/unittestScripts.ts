@@ -6,6 +6,7 @@ from unittest import TextTestRunner, TextTestResult, TestLoader
 import sys
 import base64
 
+loader = TestLoader()
 
 class TextTestResultWithSuccesses(TextTestResult):
     def __init__(self, *args, **kwargs):
@@ -28,7 +29,6 @@ def get_tests(suite):
 
 
 def discover_tests():
-    loader = TestLoader()
     suites = loader.discover("${configuration.startDirectory}", pattern="${configuration.pattern}")
     return get_tests(suites)
 
@@ -41,9 +41,9 @@ def load_tests(test_names):
 
 
 def run_tests(test_names):
-    tests = load_tests(test_names)
     runner = TextTestRunner(resultclass=TextTestResultWithSuccesses)
-    results = [runner.run(test) for test in tests]
+    results = [runner.run(loader.loadTestsFromName(name)) for name in test_names]
+    print("==TEST RESULTS==")
 
     for result in results:
         for r in result.skipped:
@@ -60,7 +60,9 @@ def run_tests(test_names):
 
 action = sys.argv[1]
 if action == "discover":
-    for test in discover_tests():
+    tests = discover_tests()
+    print("==DISCOVERED TESTS==")
+    for test in tests:
         print(test.id())
 elif action == "run":
     run_tests(sys.argv[2:])

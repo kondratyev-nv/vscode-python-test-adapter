@@ -5,7 +5,9 @@ import { TestEvent, TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 export const ALL_TESTS_SUIT_ID = 'ALL_DISCOVERED_TESTS';
 
 export function parseTestSuits(output: string, cwd: string): TestSuiteInfo[] {
-    const allTests = output.split(/\r?\n/g)
+    let split = output.split("==DISCOVERED TESTS==")
+    let testOutput = split && split.pop() || ""
+    const allTests = testOutput.split(/\r?\n/g)
         .map(line => line.trim())
         .filter(line => line)
         .map(line => splitTestId(line))
@@ -26,7 +28,9 @@ export function parseTestSuits(output: string, cwd: string): TestSuiteInfo[] {
 }
 
 export function parseTestStates(output: string): TestEvent[] {
-    return output
+    let split = output.split("==TEST RESULTS==")
+    let testOutput = split && split.pop() || ""
+    return testOutput
         .split(/\r?\n/g)
         .map(line => line.trim())
         .filter(line => line)

@@ -3,27 +3,27 @@ import 'mocha';
 import * as path from 'path';
 import { TestSuiteInfo } from 'vscode-test-adapter-api';
 
-import { parseTestStates, parseTestSuits } from '../src/unittestSuitParser';
+import { parseTestStates, parseTestSuites } from '../src/unittestSuitParser';
 
-describe('Unittest suite parser', () => {
-    it('should return empty root suite for empty output', () => {
-        const suites = parseTestSuits('', '/some/prefix/path');
+suite('Unittest suite parser', () => {
+    test('should return empty root suite for empty output', () => {
+        const suites = parseTestSuites('', '/some/prefix/path');
         expect(suites).to.be.empty;
     });
 
-    it('should return empty suit when input can not be parsed', () => {
-        const suites = parseTestSuits('some string without dots', '/some/prefix/path');
+    test('should return empty suit when input can not be parsed', () => {
+        const suites = parseTestSuites('some string without dots', '/some/prefix/path');
         expect(suites).to.be.empty;
     });
 
-    it('should create single test and suite for a single test', () => {
+    test('should create single test and suite for a single test', () => {
         const prefixPath = path.resolve('/some/prefix/path');
         const expectedSuitLabel = 'TestCase1';
         const expectedSuitId = 'some_test_module.' + expectedSuitLabel;
         const expectedTestLabel = 'test_function';
         const expectedTestId = expectedSuitId + '.test_function';
 
-        const suites = parseTestSuits('some_test_module.TestCase1.test_function', prefixPath);
+        const suites = parseTestSuites('some_test_module.TestCase1.test_function', prefixPath);
         expect(suites).to.have.length(1);
         expect(suites[0].type).to.be.eq('suite');
 
@@ -42,7 +42,7 @@ describe('Unittest suite parser', () => {
         });
     });
 
-    it('should add multiple tests to suite with same suite id', () => {
+    test('should add multiple tests to suite with same suite id', () => {
         const prefixPath = path.resolve('/some/prefix/path');
         const expectedSuitLabel = 'TestCase1';
         const expectedSuitId = 'some_test_module.' + expectedSuitLabel;
@@ -51,7 +51,7 @@ describe('Unittest suite parser', () => {
             label,
         }));
 
-        const suites = parseTestSuits(expectedTests.map(t => t.id).join('\n'), prefixPath);
+        const suites = parseTestSuites(expectedTests.map(t => t.id).join('\n'), prefixPath);
         expect(suites).to.have.length(1);
         expect(suites[0].type).to.be.eq('suite');
 
@@ -70,7 +70,7 @@ describe('Unittest suite parser', () => {
         });
     });
 
-    it('should add multiple tests to suite without module part', () => {
+    test('should add multiple tests to suite without module part', () => {
         const prefixPath = '/some/prefix/path';
         const expectedSuitLabel = 'TestCase1';
         const expectedSuitId = expectedSuitLabel;
@@ -79,7 +79,7 @@ describe('Unittest suite parser', () => {
             label,
         }));
 
-        const suites = parseTestSuits(expectedTests.map(t => t.id).join('\n'), prefixPath);
+        const suites = parseTestSuites(expectedTests.map(t => t.id).join('\n'), prefixPath);
         expect(suites).to.have.length(1);
         expect(suites[0].type).to.be.eq('suite');
 
@@ -99,13 +99,13 @@ describe('Unittest suite parser', () => {
     });
 });
 
-describe('Unittest test states parser', () => {
-    it('should return no events when output is empty', () => {
+suite('Unittest test states parser', () => {
+    test('should return no events when output is empty', () => {
         const states = parseTestStates('');
         expect(states).to.be.empty;
     });
 
-    it('should return events for different states', () => {
+    test('should return events for different states', () => {
         const testOutput = [
             'failed:some_module.TestCase1.test_function1:c29tZSBtdWx0aWxpbmUKZXJyb3IgbWVzc2FnZQ==',
             'passed:some_module.TestCase1.test_function2',
@@ -145,7 +145,7 @@ error message`,
         );
     });
 
-    it('should not fail when output is not formatted', () => {
+    test('should not fail when output is not formatted', () => {
         const testOutput = [
             'Error! Some severe error occurred and output is not readable!'
         ];

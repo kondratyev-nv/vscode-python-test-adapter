@@ -2,7 +2,7 @@ import { Base64 } from 'js-base64';
 import * as path from 'path';
 import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 
-export function parseTestSuits(output: string, cwd: string): TestSuiteInfo[] {
+export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
     const allTests = getTestOutputBySplittingString(output, '==DISCOVERED TESTS==')
         .split(/\r?\n/g)
         .map(line => line.trim())

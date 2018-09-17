@@ -1,5 +1,4 @@
 import * as path from 'path';
-import * as vscode from 'vscode';
 import {
   TestEvent,
   TestInfo,
@@ -8,17 +7,15 @@ import {
 
 import { run } from './pythonRunner';
 import { unittestHelperScript } from './unittestScripts';
-import { parseTestStates, parseTestSuits } from './unittestSuitParser';
-import { WorkspaceConfiguration } from './workspaceConfiguration';
+import { parseTestStates, parseTestSuites } from './unittestSuitParser';
+import { IWorkspaceConfiguration } from './workspaceConfiguration';
 
 export class UnittestTestAdapter {
   constructor(
-    public readonly adapterId: string,
-    private readonly workspaceFolder: vscode.WorkspaceFolder
+    public readonly adapterId: string
   ) { }
 
-  public async load(): Promise<TestSuiteInfo | undefined> {
-    const config = new WorkspaceConfiguration(this.getDefaultPythonConfiguration());
+  public async load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined> {
     if (!config.isUnitTestEnabled()) {
       return undefined;
     }
@@ -27,9 +24,9 @@ export class UnittestTestAdapter {
       pythonPath: config.pythonPath(),
       script: unittestHelperScript(unittestArguments),
       args: ['discover'],
-      cwd: this.getCwd(config),
+      cwd: config.getCwd(),
     });
-    const suites = parseTestSuits(output, path.resolve(this.getCwd(config), unittestArguments.startDirectory));
+    const suites = parseTestSuites(output, path.resolve(config.getCwd(), unittestArguments.startDirectory));
     return {
       type: 'suite',
       id: this.adapterId,
@@ -38,27 +35,13 @@ export class UnittestTestAdapter {
     };
   }
 
-  public async run(info: TestSuiteInfo | TestInfo): Promise<TestEvent[]> {
-    const config = new WorkspaceConfiguration(this.getDefaultPythonConfiguration());
+  public async run(config: IWorkspaceConfiguration, info: TestSuiteInfo | TestInfo): Promise<TestEvent[]> {
     const output = await run({
       pythonPath: config.pythonPath(),
       script: unittestHelperScript(config.parseUnitTestArguments()),
-      cwd: this.getCwd(config),
+      cwd: config.getCwd(),
       args: info.id !== this.adapterId ? ['run', info.id] : ['run'],
     });
     return parseTestStates(output);
-  }
-
-  private getDefaultPythonConfiguration(): vscode.WorkspaceConfiguration {
-    return vscode.workspace.getConfiguration(
-      'python',
-      this.workspaceFolder.uri
-    );
-  }
-
-  private getCwd(configuration: WorkspaceConfiguration) {
-    return configuration.getCwd() ?
-      path.resolve(this.workspaceFolder.uri.fsPath, configuration.getCwd()!) :
-      this.workspaceFolder.uri.fsPath;
   }
 }

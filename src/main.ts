@@ -17,7 +17,7 @@ export async function activate() {
             for (const workspaceFolder of vscode.workspace.workspaceFolders) {
                 const adapter = new PythonTestAdapter(
                     workspaceFolder,
-                    new UnittestTestAdapter(nextId(), workspaceFolder)
+                    new UnittestTestAdapter(nextId())
                 );
                 registeredAdapters.set(workspaceFolder, adapter);
                 testExplorerExtension.exports.registerAdapter(adapter);
@@ -36,7 +36,7 @@ export async function activate() {
             for (const workspaceFolder of event.added) {
                 const adapter = new PythonTestAdapter(
                     workspaceFolder,
-                    new UnittestTestAdapter(nextId(), workspaceFolder)
+                    new UnittestTestAdapter(nextId())
                 );
                 registeredAdapters.set(workspaceFolder, adapter);
                 testExplorerExtension.exports.registerAdapter(adapter);

@@ -55,6 +55,10 @@ def run_tests(test_names):
             print("failed:", r[0].id(), ":", base64.b64encode(
                 r[1].encode('utf8')).decode('ascii'))
 
+        for r in result.errors:
+            print("failed:", r[0].id(), ":", base64.b64encode(
+                r[1].encode('utf8')).decode('ascii'))
+
         for r in result.successes:
             print("passed:", r.id())
 

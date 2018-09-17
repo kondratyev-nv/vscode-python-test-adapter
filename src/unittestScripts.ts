@@ -7,6 +7,9 @@ import sys
 import base64
 
 
+loader = TestLoader()
+
+
 class TextTestResultWithSuccesses(TextTestResult):
     def __init__(self, *args, **kwargs):
         super(TextTestResultWithSuccesses, self).__init__(*args, **kwargs)
@@ -27,19 +30,18 @@ def get_tests(suite):
         return [suite]
 
 
-def discover_with_loader():
-    loader = TestLoader()
+def discover_suites():
     return loader.discover("${configuration.startDirectory}", pattern="${configuration.pattern}")
 
 
 def discover_tests():
-    return get_tests(discover_with_loader())
+    return get_tests(discover_suites())
 
 
 def run_tests(test_names):
     runner = TextTestRunner(resultclass=TextTestResultWithSuccesses)
     if not test_names:
-        results = [runner.run(discover_with_loader())]
+        results = [runner.run(discover_suites())]
     else:
         results = [runner.run(loader.loadTestsFromName(name)) for name in test_names]
     print("==TEST RESULTS==")

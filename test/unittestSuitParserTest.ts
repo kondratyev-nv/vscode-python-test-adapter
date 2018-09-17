@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
+import * as path from 'path';
 import { TestSuiteInfo } from 'vscode-test-adapter-api';
 
 import { parseTestStates, parseTestSuits } from '../src/unittestSuitParser';
@@ -16,7 +17,7 @@ describe('Unittest suite parser', () => {
     });
 
     it('should create single test and suite for a single test', () => {
-        const prefixPath = '/some/prefix/path';
+        const prefixPath = path.resolve('/some/prefix/path');
         const expectedSuitLabel = 'TestCase1';
         const expectedSuitId = 'some_test_module.' + expectedSuitLabel;
         const expectedTestLabel = 'test_function';
@@ -32,7 +33,7 @@ describe('Unittest suite parser', () => {
             type: 'suite',
             id: expectedSuitId,
             label: expectedSuitLabel,
-            file: prefixPath + '/some_test_module.py',
+            file: path.join(prefixPath, 'some_test_module.py'),
             children: [{
                 type: 'test',
                 id: expectedTestId,
@@ -42,7 +43,7 @@ describe('Unittest suite parser', () => {
     });
 
     it('should add multiple tests to suite with same suite id', () => {
-        const prefixPath = '/some/prefix/path';
+        const prefixPath = path.resolve('/some/prefix/path');
         const expectedSuitLabel = 'TestCase1';
         const expectedSuitId = 'some_test_module.' + expectedSuitLabel;
         const expectedTests = ['test_function1', 'test_function1'].map(label => ({
@@ -60,7 +61,7 @@ describe('Unittest suite parser', () => {
             type: 'suite',
             id: expectedSuitId,
             label: expectedSuitLabel,
-            file: prefixPath + '/some_test_module.py',
+            file: path.join(prefixPath, 'some_test_module.py'),
             children: expectedTests.map(test => ({
                 type: 'test',
                 id: test.id,

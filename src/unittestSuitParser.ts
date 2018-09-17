@@ -5,9 +5,8 @@ import { TestEvent, TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 export const ALL_TESTS_SUIT_ID = 'ALL_DISCOVERED_TESTS';
 
 export function parseTestSuits(output: string, cwd: string): TestSuiteInfo[] {
-    let split = output.split("==DISCOVERED TESTS==")
-    let testOutput = split && split.pop() || ""
-    const allTests = testOutput.split(/\r?\n/g)
+    const allTests = getTestOutputBySplittingString(output, '==DISCOVERED TESTS==')
+        .split(/\r?\n/g)
         .map(line => line.trim())
         .filter(line => line)
         .map(line => splitTestId(line))
@@ -28,9 +27,7 @@ export function parseTestSuits(output: string, cwd: string): TestSuiteInfo[] {
 }
 
 export function parseTestStates(output: string): TestEvent[] {
-    let split = output.split("==TEST RESULTS==")
-    let testOutput = split && split.pop() || ""
-    return testOutput
+    return getTestOutputBySplittingString(output, '==TEST RESULTS==')
         .split(/\r?\n/g)
         .map(line => line.trim())
         .filter(line => line)
@@ -50,6 +47,11 @@ function tryParseTestState(line: string) {
         state: result.trim(),
         message: base64Message ? Base64.decode(base64Message.trim()) : undefined,
     };
+}
+
+function getTestOutputBySplittingString(output: string, stringToSplitWith: string): string {
+    const split = output.split(stringToSplitWith);
+    return split && split.pop() || '';
 }
 
 function groupBy<T, U>(values: T[], key: (v: T) => U) {

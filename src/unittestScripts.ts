@@ -7,6 +7,9 @@ import sys
 import base64
 
 
+loader = TestLoader()
+
+
 class TextTestResultWithSuccesses(TextTestResult):
     def __init__(self, *args, **kwargs):
         super(TextTestResultWithSuccesses, self).__init__(*args, **kwargs)
@@ -27,23 +30,21 @@ def get_tests(suite):
         return [suite]
 
 
+def discover_suites():
+    return loader.discover("${configuration.startDirectory}", pattern="${configuration.pattern}")
+
+
 def discover_tests():
-    loader = TestLoader()
-    suites = loader.discover("${configuration.startDirectory}", pattern="${configuration.pattern}")
-    return get_tests(suites)
-
-
-def load_tests(test_names):
-    all_tests = discover_tests()
-    if not test_names:
-        return all_tests
-    return filter(lambda test: any(test.id().startswith(name) for name in test_names), all_tests)
+    return get_tests(discover_suites())
 
 
 def run_tests(test_names):
-    tests = load_tests(test_names)
     runner = TextTestRunner(resultclass=TextTestResultWithSuccesses)
-    results = [runner.run(test) for test in tests]
+    if not test_names:
+        results = [runner.run(discover_suites())]
+    else:
+        results = [runner.run(loader.loadTestsFromName(name)) for name in test_names]
+    print("==TEST RESULTS==")
 
     for result in results:
         for r in result.skipped:
@@ -60,7 +61,9 @@ def run_tests(test_names):
 
 action = sys.argv[1]
 if action == "discover":
-    for test in discover_tests():
+    tests = discover_tests()
+    print("==DISCOVERED TESTS==")
+    for test in tests:
         print(test.id())
 elif action == "run":
     run_tests(sys.argv[2:])

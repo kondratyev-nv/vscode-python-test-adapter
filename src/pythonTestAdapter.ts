@@ -8,6 +8,7 @@ import {
 } from 'vscode-test-adapter-api';
 
 import { UnittestTestAdapter } from './unittestTestAdapter';
+import { VscodeWorkspaceConfiguration } from './vscodeWorkspaceConfiguration';
 
 export class PythonTestAdapter implements TestAdapter {
   private readonly testStatesEmitter = new vscode.EventEmitter<TestSuiteEvent | TestEvent>();
@@ -32,11 +33,13 @@ export class PythonTestAdapter implements TestAdapter {
   }
 
   public async load(): Promise<TestSuiteInfo | undefined> {
-    return await this.testAdapter.load();
+    const config = new VscodeWorkspaceConfiguration(this.workspaceFolder);
+    return await this.testAdapter.load(config);
   }
 
   public async run(info: TestSuiteInfo | TestInfo): Promise<void> {
-    return this.testAdapter.run(info)
+    const config = new VscodeWorkspaceConfiguration(this.workspaceFolder);
+    return this.testAdapter.run(config, info)
       .then(states => states.forEach(state => this.testStatesEmitter.fire(state)))
       .catch(reason => this.setTestStatesRecursive(info, 'failed', reason));
   }

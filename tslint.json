@@ -1,5 +1,7 @@
 {
-    "extends": "tslint:recommended",
+    "extends": [
+        "tslint:recommended"
+    ],
     "rules": {
         "max-line-length": {
             "options": [
@@ -33,9 +35,7 @@
             "ban-single-arg-parens"
         ],
         "object-literal-sort-keys": [
-            true,
-            "match-declaration-order",
-            "shorthand-first"
+            false
         ],
         "whitespace": [
             true,
@@ -68,6 +68,9 @@
             "options": [
                 120
             ]
-        }
+        },
+        "object-literal-sort-keys": [
+            false
+        ]
     }
 }

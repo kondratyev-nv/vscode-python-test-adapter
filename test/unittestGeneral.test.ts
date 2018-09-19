@@ -139,6 +139,7 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
             });
         });
 
+        // TODO: Fix issue #10 and remove skip
         test.skip('should run suite with start folder in config', async () => {
             const mainSuite = await adapter.load(config);
             expect(mainSuite).to.be.not.undefined;
@@ -152,6 +153,7 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
             });
         });
 
+        // TODO: Fix issue #10 and remove skip
         test.skip('should run test from suite with start folder in config', async () => {
             const mainSuite = await adapter.load(config);
             expect(mainSuite).to.be.not.undefined;

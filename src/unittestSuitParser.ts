@@ -57,10 +57,15 @@ function getTestOutputBySplittingString(output: string, stringToSplitWith: strin
 }
 
 function toState(value: string): 'running' | 'passed' | 'failed' | 'skipped' | undefined {
-    if (value === 'running' || value === 'passed' || value === 'failed' || value === 'skipped') {
-        return value;
+    switch (value) {
+        case 'running':
+        case 'passed':
+        case 'failed':
+        case 'skipped':
+            return value;
+        default:
+            return undefined;
     }
-    return undefined;
 }
 
 function groupBy<T, U>(values: T[], key: (v: T) => U) {

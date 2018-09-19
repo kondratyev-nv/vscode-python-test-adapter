@@ -11,7 +11,7 @@ suite('Unittest suite parser', () => {
         expect(suites).to.be.empty;
     });
 
-    test('should return empty suit when input can not be parsed', () => {
+    test('should return empty suite when input can not be parsed', () => {
         const suites = parseTestSuites('some string without dots', '/some/prefix/path');
         expect(suites).to.be.empty;
     });

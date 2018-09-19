@@ -75,10 +75,11 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
         });
 
         [
-            'test_set_up_called_before_test_method_passed',
             'test_two_plus_one_is_three_passed',
             'test_two_plus_two_is_five_failed',
-            'test_two_plus_zero_is_two_skipped'
+            'test_two_plus_zero_is_two_skipped',
+            'test_set_up_called_before_test_case1_passed',
+            'test_set_up_called_before_test_case2_passed'
         ].forEach(testMethod => {
             test(`should run ${testMethod} test`, async () => {
                 const mainSuite = await adapter.load(config);
@@ -139,8 +140,7 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
             });
         });
 
-        // TODO: Fix issue #10 and remove skip
-        test.skip('should run suite with start folder in config', async () => {
+        test('should run suite with start folder in config', async () => {
             const mainSuite = await adapter.load(config);
             expect(mainSuite).to.be.not.undefined;
             const suite = findTestSuiteByLabel(mainSuite!, 'AddTestsWithoutInit');
@@ -153,8 +153,7 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
             });
         });
 
-        // TODO: Fix issue #10 and remove skip
-        test.skip('should run test from suite with start folder in config', async () => {
+        test('should run test from suite with start folder in config', async () => {
             const mainSuite = await adapter.load(config);
             expect(mainSuite).to.be.not.undefined;
             const suite = findTestSuiteByLabel(mainSuite!, 'test_two_plus_one_is_three_passed');

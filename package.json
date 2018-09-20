@@ -33,7 +33,7 @@
     "lint": "tslint --project tsconfig.json",
     "pretest": "npm run build",
     "test": "cross-env CODE_TESTS_WORKSPACE=./test/test_samples/samples-workspace.code-workspace node ./node_modules/vscode/bin/test --silent",
-    "vscode:prepublish": "tsc",
+    "vscode:prepublish": "npm run build",
     "package": "vsce package",
     "publish": "vsce publish"
   },
@@ -61,7 +61,7 @@
     "tslint": "^5.11.0",
     "typemoq": "^2.1.0",
     "typescript": "^3.0.3",
-    "vsce": "^1.47.0",
+    "vsce": "^1.49.2",
     "vscode": "^1.1.21"
   },
   "engines": {

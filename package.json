@@ -71,5 +71,23 @@
     "onView:test-explorer"
   ],
   "main": "out/src/main.js",
-  "contributes": {}
+  "contributes": {
+    "configuration": {
+      "properties": {
+        "pythonTestExplorer.testFramework": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "unittest",
+            null
+          ],
+          "default": null,
+          "description": "Test framework to use for Python Test Explorer (default is null and Python extension settings are used)",
+          "scope": "resource"
+        }
+      }
+    }
+  }
 }

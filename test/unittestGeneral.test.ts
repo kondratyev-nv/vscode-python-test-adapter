@@ -11,7 +11,7 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
     'python3'
 ].forEach(python => {
     suite(`Unittest test discovery with ${python}`, () => {
-        const config: IWorkspaceConfiguration = createUnittestConfiguration(python, 'unittest_general');
+        const config: IWorkspaceConfiguration = createUnittestConfiguration(python, 'unittest');
         const adapter = new UnittestTestAdapter('some-id');
 
         test('should return empty root suite for empty output', () => {
@@ -40,7 +40,7 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
     });
 
     suite(`Run unittest tests with ${python}`, () => {
-        const config: IWorkspaceConfiguration = createUnittestConfiguration(python, 'unittest_general');
+        const config: IWorkspaceConfiguration = createUnittestConfiguration(python, 'unittest');
         const adapter = new UnittestTestAdapter('some-id');
 
         test('should run all tests', async () => {
@@ -109,7 +109,7 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
             },
             getCwd(): string {
                 const folders = vscode.workspace.workspaceFolders!
-                    .filter(f => f.name === 'unittest_general');
+                    .filter(f => f.name === 'unittest');
                 return folders[0].uri.fsPath;
             },
             isUnitTestEnabled(): boolean {

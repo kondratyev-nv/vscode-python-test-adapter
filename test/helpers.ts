@@ -23,6 +23,10 @@ export function findTestSuiteByLabel(
     return undefined;
 }
 
+export function findWorkspaceFolder(folder: string): vscode.WorkspaceFolder | undefined {
+    return vscode.workspace.workspaceFolders!.find(f => f.name === folder);
+}
+
 export function createUnittestConfiguration(python: string, folder: string): IWorkspaceConfiguration {
     return {
         pythonPath(): string {
@@ -35,9 +39,7 @@ export function createUnittestConfiguration(python: string, folder: string): IWo
             };
         },
         getCwd(): string {
-            const folders = vscode.workspace.workspaceFolders!
-                .filter(f => f.name === folder);
-            return folders[0].uri.fsPath;
+            return findWorkspaceFolder(folder)!.uri.fsPath;
         },
         isUnitTestEnabled(): boolean {
             return true;

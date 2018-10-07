@@ -1,38 +1,42 @@
 import { ArgumentParser } from 'argparse';
 import * as path from 'path';
-import * as vscode from 'vscode';
+import { workspace, WorkspaceConfiguration, WorkspaceFolder } from 'vscode';
 
 import { IUnitTestArguments, IWorkspaceConfiguration } from './workspaceConfiguration';
 
 export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private readonly argumentParser: ArgumentParser;
-    private readonly configuration: vscode.WorkspaceConfiguration;
+    private readonly pythonConfiguration: WorkspaceConfiguration;
+    private readonly testExplorerConfiguration: WorkspaceConfiguration;
 
-    constructor(public readonly workspaceFolder: vscode.WorkspaceFolder) {
+    constructor(public readonly workspaceFolder: WorkspaceFolder) {
         this.argumentParser = this.configureArgumentParser();
-        this.configuration = this.getPythonConfiguration(workspaceFolder);
+        this.pythonConfiguration = this.getPythonConfiguration(workspaceFolder);
+        this.testExplorerConfiguration = this.getTestExplorerConfiguration(workspaceFolder);
     }
 
     public pythonPath() {
-        return this.configuration.get<string>('pythonPath', 'python');
+        return this.pythonConfiguration.get<string>('pythonPath', 'python');
     }
 
     public parseUnitTestArguments(): IUnitTestArguments {
         const [known] = this.argumentParser.parseKnownArgs(
-            this.configuration.get<string[]>('unitTest.unittestArgs', [])
+            this.pythonConfiguration.get<string[]>('unitTest.unittestArgs', [])
         );
         return known;
     }
 
     public getCwd(): string {
-        const unitTestCwd = this.configuration.get<string>('unitTest.cwd');
+        const unitTestCwd = this.pythonConfiguration.get<string>('unitTest.cwd');
         return unitTestCwd ?
             path.resolve(this.workspaceFolder.uri.fsPath, unitTestCwd) :
             this.workspaceFolder.uri.fsPath;
     }
 
     public isUnitTestEnabled(): boolean {
-        return this.configuration.get<boolean>('unitTest.unittestEnabled', false);
+        const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
+        return 'unittest' === overriddenTestFramework ||
+            this.pythonConfiguration.get<boolean>('unitTest.unittestEnabled', false);
     }
 
     private configureArgumentParser() {
@@ -48,10 +52,15 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
         return argumentParser;
     }
 
-    private getPythonConfiguration(workspaceFolder: vscode.WorkspaceFolder): vscode.WorkspaceConfiguration {
-        return vscode.workspace.getConfiguration(
-            'python',
-            workspaceFolder.uri
-        );
+    private getConfigurationByName(name: string, workspaceFolder: WorkspaceFolder): WorkspaceConfiguration {
+        return workspace.getConfiguration(name, workspaceFolder.uri);
+    }
+
+    private getPythonConfiguration(workspaceFolder: WorkspaceFolder): WorkspaceConfiguration {
+        return this.getConfigurationByName('python', workspaceFolder);
+    }
+
+    private getTestExplorerConfiguration(workspaceFolder: WorkspaceFolder): WorkspaceConfiguration {
+        return this.getConfigurationByName('pythonTestExplorer', workspaceFolder);
     }
 }

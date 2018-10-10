@@ -1,14 +1,24 @@
-export interface IUnitTestArguments {
+export interface IUnittestArguments {
     startDirectory: string;
     pattern: string;
+}
+
+export interface IUnittestConfiguration {
+    unittestArguments: IUnittestArguments;
+    isUnittestEnabled: boolean;
+}
+
+export interface IPytestConfiguration {
+    pytestArguments: string[];
+    isPytestEnabled: boolean;
 }
 
 export interface IWorkspaceConfiguration {
     pythonPath(): string;
 
-    parseUnitTestArguments(): IUnitTestArguments;
-
     getCwd(): string;
 
-    isUnitTestEnabled(): boolean;
+    getUnittestConfiguration(): IUnittestConfiguration;
+
+    getPytestConfiguration(): IPytestConfiguration;
 }

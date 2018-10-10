@@ -14,7 +14,7 @@ suite('VSCode workspace configuration', () => {
 
     test('should return default values on empty configuration', () => {
         const configuration = createWorkspaceConfiguration('empty_configuration');
-        expect(configuration.isUnitTestEnabled()).to.be.eq(
+        expect(configuration.getUnittestConfiguration().isUnittestEnabled).to.be.eq(
             defaults.get<boolean>('python.unitTest.unittestEnabled', false)
         );
         expect(configuration.pythonPath()).to.be.eq(
@@ -25,15 +25,29 @@ suite('VSCode workspace configuration', () => {
         );
     });
 
-    test.skip('should return values from python extension configuration', () => {
-        const configuration = createWorkspaceConfiguration('python_extension_configured');
-        expect(configuration.isUnitTestEnabled()).to.be.true;
+    test.skip('should return values from python extension configuration (unittest)', () => {
+        const configuration = createWorkspaceConfiguration('python_extension_configured_unittest');
+        expect(configuration.getUnittestConfiguration().isUnittestEnabled).to.be.true;
         expect(configuration.pythonPath()).to.be.eq('/some/path/to/python');
         expect(configuration.getCwd()).to.be.eq('/some/unittest/cwd');
     });
 
-    test('should return values overridden by python test explorer', () => {
-        const configuration = createWorkspaceConfiguration('test_framework_overridden');
-        expect(configuration.isUnitTestEnabled()).to.be.true;
+    test.skip('should return values from python extension configuration (pytest)', () => {
+        const configuration = createWorkspaceConfiguration('python_extension_configured_pytest');
+        expect(configuration.getPytestConfiguration().isPytestEnabled).to.be.true;
+        expect(configuration.pythonPath()).to.be.eq('/some/path/to/python');
+        expect(configuration.getCwd()).to.be.eq('/some/unittest/cwd');
+    });
+
+    test('should return values overridden by python test explorer (unittest)', () => {
+        const configuration = createWorkspaceConfiguration('test_framework_overridden_unittest');
+        expect(configuration.getUnittestConfiguration().isUnittestEnabled).to.be.true;
+        expect(configuration.getPytestConfiguration().isPytestEnabled).to.be.false;
+    });
+
+    test('should return values overridden by python test explorer (pytest)', () => {
+        const configuration = createWorkspaceConfiguration('test_framework_overridden_pytest');
+        expect(configuration.getUnittestConfiguration().isUnittestEnabled).to.be.false;
+        expect(configuration.getPytestConfiguration().isPytestEnabled).to.be.true;
     });
 });

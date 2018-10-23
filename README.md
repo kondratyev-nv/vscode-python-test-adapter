@@ -14,7 +14,7 @@ tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?ite
 ## Getting started
 * Install the extension
 * Configure Python extension for Visual Studio Code to discover your tests 
-  (see [Configuration section](#configuration) and documentation of test framework of your choice (
+  (see [Configuration section](#configuration) and documentation of a test framework of your choice (
   [Unittest documentation](https://docs.python.org/3/library/unittest.html#module-unittest), 
   [Pytest](https://docs.pytest.org/en/latest/getting-started.html))
 * Reload VS Code and open the Test view

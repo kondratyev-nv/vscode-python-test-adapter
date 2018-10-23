@@ -5,9 +5,11 @@ import {
 } from 'vscode-test-adapter-api';
 
 import * as tmp from 'tmp';
+
 import { parseTestStates, parseTestSuites } from './pytestSuitParser';
 import { runScript } from './pythonRunner';
 import { ITestRunner } from './testRunner';
+import { empty } from './utilities';
 import { IWorkspaceConfiguration } from './workspaceConfiguration';
 
 export class PytestTestRunner implements ITestRunner {
@@ -33,6 +35,10 @@ pytest.main(sys.argv[1:])`;
             cwd: config.getCwd(),
         });
         const suites: TestSuiteInfo[] = parseTestSuites(output, config.getCwd());
+        if (empty(suites)) {
+            return undefined;
+        }
+
         return {
             type: 'suite',
             id: this.adapterId,

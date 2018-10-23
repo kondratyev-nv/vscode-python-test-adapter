@@ -21,9 +21,19 @@ function extractExpectedState(name: string) {
         const config: IWorkspaceConfiguration = createPytestConfiguration(python, 'pytest');
         const adapter = new PytestTestRunner('some-id');
 
-        test('should return empty root suite for empty output', () => {
+        test('should set runner id on initialization', () => {
             expect(adapter).to.be.not.null;
             expect(adapter.adapterId).to.be.equal('some-id');
+        });
+
+        test('should not return root suite when there is no tests', async () => {
+            const configForEmptySuiteCollection: IWorkspaceConfiguration = createPytestConfiguration(
+                python, 'python_extension_configured_pytest'
+            );
+            const runner = new PytestTestRunner('some-other-id');
+            expect(adapter).to.be.not.null;
+            const suites = await runner.load(configForEmptySuiteCollection);
+            expect(suites).to.be.undefined;
         });
 
         test('should discover any tests', async () => {

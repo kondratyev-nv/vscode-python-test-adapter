@@ -21,9 +21,9 @@
   "keywords": [
     "python",
     "unittest",
+    "pytest",
     "test",
-    "testing",
-    "unit test"
+    "testing"
   ],
   "scripts": {
     "postinstall": "node ./node_modules/vscode/bin/install",

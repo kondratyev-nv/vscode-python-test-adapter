@@ -9,6 +9,7 @@ import { runScript } from './pythonRunner';
 import { ITestRunner } from './testRunner';
 import { unittestHelperScript } from './unittestScripts';
 import { parseTestStates, parseTestSuites } from './unittestSuitParser';
+import { empty } from './utilities';
 import { IWorkspaceConfiguration } from './workspaceConfiguration';
 
 export class UnittestTestRunner implements ITestRunner {
@@ -28,6 +29,10 @@ export class UnittestTestRunner implements ITestRunner {
             cwd: config.getCwd(),
         });
         const suites = parseTestSuites(output, path.resolve(config.getCwd(), unittestArguments.startDirectory));
+        if (empty(suites)) {
+            return undefined;
+        }
+
         return {
             type: 'suite',
             id: this.adapterId,

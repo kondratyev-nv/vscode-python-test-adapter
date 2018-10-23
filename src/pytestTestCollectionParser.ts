@@ -1,6 +1,8 @@
 import * as path from 'path';
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
+import { empty } from './utilities';
+
 interface ITestToken {
     path: string;
     file: string;
@@ -13,10 +15,6 @@ export function parseTestSuites(content: string, cwd: string): TestSuiteInfo[] {
     const token = parsePytestCollectionTokens(content, cwd);
     return linearizeToTestSuites(token)
         .filter(t => !empty(t.children));
-}
-
-function empty<T>(x: T[]) {
-    return !x || !x.length;
 }
 
 function linearizeToTestSuites(token: ITestToken): TestSuiteInfo[] {

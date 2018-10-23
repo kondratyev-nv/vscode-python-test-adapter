@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "clean": "rimraf out *.vsix **/*.pyc **/__pycache__",
+    "clean": "rimraf out *.vsix **/*.pyc **/__pycache__ **/.pytest_cache",
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json",
@@ -45,8 +45,10 @@
     "argparse": "^1.0.10",
     "iconv-lite": "^0.4.24",
     "js-base64": "^2.4.9",
+    "tmp": "0.0.33",
     "tslib": "^1.9.3",
-    "vscode-test-adapter-api": "^0.4.0"
+    "vscode-test-adapter-api": "^0.4.0",
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "@types/argparse": "^1.0.34",
@@ -54,6 +56,8 @@
     "@types/js-base64": "^2.3.1",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.9.4",
+    "@types/tmp": "0.0.33",
+    "@types/xml2js": "^0.4.3",
     "chai": "^4.1.2",
     "cross-env": "^5.2.0",
     "mocha": "^5.2.0",
@@ -81,6 +85,7 @@
           ],
           "enum": [
             "unittest",
+            "pytest",
             null
           ],
           "default": null,

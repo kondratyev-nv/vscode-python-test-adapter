@@ -11,7 +11,8 @@
       ],
       "outFiles": [
         "${workspaceFolder}/out"
-      ]
+      ],
+      "preLaunchTask": "npm: build"
     },
     {
       "type": "node",

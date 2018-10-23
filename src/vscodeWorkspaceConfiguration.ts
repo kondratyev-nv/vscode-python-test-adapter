@@ -2,7 +2,12 @@ import { ArgumentParser } from 'argparse';
 import * as path from 'path';
 import { workspace, WorkspaceConfiguration, WorkspaceFolder } from 'vscode';
 
-import { IUnitTestArguments, IWorkspaceConfiguration } from './workspaceConfiguration';
+import {
+    IPytestConfiguration,
+    IUnittestArguments,
+    IUnittestConfiguration,
+    IWorkspaceConfiguration
+} from './workspaceConfiguration';
 
 export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private readonly argumentParser: ArgumentParser;
@@ -10,20 +15,13 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private readonly testExplorerConfiguration: WorkspaceConfiguration;
 
     constructor(public readonly workspaceFolder: WorkspaceFolder) {
-        this.argumentParser = this.configureArgumentParser();
+        this.argumentParser = this.configureUnittestArgumentParser();
         this.pythonConfiguration = this.getPythonConfiguration(workspaceFolder);
         this.testExplorerConfiguration = this.getTestExplorerConfiguration(workspaceFolder);
     }
 
     public pythonPath() {
         return this.pythonConfiguration.get<string>('pythonPath', 'python');
-    }
-
-    public parseUnitTestArguments(): IUnitTestArguments {
-        const [known] = this.argumentParser.parseKnownArgs(
-            this.pythonConfiguration.get<string[]>('unitTest.unittestArgs', [])
-        );
-        return known;
     }
 
     public getCwd(): string {
@@ -33,13 +31,40 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
             this.workspaceFolder.uri.fsPath;
     }
 
-    public isUnitTestEnabled(): boolean {
+    public getUnittestConfiguration(): IUnittestConfiguration {
+        return {
+            isUnittestEnabled: this.isUnitTestEnabled(),
+            unittestArguments: this.getUnitTestArguments(),
+        };
+    }
+
+    public getPytestConfiguration(): IPytestConfiguration {
+        return {
+            isPytestEnabled: this.isPytestTestEnabled(),
+            pytestArguments: [],
+        };
+    }
+
+    private isUnitTestEnabled(): boolean {
         const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
         return 'unittest' === overriddenTestFramework ||
             this.pythonConfiguration.get<boolean>('unitTest.unittestEnabled', false);
     }
 
-    private configureArgumentParser() {
+    private getUnitTestArguments(): IUnittestArguments {
+        const [known] = this.argumentParser.parseKnownArgs(
+            this.pythonConfiguration.get<string[]>('unitTest.unittestArgs', [])
+        );
+        return known;
+    }
+
+    private isPytestTestEnabled(): boolean {
+        const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
+        return 'pytest' === overriddenTestFramework ||
+            this.pythonConfiguration.get<boolean>('unitTest.pyTestEnabled', false);
+    }
+
+    private configureUnittestArgumentParser() {
         const argumentParser = new ArgumentParser();
         argumentParser.addArgument(['-p', '--pattern'], {
             dest: 'pattern',

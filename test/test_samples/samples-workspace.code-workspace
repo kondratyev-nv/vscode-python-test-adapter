@@ -1,20 +1,26 @@
 {
-	"folders": [
-		{
-			"path": "unittest"
-		},
-		{
-			"path": "pytest"
-		},
-		{
-			"path": "workspaces/empty_configuration"
-		},
-		{
-			"path": "workspaces/python_extension_configured"
-		},
-		{
-			"path": "workspaces/test_framework_overridden"
-		}
-	],
-	"settings": {}
+    "folders": [
+        {
+            "path": "unittest"
+        },
+        {
+            "path": "pytest"
+        },
+        {
+            "path": "workspaces/empty_configuration"
+        },
+        {
+            "path": "workspaces/python_extension_configured_unittest"
+        },
+        {
+            "path": "workspaces/python_extension_configured_pytest"
+        },
+        {
+            "path": "workspaces/test_framework_overridden_unittest"
+        },
+        {
+            "path": "workspaces/test_framework_overridden_pytest"
+        }
+    ],
+    "settings": {}
 }

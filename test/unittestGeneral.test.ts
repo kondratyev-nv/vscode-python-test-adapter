@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import * as vscode from 'vscode';
 
-import { UnittestTestAdapter } from '../src/unittestTestAdapter';
+import { UnittestTestRunner } from '../src/unittestTestRunner';
 import { IWorkspaceConfiguration } from '../src/workspaceConfiguration';
 import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
 
@@ -12,7 +12,7 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
 ].forEach(python => {
     suite(`Unittest test discovery with ${python}`, () => {
         const config: IWorkspaceConfiguration = createUnittestConfiguration(python, 'unittest');
-        const adapter = new UnittestTestAdapter('some-id');
+        const adapter = new UnittestTestRunner('some-id');
 
         test('should return empty root suite for empty output', () => {
             expect(adapter).to.be.not.null;
@@ -41,7 +41,7 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
 
     suite(`Run unittest tests with ${python}`, () => {
         const config: IWorkspaceConfiguration = createUnittestConfiguration(python, 'unittest');
-        const adapter = new UnittestTestAdapter('some-id');
+        const adapter = new UnittestTestRunner('some-id');
 
         test('should run all tests', async () => {
             const mainSuite = await adapter.load(config);
@@ -101,22 +101,25 @@ import { createUnittestConfiguration, findTestSuiteByLabel } from './helpers';
             pythonPath(): string {
                 return python;
             },
-            parseUnitTestArguments() {
-                return {
-                    startDirectory: './unittest_without_init',
-                    pattern: 'test_*.py',
-                };
-            },
             getCwd(): string {
                 const folders = vscode.workspace.workspaceFolders!
                     .filter(f => f.name === 'unittest');
                 return folders[0].uri.fsPath;
             },
-            isUnitTestEnabled(): boolean {
-                return true;
+            getUnittestConfiguration() {
+                return {
+                    isUnittestEnabled: true,
+                    unittestArguments: {
+                        startDirectory: './unittest_without_init',
+                        pattern: 'test_*.py',
+                    },
+                };
+            },
+            getPytestConfiguration() {
+                throw new Error('Pytest is not available');
             },
         };
-        const adapter = new UnittestTestAdapter('some-id');
+        const adapter = new UnittestTestRunner('some-id');
 
         test('should discover tests with start folder in config', async () => {
             const mainSuite = await adapter.load(config);

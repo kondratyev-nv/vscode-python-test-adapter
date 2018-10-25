@@ -21,7 +21,7 @@
       "processId": "${command:PickProcess}"
     },
     {
-      "name": "Extension Tests",
+      "name": "Extension tests",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",

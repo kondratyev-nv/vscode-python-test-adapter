@@ -38,3 +38,8 @@ Property                          | Description
 `python.unitTest.unittestArgs`    | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered)
 `python.unitTest.pyTestEnabled` | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer)
 `pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension property `python.unitTest.unittestEnabled`)
+
+## Questions, issues, feature requests, and contributions
+
+* If you have any question or a problem with the extension, please [file an issue](https://github.com/kondratyev-nv/vscode-python-test-adapter/issues)
+* Contributions are always welcome! Please see [contributing guide](CONTRIBUTING.md) for more details

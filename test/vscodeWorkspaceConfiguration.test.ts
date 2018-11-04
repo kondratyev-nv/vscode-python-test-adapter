@@ -50,4 +50,10 @@ suite('VSCode workspace configuration', () => {
         expect(configuration.getUnittestConfiguration().isUnittestEnabled).to.be.false;
         expect(configuration.getPytestConfiguration().isPytestEnabled).to.be.true;
     });
+
+    test('should return values overridden by python test explorer (pytest) and ignore default values', () => {
+        const configuration = createWorkspaceConfiguration('test_framework_overridden_and_default');
+        expect(configuration.getUnittestConfiguration().isUnittestEnabled).to.be.false;
+        expect(configuration.getPytestConfiguration().isPytestEnabled).to.be.true;
+    });
 });

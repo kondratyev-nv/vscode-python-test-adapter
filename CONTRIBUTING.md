@@ -33,11 +33,10 @@ npm run build
 
 ### Errors and Warnings
 
-TypeScript errors and warnings will be displayed in the `Problems` window of Visual Studio Code:
+TypeScript errors and warnings will be displayed in the `Problems` window of Visual Studio Code.
 
 ### Validate your changes
 
-To test the changes you launch a development version of VS Code on the workspace vscode, which you are currently editing.
-Use the `Run extension` launch option.
+To test the changes, launch a development version of VS Code using the `Run extension` launch option.
 
-To run tests run `Extension tests` launch option. It will execute integration tests for **both** Python 2 and Python 3, thus `python` and `python3` commands should be available to run and `pytest` module should be importable. Results of the tests are shown in Debug Console.
+To run tests, run `Extension tests` launch option. It will execute integration tests for **both** Python 2 and Python 3, thus `python` and `python3` commands should be available to run and `pytest` module should be importable. Results of the tests are shown in Debug Console.

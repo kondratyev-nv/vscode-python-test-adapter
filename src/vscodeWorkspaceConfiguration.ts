@@ -47,8 +47,10 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
 
     private isUnitTestEnabled(): boolean {
         const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
-        return 'unittest' === overriddenTestFramework ||
-            this.pythonConfiguration.get<boolean>('unitTest.unittestEnabled', false);
+        if (overriddenTestFramework) {
+            return 'unittest' === overriddenTestFramework;
+        }
+        return this.pythonConfiguration.get<boolean>('unitTest.unittestEnabled', false);
     }
 
     private getUnitTestArguments(): IUnittestArguments {
@@ -60,8 +62,10 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
 
     private isPytestTestEnabled(): boolean {
         const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
-        return 'pytest' === overriddenTestFramework ||
-            this.pythonConfiguration.get<boolean>('unitTest.pyTestEnabled', false);
+        if (overriddenTestFramework) {
+            return 'pytest' === overriddenTestFramework;
+        }
+        return this.pythonConfiguration.get<boolean>('unitTest.pyTestEnabled', false);
     }
 
     private configureUnittestArgumentParser() {

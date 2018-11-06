@@ -20,6 +20,9 @@
         },
         {
             "path": "workspaces/test_framework_overridden_pytest"
+        },
+        {
+            "path": "workspaces/test_framework_overridden_and_default"
         }
     ],
     "settings": {}

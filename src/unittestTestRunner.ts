@@ -36,7 +36,7 @@ export class UnittestTestRunner implements ITestRunner {
         return {
             type: 'suite',
             id: this.adapterId,
-            label: 'All tests',
+            label: 'Unittest tests',
             children: suites,
         };
     }

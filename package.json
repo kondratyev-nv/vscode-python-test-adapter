@@ -15,6 +15,13 @@
   "bugs": {
     "url": "https://github.com/kondratyev-nv/vscode-python-test-adapter/issues"
   },
+  "badges": [
+    {
+      "url": "https://travis-ci.com/kondratyev-nv/vscode-python-test-adapter.svg?branch=master",
+      "href": "https://travis-ci.com/kondratyev-nv/vscode-python-test-adapter",
+      "description": "Continuous integration (Travis)"
+    }
+  ],
   "categories": [
     "Other"
   ],

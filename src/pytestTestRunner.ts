@@ -42,7 +42,7 @@ pytest.main(sys.argv[1:])`;
         return {
             type: 'suite',
             id: this.adapterId,
-            label: 'All tests',
+            label: 'Pytest tests',
             children: suites,
         };
     }

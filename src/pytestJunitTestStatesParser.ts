@@ -1,10 +1,8 @@
 import * as fs from 'fs';
 import { EOL } from 'os';
 import * as path from 'path';
-import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
+import { TestEvent } from 'vscode-test-adapter-api';
 import * as xml2js from 'xml2js';
-
-import { parseTestSuites as parseCollectedTestSuites } from './pytestTestCollectionParser';
 
 
 interface ITestSuiteResult {
@@ -41,10 +39,6 @@ interface ITestCaseResult {
         _: string;
         $: { message: string; type: string };
     }>;
-}
-
-export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
-    return parseCollectedTestSuites(output, cwd);
 }
 
 export async function parseTestStates(

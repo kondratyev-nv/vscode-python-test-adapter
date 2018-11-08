@@ -6,7 +6,8 @@ import {
 
 import * as tmp from 'tmp';
 
-import { parseTestStates, parseTestSuites } from './pytestSuitParser';
+import { parseTestStates } from './pytestJunitTestStatesParser';
+import { parseTestSuites } from './pytestTestCollectionParser';
 import { runScript } from './pythonRunner';
 import { ITestRunner } from './testRunner';
 import { empty } from './utilities';

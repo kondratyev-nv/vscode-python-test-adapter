@@ -3,18 +3,18 @@ import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
 import { empty } from './utilities';
 
+export function parseTestSuites(content: string, cwd: string): TestSuiteInfo[] {
+    const token = parsePytestCollectionTokens(content, cwd);
+    return linearizeToTestSuites(token)
+        .filter(t => !empty(t.children));
+}
+
 interface ITestToken {
     path: string;
     file: string;
     type: 'module' | 'class' | 'method' | 'package';
     level: number;
     tokens: ITestToken[];
-}
-
-export function parseTestSuites(content: string, cwd: string): TestSuiteInfo[] {
-    const token = parsePytestCollectionTokens(content, cwd);
-    return linearizeToTestSuites(token)
-        .filter(t => !empty(t.children));
 }
 
 function linearizeToTestSuites(token: ITestToken): TestSuiteInfo[] {

@@ -39,7 +39,7 @@ function extractExpectedState(name: string) {
         test('should discover any tests', async () => {
             const mainSuite = await adapter.load(config);
             expect(mainSuite).to.be.not.undefined;
-            expect(mainSuite!.label).to.be.eq('All tests');
+            expect(mainSuite!.label).to.be.eq('Pytest tests');
             expect(mainSuite!.children).to.be.not.empty;
         });
 
@@ -65,7 +65,7 @@ function extractExpectedState(name: string) {
         test('should run all tests', async () => {
             const mainSuite = await adapter.load(config);
             expect(mainSuite).to.be.not.undefined;
-            expect(mainSuite!.label).to.be.eq('All tests');
+            expect(mainSuite!.label).to.be.eq('Pytest tests');
             const states = await adapter.run(config, mainSuite!);
             expect(states).to.be.not.empty;
             states.forEach(state => {

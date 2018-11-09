@@ -3,35 +3,17 @@ import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
 import { empty } from './utilities';
 
-export function parseTestSuites(content: string, cwd: string): TestSuiteInfo[] {
+export function parseTestSuites(content: string, cwd: string): Array<TestSuiteInfo | TestInfo> {
     const token = parsePytestCollectionTokens(content, cwd);
-    return linearizeToTestSuites(token)
-        .filter(t => !empty(t.children));
+    return getTests(token.tokens);
 }
 
 interface ITestToken {
     path: string;
     file: string;
-    type: 'module' | 'class' | 'method' | 'package';
+    type: 'package' | 'module' | 'class' | 'method';
     level: number;
     tokens: ITestToken[];
-}
-
-function linearizeToTestSuites(token: ITestToken): TestSuiteInfo[] {
-    if (empty(token.tokens)) {
-        return [];
-    }
-    if (token.type === 'module') {
-        const suite: TestSuiteInfo = {
-            type: 'suite',
-            id: token.path,
-            label: getLabel(token.path),
-            file: token.file,
-            children: getTests(token.tokens),
-        };
-        return [suite];
-    }
-    return token.tokens.map(t => linearizeToTestSuites(t)).reduce((r, x) => r.concat(x), []);
 }
 
 function getTests(tokens: ITestToken[]): Array<TestSuiteInfo | TestInfo> {
@@ -39,7 +21,7 @@ function getTests(tokens: ITestToken[]): Array<TestSuiteInfo | TestInfo> {
         return [];
     }
     return tokens.map(token => {
-        if (token.type === 'class') {
+        if (token.type === 'module' || token.type === 'class') {
             const suite: TestSuiteInfo = {
                 type: 'suite',
                 id: token.path,
@@ -61,12 +43,12 @@ function getTests(tokens: ITestToken[]): Array<TestSuiteInfo | TestInfo> {
     }).filter(x => x).map(x => x!).reduce((r, x) => r.concat(x), []);
 }
 
-function getLabel(casePath: string): string {
-    const indexOfSplit = casePath.lastIndexOf('::');
+function getLabel(tokenPath: string): string {
+    const indexOfSplit = tokenPath.lastIndexOf('::');
     if (indexOfSplit < 0) {
-        return path.basename(casePath);
+        return path.basename(tokenPath);
     }
-    return casePath.substring(indexOfSplit + 2);
+    return tokenPath.substring(indexOfSplit + 2);
 }
 
 function parseLine(line: string, level: number, parent: ITestToken): ITestToken | undefined {

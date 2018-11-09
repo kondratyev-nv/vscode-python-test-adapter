@@ -35,7 +35,7 @@ pytest.main(sys.argv[1:])`;
             args: ['--collect-only'],
             cwd: config.getCwd(),
         });
-        const suites: TestSuiteInfo[] = parseTestSuites(output, config.getCwd());
+        const suites = parseTestSuites(output, config.getCwd());
         if (empty(suites)) {
             return undefined;
         }

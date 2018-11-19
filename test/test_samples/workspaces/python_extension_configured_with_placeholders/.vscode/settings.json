@@ -1,0 +1,5 @@
+{
+    "python.unitTest.pyTestEnabled": true,
+    "python.pythonPath": "${workspaceFolder}/some/path/to/python",
+    "python.unitTest.cwd": "${env:SOME_PATH_USED_IN_CWD}/some/unittest/cwd"
+}

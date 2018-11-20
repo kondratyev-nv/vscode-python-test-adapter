@@ -23,6 +23,9 @@
         },
         {
             "path": "workspaces/test_framework_overridden_and_default"
+        },
+        {
+            "path": "workspaces/python_extension_configured_with_placeholders"
         }
     ],
     "settings": {}

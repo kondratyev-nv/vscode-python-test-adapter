@@ -1,5 +1,4 @@
 import { ArgumentParser } from 'argparse';
-import * as path from 'path';
 import { workspace, WorkspaceConfiguration, WorkspaceFolder } from 'vscode';
 
 import {
@@ -27,7 +26,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     public getCwd(): string {
         const unitTestCwd = this.pythonConfiguration.get<string>('unitTest.cwd');
         return unitTestCwd ?
-            path.resolve(this.workspaceFolder.uri.fsPath, unitTestCwd) :
+            unitTestCwd :
             this.workspaceFolder.uri.fsPath;
     }
 

@@ -14,24 +14,20 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
     }
 
     public pythonPath(): string {
-        const pythonPath = this.resolvePlaceholders(this.configuration.pythonPath());
-        return path.isAbsolute(pythonPath) ? path.resolve(pythonPath) : pythonPath;
+        return this.resolve(this.configuration.pythonPath());
     }
 
     public getCwd(): string {
-        const cwd = this.resolvePlaceholders(this.configuration.getCwd());
-        return path.isAbsolute(cwd) ? path.resolve(cwd) : cwd;
+        return this.resolve(this.configuration.getCwd());
     }
 
     public getUnittestConfiguration(): IUnittestConfiguration {
         const original = this.configuration.getUnittestConfiguration();
-        const startDirectory = this.resolvePlaceholders(original.unittestArguments.startDirectory);
-
         return {
             isUnittestEnabled: original.isUnittestEnabled,
             unittestArguments: {
-                pattern: this.resolvePlaceholders(original.unittestArguments.pattern),
-                startDirectory: path.isAbsolute(startDirectory) ? path.resolve(startDirectory) : startDirectory,
+                pattern: this.resolve(original.unittestArguments.pattern),
+                startDirectory: this.resolve(original.unittestArguments.startDirectory),
             },
         };
     }
@@ -40,7 +36,7 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         const original = this.configuration.getPytestConfiguration();
         return {
             isPytestEnabled: original.isPytestEnabled,
-            pytestArguments: original.pytestArguments.map(argument => this.resolvePlaceholders(argument)),
+            pytestArguments: original.pytestArguments.map(argument => this.resolve(argument)),
         };
     }
 
@@ -57,5 +53,19 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         return rawValue.replace(regexp, (match: string, name: string) => {
             return availableReplacements.get(name) || match;
         });
+    }
+
+    private resolvePath(value: string): string {
+        if (value.includes(path.sep)) {
+            const absolutePath = path.isAbsolute(value) ?
+                value :
+                path.resolve(this.workspaceFolder.uri.fsPath, value);
+            return path.normalize(absolutePath);
+        }
+        return value;
+    }
+
+    private resolve(rawValue: string): string {
+        return this.resolvePath(this.resolvePlaceholders(rawValue));
     }
 }

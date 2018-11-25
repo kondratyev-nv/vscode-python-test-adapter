@@ -75,12 +75,14 @@ collected 94 items
             children: [
               {
                 type: 'test',
-                id: `${path.resolve('/some/prefix/', 'pytest/test/generate_test.py')}::TestSampleWithScenarios::test1[basic]`,
+                id: path.resolve('/some/prefix/', 'pytest/test/generate_test.py')
+                  + '::TestSampleWithScenarios::test1[basic]',
                 label: 'test1[basic]',
               },
               {
                 type: 'test',
-                id: `${path.resolve('/some/prefix/', 'pytest/test/generate_test.py')}::TestSampleWithScenarios::test1[advanced]`,
+                id: path.resolve('/some/prefix/', 'pytest/test/generate_test.py') +
+                  '::TestSampleWithScenarios::test1[advanced]',
                 label: 'test1[advanced]',
               }
             ],
@@ -111,12 +113,14 @@ collected 94 items
             children: [
               {
                 type: 'test',
-                id: `${path.resolve('/some/prefix/', 'pytest/test/string_test.py')}::StringTestCaseOnSameLevelAsFunctions::test_capitalize`,
+                id: path.resolve('/some/prefix/', 'pytest/test/string_test.py') +
+                  '::StringTestCaseOnSameLevelAsFunctions::test_capitalize',
                 label: 'test_capitalize',
               },
               {
                 type: 'test',
-                id: `${path.resolve('/some/prefix/', 'pytest/test/string_test.py')}::StringTestCaseOnSameLevelAsFunctions::test_lower`,
+                id: path.resolve('/some/prefix/', 'pytest/test/string_test.py') +
+                  '::StringTestCaseOnSameLevelAsFunctions::test_lower',
                 label: 'test_lower',
               }
             ],
@@ -180,21 +184,30 @@ collected 94 items
           {
             children: [
               {
-                id: path.resolve('/some/prefix/', 'unittest/basic_tests/initialization_output_tests/test_with_initialization_output.py') +
+                id: path.resolve('/some/prefix/',
+                  'unittest/basic_tests/initialization_output_tests/test_with_initialization_output.py') +
                   '::TestWithOutputBeforeImport::test_stuff_passed',
                 label: 'test_stuff_passed',
                 type: 'test',
               }
             ],
-            id: path.resolve('/some/prefix/', 'unittest/basic_tests/initialization_output_tests/test_with_initialization_output.py') +
+            id: path.resolve(
+              '/some/prefix/',
+              'unittest/basic_tests/initialization_output_tests/test_with_initialization_output.py') +
               '::TestWithOutputBeforeImport',
-            file: path.resolve('/some/prefix/', 'unittest/basic_tests/initialization_output_tests/test_with_initialization_output.py'),
+            file: path.resolve(
+              '/some/prefix/',
+              'unittest/basic_tests/initialization_output_tests/test_with_initialization_output.py'),
             label: 'TestWithOutputBeforeImport',
             type: 'suite',
           }
         ],
-        id: path.resolve('/some/prefix/', 'unittest/basic_tests/initialization_output_tests/test_with_initialization_output.py'),
-        file: path.resolve('/some/prefix/', 'unittest/basic_tests/initialization_output_tests/test_with_initialization_output.py'),
+        id: path.resolve(
+          '/some/prefix/',
+          'unittest/basic_tests/initialization_output_tests/test_with_initialization_output.py'),
+        file: path.resolve(
+          '/some/prefix/',
+          'unittest/basic_tests/initialization_output_tests/test_with_initialization_output.py'),
         label: 'test_with_initialization_output.py',
         type: 'suite',
       },
@@ -249,7 +262,8 @@ collected 94 items
                 type: 'test',
               }
             ],
-            id: path.resolve('/some/prefix/', 'unittest/unittest_without_init/test_without_init.py') + '::AddTestsWithoutInit',
+            id: path.resolve('/some/prefix/', 'unittest/unittest_without_init/test_without_init.py') +
+              '::AddTestsWithoutInit',
             file: path.resolve('/some/prefix/', 'unittest/unittest_without_init/test_without_init.py'),
             label: 'AddTestsWithoutInit',
             type: 'suite',
@@ -265,12 +279,14 @@ collected 94 items
           {
             children: [
               {
-                id: path.resolve('/some/prefix/', 'nested_tests/nested_tests.py') + '::Test_CheckApp::test_simple_check',
+                id: path.resolve('/some/prefix/', 'nested_tests/nested_tests.py') +
+                  '::Test_CheckApp::test_simple_check',
                 label: 'test_simple_check',
                 type: 'test',
               },
               {
-                id: path.resolve('/some/prefix/', 'nested_tests/nested_tests.py') + '::Test_CheckApp::test_complex_check',
+                id: path.resolve('/some/prefix/', 'nested_tests/nested_tests.py') +
+                  '::Test_CheckApp::test_complex_check',
                 label: 'test_complex_check',
                 type: 'test',
               },
@@ -298,7 +314,8 @@ collected 94 items
                     type: 'suite',
                   }
                 ],
-                id: path.resolve('/some/prefix/', 'nested_tests/nested_tests.py') + '::Test_CheckApp::Test_NestedClassA',
+                id: path.resolve('/some/prefix/', 'nested_tests/nested_tests.py') +
+                  '::Test_CheckApp::Test_NestedClassA',
                 file: path.resolve('/some/prefix/', 'nested_tests/nested_tests.py'),
                 label: 'Test_NestedClassA',
                 type: 'suite',

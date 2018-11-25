@@ -49,7 +49,7 @@ suite('Placeholder aware workspace configuration', () => {
         expect(configuration.getCwd()).to.be.eq(path.resolve('/some', 'prefix', 'some', 'cwd', 'suffix'));
         expect(
             configuration.getUnittestConfiguration().unittestArguments.startDirectory
-        ).to.be.eq(path.normalize(wfPath));
+        ).to.be.eq(wfPath + '/./');
     });
 
     test('should resolve values from configuration without placeholders', () => {
@@ -86,7 +86,7 @@ suite('Placeholder aware workspace configuration', () => {
         expect(configuration.getCwd()).to.be.eq(path.resolve(wfPath, '..', 'some', 'prefix', 'some', 'cwd', 'suffix'));
         expect(
             configuration.getUnittestConfiguration().unittestArguments.startDirectory
-        ).to.be.eq(wfPath);
+        ).to.be.eq('./');
     });
 
     test('should resolve relative path placeholders from configuration', () => {

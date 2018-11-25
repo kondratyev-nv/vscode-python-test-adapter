@@ -27,7 +27,7 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
             isUnittestEnabled: original.isUnittestEnabled,
             unittestArguments: {
                 pattern: this.resolve(original.unittestArguments.pattern),
-                startDirectory: this.resolve(original.unittestArguments.startDirectory),
+                startDirectory: this.resolvePlaceholders(original.unittestArguments.startDirectory),
             },
         };
     }

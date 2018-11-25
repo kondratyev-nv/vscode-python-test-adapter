@@ -45,11 +45,11 @@ suite('Placeholder aware workspace configuration', () => {
         });
 
         const wfPath = getWorkspaceFolder().uri.fsPath;
-        expect(configuration.pythonPath()).to.be.eq(`${wfPath}/some/local/python`);
-        expect(configuration.getCwd()).to.be.eq('/some/prefix/some/cwd/suffix');
+        expect(configuration.pythonPath()).to.be.eq(path.resolve(wfPath, 'some', 'local', 'python'));
+        expect(configuration.getCwd()).to.be.eq(path.resolve('/some', 'prefix', 'some', 'cwd', 'suffix'));
         expect(
             configuration.getUnittestConfiguration().unittestArguments.startDirectory
-        ).to.be.eq(wfPath + path.sep);
+        ).to.be.eq(path.normalize(wfPath));
     });
 
     test('should resolve values from configuration without placeholders', () => {
@@ -83,7 +83,7 @@ suite('Placeholder aware workspace configuration', () => {
 
         const wfPath = getWorkspaceFolder().uri.fsPath;
         expect(configuration.pythonPath()).to.be.eq('python');
-        expect(configuration.getCwd()).to.be.eq(path.resolve(wfPath, '../some/prefix/some/cwd/suffix'));
+        expect(configuration.getCwd()).to.be.eq(path.resolve(wfPath, '..', 'some', 'prefix', 'some', 'cwd', 'suffix'));
         expect(
             configuration.getUnittestConfiguration().unittestArguments.startDirectory
         ).to.be.eq(wfPath);
@@ -119,6 +119,6 @@ suite('Placeholder aware workspace configuration', () => {
 
         const wfPath = getWorkspaceFolder().uri.fsPath;
         expect(configuration.pythonPath()).to.be.eq('python');
-        expect(configuration.getCwd()).to.be.eq(path.resolve(wfPath, './some/cwd/suffix'));
+        expect(configuration.getCwd()).to.be.eq(path.normalize(path.resolve(wfPath, 'some', 'cwd', 'suffix')));
     });
 });

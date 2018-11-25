@@ -1,3 +1,4 @@
 {
+    "python.pythonPath": "/Application/Python37/python.exe",
     "python.unitTest.unittestEnabled": true
 }

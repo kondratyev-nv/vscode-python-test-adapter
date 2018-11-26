@@ -41,6 +41,8 @@ Property                          | Description
 `python.unitTest.pyTestEnabled` | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer)
 `pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension property `python.unitTest.unittestEnabled`)
 
+Configuration supports placeholders for workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
+
 ## Questions, issues, feature requests, and contributions
 
 * If you have any question or a problem with the extension, please [file an issue](https://github.com/kondratyev-nv/vscode-python-test-adapter/issues)

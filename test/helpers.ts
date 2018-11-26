@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
+import { PlaceholderAwareWorkspaceConfiguration } from '../src/placeholderAwareWorkspaceConfiguration';
 import {
     IPytestConfiguration,
     IUnittestConfiguration,
@@ -33,12 +34,13 @@ export function findWorkspaceFolder(folder: string): vscode.WorkspaceFolder | un
 }
 
 export function createPytestConfiguration(python: string, folder: string): IWorkspaceConfiguration {
-    return {
+    const wf = findWorkspaceFolder(folder)!;
+    return new PlaceholderAwareWorkspaceConfiguration({
         pythonPath(): string {
             return python;
         },
         getCwd(): string {
-            return findWorkspaceFolder(folder)!.uri.fsPath;
+            return wf.uri.fsPath;
         },
         getUnittestConfiguration(): IUnittestConfiguration {
             throw new Error();
@@ -49,16 +51,17 @@ export function createPytestConfiguration(python: string, folder: string): IWork
                 pytestArguments: [],
             };
         },
-    };
+    }, wf);
 }
 
 export function createUnittestConfiguration(python: string, folder: string): IWorkspaceConfiguration {
-    return {
+    const wf = findWorkspaceFolder(folder)!;
+    return new PlaceholderAwareWorkspaceConfiguration({
         pythonPath(): string {
             return python;
         },
         getCwd(): string {
-            return findWorkspaceFolder(folder)!.uri.fsPath;
+            return wf.uri.fsPath;
         },
         getUnittestConfiguration(): IUnittestConfiguration {
             return {
@@ -72,5 +75,5 @@ export function createUnittestConfiguration(python: string, folder: string): IWo
         getPytestConfiguration(): IPytestConfiguration {
             throw new Error();
         },
-    };
+    }, wf);
 }

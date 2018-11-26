@@ -27,7 +27,7 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
             isUnittestEnabled: original.isUnittestEnabled,
             unittestArguments: {
                 pattern: this.resolve(original.unittestArguments.pattern),
-                startDirectory: this.resolve(original.unittestArguments.startDirectory),
+                startDirectory: this.resolvePlaceholders(original.unittestArguments.startDirectory),
             },
         };
     }
@@ -55,17 +55,17 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         });
     }
 
+    private resolve(rawValue: string): string {
+        return this.resolvePath(this.resolvePlaceholders(rawValue));
+    }
+
     private resolvePath(value: string): string {
-        if (value.includes(path.sep)) {
+        if (value.includes(path.posix.sep) || value.includes(path.win32.sep)) {
             const absolutePath = path.isAbsolute(value) ?
-                value :
+                path.resolve(value) :
                 path.resolve(this.workspaceFolder.uri.fsPath, value);
             return path.normalize(absolutePath);
         }
         return value;
-    }
-
-    private resolve(rawValue: string): string {
-        return this.resolvePath(this.resolvePlaceholders(rawValue));
     }
 }

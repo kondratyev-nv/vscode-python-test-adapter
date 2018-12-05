@@ -31,7 +31,7 @@ pytest.main(sys.argv[1:])`;
             return undefined;
         }
 
-        this.logger.log('info', `Using python path "${config.pythonPath()}" in ${config.getCwd()}`);
+        this.logger.log('info', `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()}`);
         const output = await runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
@@ -53,7 +53,7 @@ pytest.main(sys.argv[1:])`;
     }
 
     public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
-        this.logger.log('info', `Using python path "${config.pythonPath()}" in ${config.getCwd()}`);
+        this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()}`);
 
         const tempFile = await this.createTemporaryFile();
         const xunitArgument = `--junitxml=${tempFile.file}`;

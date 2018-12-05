@@ -3,6 +3,7 @@ import { testExplorerExtensionId, TestHub } from 'vscode-test-adapter-api';
 
 import { nextId } from './idGenerator';
 import { DefaultLogger } from './logging/defaultLogger';
+import { FrameworkAwareLogger } from './logging/frameworkAwareLogger';
 import { ILogger } from './logging/logger';
 import { NoopOutputChannel } from './logging/outputChannels/noopOutputChannel';
 import { VscodeOutputChannel } from './logging/outputChannels/vscodeOutputChannel';
@@ -10,26 +11,40 @@ import { PytestTestRunner } from './pytestTestRunner';
 import { PythonTestAdapter } from './pythonTestAdapter';
 import { UnittestTestRunner } from './unittestTestRunner';
 
+type LoggerFactory = (framework: string, wf: vscode.WorkspaceFolder) => ILogger;
+
 function registerTestAdapters(
     wf: vscode.WorkspaceFolder,
     extension: vscode.Extension<TestHub>,
-    loggerFactory: (wf: vscode.WorkspaceFolder) => ILogger
+    loggerFactory: LoggerFactory
 ) {
+    const unittestLogger = loggerFactory('unittest', wf);
+    const unittestRunner = new UnittestTestRunner(nextId(), unittestLogger);
+
+    const pytestLogger = loggerFactory('pytest', wf);
+    const pytestRunner = new PytestTestRunner(nextId(), pytestLogger);
+
     const adapters = [
-        () => new UnittestTestRunner(nextId(), loggerFactory(wf)),
-        () => new PytestTestRunner(nextId(), loggerFactory(wf))
-    ].map(rf => new PythonTestAdapter(wf, rf(), loggerFactory(wf)));
+        new PythonTestAdapter(wf, unittestRunner, unittestLogger),
+        new PythonTestAdapter(wf, pytestRunner, pytestLogger)
+    ];
     adapters.forEach(adapter => extension.exports.registerTestAdapter(adapter));
     return adapters;
 }
 
-function configureLogging(context: vscode.ExtensionContext): (wf: vscode.WorkspaceFolder) => ILogger {
+function configureLogging(context: vscode.ExtensionContext): LoggerFactory {
     try {
         const channel = vscode.window.createOutputChannel('Python Test Adapter Log');
         context.subscriptions.push(channel);
-        return wf => new DefaultLogger(new VscodeOutputChannel(channel), wf);
+        return (framework, wf) => {
+            const logger = new DefaultLogger(new VscodeOutputChannel(channel), wf);
+            return new FrameworkAwareLogger(framework, logger);
+        };
     } catch {
-        return wf => new DefaultLogger(new NoopOutputChannel(), wf);
+        return (framework, wf) => {
+            const logger = new DefaultLogger(new NoopOutputChannel(), wf);
+            return new FrameworkAwareLogger(framework, logger);
+        };
     }
 }
 

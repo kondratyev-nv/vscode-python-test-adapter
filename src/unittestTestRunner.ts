@@ -25,7 +25,7 @@ export class UnittestTestRunner implements ITestRunner {
         }
 
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
-        this.logger.log('info', `Using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
+        this.logger.log('info', `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
             `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);
         const output = await runScript({
             pythonPath: config.pythonPath(),
@@ -49,7 +49,7 @@ export class UnittestTestRunner implements ITestRunner {
 
     public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
-        this.logger.log('info', `Using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
+        this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
             `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);
         const output = await runScript({
             pythonPath: config.pythonPath(),

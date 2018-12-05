@@ -2,12 +2,28 @@ import * as vscode from 'vscode';
 
 
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
+import { ILogger } from '../src/logging/logger';
 import { PlaceholderAwareWorkspaceConfiguration } from '../src/placeholderAwareWorkspaceConfiguration';
 import {
     IPytestConfiguration,
     IUnittestConfiguration,
     IWorkspaceConfiguration
 } from '../src/workspaceConfiguration';
+
+export function logger(): ILogger {
+    return {
+        log(_: 'info' | 'warn' | 'crit', __: string): void {
+            // console.log(__);
+        },
+    };
+}
+
+export function extractExpectedState(name: string) {
+    if (name.includes('[')) {
+        name = name.split('[')[0];
+    }
+    return name.split('_').slice(-1)[0];
+}
 
 export function findTestSuiteByLabel(
     suite: TestSuiteInfo | TestInfo,

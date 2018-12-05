@@ -4,14 +4,7 @@ import * as path from 'path';
 
 import { PytestTestRunner } from '../src/pytestTestRunner';
 import { IWorkspaceConfiguration } from '../src/workspaceConfiguration';
-import { createPytestConfiguration, findTestSuiteByLabel } from './helpers';
-
-function extractExpectedState(name: string) {
-    if (name.includes('[')) {
-        name = name.split('[')[0];
-    }
-    return name.split('_').slice(-1)[0];
-}
+import { createPytestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from './helpers';
 
 [
     'python',
@@ -19,32 +12,31 @@ function extractExpectedState(name: string) {
 ].forEach(python => {
     suite(`Pytest test discovery with ${python}`, () => {
         const config: IWorkspaceConfiguration = createPytestConfiguration(python, 'pytest');
-        const adapter = new PytestTestRunner('some-id');
+        const runner = new PytestTestRunner('some-id', logger());
 
         test('should set runner id on initialization', () => {
-            expect(adapter).to.be.not.null;
-            expect(adapter.adapterId).to.be.equal('some-id');
+            expect(runner).to.be.not.null;
+            expect(runner.adapterId).to.be.equal('some-id');
         });
 
         test('should not return root suite when there is no tests', async () => {
             const configForEmptySuiteCollection: IWorkspaceConfiguration = createPytestConfiguration(
                 python, 'python_extension_configured_pytest'
             );
-            const runner = new PytestTestRunner('some-other-id');
-            expect(adapter).to.be.not.null;
+            expect(runner).to.be.not.null;
             const suites = await runner.load(configForEmptySuiteCollection);
             expect(suites).to.be.undefined;
         });
 
         test('should discover any tests', async () => {
-            const mainSuite = await adapter.load(config);
+            const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
             expect(mainSuite!.label).to.be.eq('Pytest tests');
             expect(mainSuite!.children).to.be.not.empty;
         });
 
         test('should discover tests', async () => {
-            const mainSuite = await adapter.load(config);
+            const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
             const expectedSuites = [
                 'fixture_test.py',
@@ -60,13 +52,13 @@ function extractExpectedState(name: string) {
 
     suite(`Run pytest tests with ${python}`, () => {
         const config: IWorkspaceConfiguration = createPytestConfiguration(python, 'pytest');
-        const adapter = new PytestTestRunner('some-id');
+        const runner = new PytestTestRunner('some-id', logger());
 
         test('should run all tests', async () => {
-            const mainSuite = await adapter.load(config);
+            const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
             expect(mainSuite!.label).to.be.eq('Pytest tests');
-            const states = await adapter.run(config, mainSuite!);
+            const states = await runner.run(config, runner.adapterId);
             expect(states).to.be.not.empty;
             states.forEach(state => {
                 const expectedState = extractExpectedState(state.test as string);
@@ -108,11 +100,11 @@ function extractExpectedState(name: string) {
             }
         ].forEach(({ suite, cases }) => {
             test(`should run ${suite} suite`, async () => {
-                const mainSuite = await adapter.load(config);
+                const mainSuite = await runner.load(config);
                 expect(mainSuite).to.be.not.undefined;
                 const suiteToRun = findTestSuiteByLabel(mainSuite!, suite);
                 expect(suiteToRun).to.be.not.undefined;
-                const states = await adapter.run(config, suiteToRun!);
+                const states = await runner.run(config, suiteToRun!.id);
                 expect(states).to.be.not.empty;
                 const cwd = config.getCwd();
                 expect(states.map(s => s.test)).to.have.deep.members(
@@ -135,11 +127,11 @@ function extractExpectedState(name: string) {
             'test_d_passed'
         ].forEach(testMethod => {
             test(`should run ${testMethod} test`, async () => {
-                const mainSuite = await adapter.load(config);
+                const mainSuite = await runner.load(config);
                 expect(mainSuite).to.be.not.undefined;
                 const suite = findTestSuiteByLabel(mainSuite!, testMethod);
                 expect(suite).to.be.not.undefined;
-                const states = await adapter.run(config, suite!);
+                const states = await runner.run(config, suite!.id);
                 expect(states).to.be.not.empty;
                 states.forEach(state => {
                     const expectedState = extractExpectedState(state.test as string);

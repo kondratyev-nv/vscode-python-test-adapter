@@ -45,7 +45,7 @@ Configuration supports placeholders for workspace folder as `${workspaceFolder}`
 
 ## Troubleshooting
 
-Whether, no tests were discovered in the Test Explorer view or anything else doesn't work as expected, you can see logging output selecting `Python Test Adapter Log` in the Output section.
+Whether no tests were discovered in the Test Explorer view or anything else doesn't work as expected, you can see logging output selecting `Python Test Adapter Log` in the Output section.
 
 ## Questions, issues, feature requests, and contributions
 

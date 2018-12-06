@@ -31,7 +31,7 @@ import { extractExpectedState, findTestSuiteByLabel, findWorkspaceFolder, logger
     suite(`Adapter events with ${label} runner`, () => {
         const workspaceFolder = findWorkspaceFolder(label)!;
 
-        test('discovery events should be successfully fired', async () => {
+        test.skip('discovery events should be successfully fired', async () => {
             const adapter = new PythonTestAdapter(workspaceFolder, runner, logger());
             let startedNotifications = 0;
             let finishedNotifications = 0;
@@ -54,7 +54,7 @@ import { extractExpectedState, findTestSuiteByLabel, findWorkspaceFolder, logger
             expect(finishedEvent!.suite!.children).to.be.not.empty;
         });
 
-        test(`test execution events should be successfully fired for ${label}`, async () => {
+        test.skip(`test execution events should be successfully fired for ${label}`, async () => {
             const adapter = new PythonTestAdapter(workspaceFolder, runner, logger());
             const configuration = ConfigurationFactory.get(workspaceFolder, logger());
             const mainSuite = await runner.load(configuration);

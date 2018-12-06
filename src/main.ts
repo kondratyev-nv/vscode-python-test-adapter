@@ -3,7 +3,6 @@ import { testExplorerExtensionId, TestHub } from 'vscode-test-adapter-api';
 
 import { nextId } from './idGenerator';
 import { DefaultLogger } from './logging/defaultLogger';
-import { FrameworkAwareLogger } from './logging/frameworkAwareLogger';
 import { ILogger } from './logging/logger';
 import { NoopOutputChannel } from './logging/outputChannels/noopOutputChannel';
 import { VscodeOutputChannel } from './logging/outputChannels/vscodeOutputChannel';
@@ -37,13 +36,11 @@ function configureLogging(context: vscode.ExtensionContext): LoggerFactory {
         const channel = vscode.window.createOutputChannel('Python Test Adapter Log');
         context.subscriptions.push(channel);
         return (framework, wf) => {
-            const logger = new DefaultLogger(new VscodeOutputChannel(channel), wf);
-            return new FrameworkAwareLogger(framework, logger);
+            return new DefaultLogger(new VscodeOutputChannel(channel), wf, framework);
         };
     } catch {
         return (framework, wf) => {
-            const logger = new DefaultLogger(new NoopOutputChannel(), wf);
-            return new FrameworkAwareLogger(framework, logger);
+            return new DefaultLogger(new NoopOutputChannel(), wf, framework);
         };
     }
 }

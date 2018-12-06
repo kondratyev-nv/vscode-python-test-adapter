@@ -10,8 +10,8 @@ import {
 export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfiguration {
     constructor(
         private readonly configuration: IWorkspaceConfiguration,
-        public readonly workspaceFolder: WorkspaceFolder) {
-    }
+        public readonly workspaceFolder: WorkspaceFolder
+    ) { }
 
     public pythonPath(): string {
         return this.resolve(this.configuration.pythonPath());
@@ -51,7 +51,11 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
 
         const regexp = /\$\{(.*?)\}/g;
         return rawValue.replace(regexp, (match: string, name: string) => {
-            return availableReplacements.get(name) || match;
+            const replacement = availableReplacements.get(name);
+            if (replacement) {
+                return replacement;
+            }
+            return match;
         });
     }
 

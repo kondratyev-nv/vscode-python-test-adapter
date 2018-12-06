@@ -1,4 +1,6 @@
 
+export type LogLevel = 'info' | 'warn' | 'crit' | 'debug';
+
 export interface ILogger {
-    log(level: 'info' | 'warn' | 'crit', message: string): void;
+    log(level: LogLevel, message: string): void;
 }

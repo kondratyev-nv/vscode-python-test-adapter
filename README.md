@@ -43,6 +43,10 @@ Property                          | Description
 
 Configuration supports placeholders for workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
 
+## Troubleshooting
+
+Whether, no tests were discovered in the Test Explorer view or anything else doesn't work as expected, you can see logging output selecting `Python Test Adapter Log` in the Output section.
+
 ## Questions, issues, feature requests, and contributions
 
 * If you have any question or a problem with the extension, please [file an issue](https://github.com/kondratyev-nv/vscode-python-test-adapter/issues)

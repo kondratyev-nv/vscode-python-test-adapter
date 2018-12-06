@@ -63,6 +63,8 @@ pytest.main(sys.argv[1:])`;
             cwd: config.getCwd(),
             args: test !== this.adapterId ? [xunitArgument, test] : [xunitArgument],
         });
+
+        this.logger.log('info', 'Test execution completed');
         const states = await parseTestStates(tempFile.file, config.getCwd());
         tempFile.cleanupCallback();
         return states;

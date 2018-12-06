@@ -12,8 +12,10 @@ import {
 
 export function logger(): ILogger {
     return {
-        log(_: 'info' | 'warn' | 'crit', __: string): void {
-            // console.log(__);
+        log(level: 'info' | 'warn' | 'crit', message: string): void {
+            if (process.env.ENABLE_TEST_LOGGING) {
+                console.log(`${level}: ${message}`);
+            }
         },
     };
 }

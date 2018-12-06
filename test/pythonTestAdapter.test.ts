@@ -56,7 +56,7 @@ import { extractExpectedState, findTestSuiteByLabel, findWorkspaceFolder, logger
 
         test(`test execution events should be successfully fired for ${label}`, async () => {
             const adapter = new PythonTestAdapter(workspaceFolder, runner, logger());
-            const configuration = ConfigurationFactory.get(workspaceFolder);
+            const configuration = ConfigurationFactory.get(workspaceFolder, logger());
             const mainSuite = await runner.load(configuration);
             expect(mainSuite).to.be.not.undefined;
             const suites = tests.map(test => findTestSuiteByLabel(mainSuite!, test)!);

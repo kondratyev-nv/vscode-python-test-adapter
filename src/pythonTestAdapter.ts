@@ -15,11 +15,13 @@ import { ConfigurationFactory } from './configurationFactory';
 import { ILogger } from './logging/logger';
 import { ITestRunner } from './testRunner';
 
+type TestRunEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent;
+
 export class PythonTestAdapter implements TestAdapter {
 
     get tests(): Event<TestLoadStartedEvent | TestLoadFinishedEvent> { return this.testsEmitter.event; }
 
-    get testStates(): Event<TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent> {
+    get testStates(): Event<TestRunEvent> {
         return this.testStatesEmitter.event;
     }
 
@@ -29,8 +31,7 @@ export class PythonTestAdapter implements TestAdapter {
 
     private disposables: Array<{ dispose(): void }> = [];
     private readonly testsEmitter = new EventEmitter<TestLoadStartedEvent | TestLoadFinishedEvent>();
-    private readonly testStatesEmitter = new EventEmitter<
-        TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent>();
+    private readonly testStatesEmitter = new EventEmitter<TestRunEvent>();
     private readonly autorunEmitter = new EventEmitter<void>();
 
     private readonly testsById = new Map<string, TestSuiteInfo | TestInfo>();
@@ -52,7 +53,7 @@ export class PythonTestAdapter implements TestAdapter {
             this.testsEmitter.fire({ type: 'started' });
 
             this.testsById.clear();
-            const config = ConfigurationFactory.get(this.workspaceFolder);
+            const config = ConfigurationFactory.get(this.workspaceFolder, this.logger);
             const tests = await this.testRunner.load(config);
             this.saveToMap(tests);
 
@@ -66,7 +67,7 @@ export class PythonTestAdapter implements TestAdapter {
     public async run(tests: string[]): Promise<void> {
         try {
             this.testStatesEmitter.fire({ type: 'started', tests });
-            const config = ConfigurationFactory.get(this.workspaceFolder);
+            const config = ConfigurationFactory.get(this.workspaceFolder, this.logger);
             const testRuns = tests.map(test => {
                 return this.testRunner.run(config, test)
                     .then(states => states.forEach(state => this.testStatesEmitter.fire(state)))

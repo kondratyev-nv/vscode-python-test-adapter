@@ -1,11 +1,11 @@
 import {
     TestEvent,
-    TestInfo,
     TestSuiteInfo
 } from 'vscode-test-adapter-api';
 
 import * as tmp from 'tmp';
 
+import { ILogger } from './logging/logger';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
 import { runScript } from './pythonRunner';
@@ -21,14 +21,17 @@ import sys
 pytest.main(sys.argv[1:])`;
 
     constructor(
-        public readonly adapterId: string
+        public readonly adapterId: string,
+        private readonly logger: ILogger
     ) { }
 
     public async load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined> {
         if (!config.getPytestConfiguration().isPytestEnabled) {
+            this.logger.log('info', 'Pytest test discovery is disabled');
             return undefined;
         }
 
+        this.logger.log('info', `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()}`);
         const output = await runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
@@ -37,6 +40,7 @@ pytest.main(sys.argv[1:])`;
         });
         const suites = parseTestSuites(output, config.getCwd());
         if (empty(suites)) {
+            this.logger.log('warn', 'No tests discovered');
             return undefined;
         }
 
@@ -48,15 +52,19 @@ pytest.main(sys.argv[1:])`;
         };
     }
 
-    public async run(config: IWorkspaceConfiguration, info: TestSuiteInfo | TestInfo): Promise<TestEvent[]> {
+    public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
+        this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()}`);
+
         const tempFile = await this.createTemporaryFile();
         const xunitArgument = `--junitxml=${tempFile.file}`;
         await runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
             cwd: config.getCwd(),
-            args: info.id !== this.adapterId ? [xunitArgument, info.id] : [xunitArgument],
+            args: test !== this.adapterId ? [xunitArgument, test] : [xunitArgument],
         });
+
+        this.logger.log('info', 'Test execution completed');
         const states = await parseTestStates(tempFile.file, config.getCwd());
         tempFile.cleanupCallback();
         return states;

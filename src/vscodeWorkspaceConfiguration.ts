@@ -13,14 +13,17 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private readonly pythonConfiguration: WorkspaceConfiguration;
     private readonly testExplorerConfiguration: WorkspaceConfiguration;
 
-    constructor(public readonly workspaceFolder: WorkspaceFolder) {
+    constructor(
+        public readonly workspaceFolder: WorkspaceFolder
+    ) {
         this.argumentParser = this.configureUnittestArgumentParser();
         this.pythonConfiguration = this.getPythonConfiguration(workspaceFolder);
         this.testExplorerConfiguration = this.getTestExplorerConfiguration(workspaceFolder);
     }
 
     public pythonPath() {
-        return this.pythonConfiguration.get<string>('pythonPath', 'python');
+        const pythonPath = this.pythonConfiguration.get<string>('pythonPath', 'python');
+        return pythonPath;
     }
 
     public getCwd(): string {

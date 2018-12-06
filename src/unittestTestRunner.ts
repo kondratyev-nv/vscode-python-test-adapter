@@ -1,10 +1,10 @@
 import * as path from 'path';
 import {
     TestEvent,
-    TestInfo,
     TestSuiteInfo
 } from 'vscode-test-adapter-api';
 
+import { ILogger } from './logging/logger';
 import { runScript } from './pythonRunner';
 import { ITestRunner } from './testRunner';
 import { unittestHelperScript } from './unittestScripts';
@@ -14,14 +14,19 @@ import { IWorkspaceConfiguration } from './workspaceConfiguration';
 
 export class UnittestTestRunner implements ITestRunner {
     constructor(
-        public readonly adapterId: string
+        public readonly adapterId: string,
+        private readonly logger: ILogger
     ) { }
 
     public async load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined> {
         if (!config.getUnittestConfiguration().isUnittestEnabled) {
+            this.logger.log('info', 'Unittest test discovery is disabled');
             return undefined;
         }
+
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
+        this.logger.log('info', `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
+            `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);
         const output = await runScript({
             pythonPath: config.pythonPath(),
             script: unittestHelperScript(unittestArguments),
@@ -30,6 +35,7 @@ export class UnittestTestRunner implements ITestRunner {
         });
         const suites = parseTestSuites(output, path.resolve(config.getCwd(), unittestArguments.startDirectory));
         if (empty(suites)) {
+            this.logger.log('warn', 'No tests discovered');
             return undefined;
         }
 
@@ -41,12 +47,15 @@ export class UnittestTestRunner implements ITestRunner {
         };
     }
 
-    public async run(config: IWorkspaceConfiguration, info: TestSuiteInfo | TestInfo): Promise<TestEvent[]> {
+    public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
+        const unittestArguments = config.getUnittestConfiguration().unittestArguments;
+        this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
+            `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);
         const output = await runScript({
             pythonPath: config.pythonPath(),
-            script: unittestHelperScript(config.getUnittestConfiguration().unittestArguments),
+            script: unittestHelperScript(unittestArguments),
             cwd: config.getCwd(),
-            args: info.id !== this.adapterId ? ['run', info.id] : ['run'],
+            args: test !== this.adapterId ? ['run', test] : ['run'],
         });
         return parseTestStates(output);
     }

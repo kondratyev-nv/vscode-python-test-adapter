@@ -56,6 +56,7 @@ export class PythonTestAdapter implements TestAdapter {
             const config = ConfigurationFactory.get(this.workspaceFolder, this.logger);
             const tests = await this.testRunner.load(config);
             this.saveToMap(tests);
+            this.sortTests(tests);
 
             this.testsEmitter.fire({ type: 'finished', suite: tests });
         } catch (error) {
@@ -95,6 +96,17 @@ export class PythonTestAdapter implements TestAdapter {
             disposable.dispose();
         }
         this.disposables = [];
+    }
+
+    private sortTests(test: TestSuiteInfo | undefined): any {
+        if (!test) {
+            return;
+        }
+        test.children.sort((x, y) => x.label.localeCompare(y.label, undefined, { sensitivity: 'base', numeric: true }));
+        test.children.filter(t => t)
+            .filter(t => t.type === 'suite')
+            .map(t => t as TestSuiteInfo)
+            .forEach(t => this.sortTests(t));
     }
 
     private saveToMap(test: TestSuiteInfo | TestInfo | undefined) {

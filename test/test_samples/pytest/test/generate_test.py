@@ -21,3 +21,8 @@ class TestSampleWithScenarios(object):
 
     def test_demo10_passed(self, attribute):
         assert isinstance(attribute, str)
+
+    def test_demo2_passed(self, attribute):
+        assert isinstance(attribute, str)
+
+

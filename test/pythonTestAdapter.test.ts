@@ -39,6 +39,8 @@ import { extractExpectedState, findTestSuiteByLabel, findWorkspaceFolder, logger
             sortedTests: [
                 'test_demo1_passed[advanced]',
                 'test_demo1_passed[basic]',
+                'test_demo2_passed[advanced]',
+                'test_demo2_passed[basic]',
                 'test_demo10_passed[advanced]',
                 'test_demo10_passed[basic]'
             ],

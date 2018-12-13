@@ -1,4 +1,4 @@
-import * as process from 'child_process';
+import { spawn } from 'child_process';
 import * as iconv from 'iconv-lite';
 import { EOL } from 'os';
 
@@ -22,7 +22,7 @@ async function run(
 ): Promise<string> {
 
     return new Promise<string>((resolve, reject) => {
-        const pythonProcess = process.spawn(
+        const pythonProcess = spawn(
             configuration.pythonPath,
             args,
             {

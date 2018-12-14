@@ -1,6 +1,7 @@
 # Python Test Explorer for Visual Studio Code
 
 [![Build Status](https://travis-ci.com/kondratyev-nv/vscode-python-test-adapter.svg?branch=master)](https://travis-ci.com/kondratyev-nv/vscode-python-test-adapter)
+[![Dependencies Status](https://david-dm.org/kondratyev-nv/vscode-python-unittest-adapter/status.svg)](https://david-dm.org/kondratyev-nv/vscode-python-unittest-adapter)
 
 This extension allows you to run your Python [Unittest](https://docs.python.org/3/library/unittest.html#module-unittest) 
 or [Pytest](https://docs.pytest.org/en/latest/)

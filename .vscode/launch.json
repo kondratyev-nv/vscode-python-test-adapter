@@ -12,7 +12,10 @@
       "outFiles": [
         "${workspaceFolder}/out"
       ],
-      "preLaunchTask": "npm: build"
+      "preLaunchTask": "npm: build",
+      "env": {
+        "SOME_PROCESS_VARIABLE": "HelloFromProcessEnv"
+      }
     },
     {
       "type": "node",
@@ -33,7 +36,10 @@
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"
       ],
-      "preLaunchTask": "npm: build"
+      "preLaunchTask": "npm: build",
+      "env": {
+        "SOME_PROCESS_VARIABLE": "HelloFromProcessEnv"
+      }
     }
   ]
 }

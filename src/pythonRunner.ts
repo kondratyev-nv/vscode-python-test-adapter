@@ -28,6 +28,7 @@ async function run(
             {
                 cwd: configuration.cwd,
                 env: {
+                    ...process.env,
                     PYTHONUNBUFFERED: '1',
                 },
             });

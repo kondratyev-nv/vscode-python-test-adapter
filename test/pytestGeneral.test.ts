@@ -39,6 +39,7 @@ import { createPytestConfiguration, extractExpectedState, findTestSuiteByLabel, 
             const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
             const expectedSuites = [
+                'env_variables_test.py',
                 'fixture_test.py',
                 'generate_test.py',
                 'inner_fixture_test.py',

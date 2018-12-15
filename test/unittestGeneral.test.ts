@@ -40,7 +40,8 @@ import { createUnittestConfiguration, extractExpectedState, findTestSuiteByLabel
             const expectedSuites = [
                 'TestWithOutputBeforeImport',
                 'TestWithSetUpClassMethod',
-                'AddTests'
+                'AddTests',
+                'EnvironmentVariablesTests'
             ];
             const labels = mainSuite!.children.map(x => x.label);
             expect(labels).to.have.members(expectedSuites);

@@ -1,4 +1,3 @@
 {
-    // "python.pythonPath": "python4",
-    "python.unitTest.pyTestEnabled": true
+   "python.unitTest.pyTestEnabled": true
 }

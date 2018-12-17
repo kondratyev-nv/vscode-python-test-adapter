@@ -115,6 +115,9 @@ import { createUnittestConfiguration, extractExpectedState, findTestSuiteByLabel
                     .filter(f => f.name === 'unittest');
                 return folders[0].uri.fsPath;
             },
+            envFile(): string {
+                return '${workspaceFolder}/.env';
+            },
             getUnittestConfiguration() {
                 return {
                     isUnittestEnabled: true,

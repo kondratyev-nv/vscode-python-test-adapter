@@ -1,5 +1,5 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
-
 
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 import { ILogger } from '../src/logging/logger';
@@ -60,6 +60,9 @@ export function createPytestConfiguration(python: string, folder: string): IWork
         getCwd(): string {
             return wf.uri.fsPath;
         },
+        envFile(): string {
+            return path.join(wf.uri.fsPath, '.env');
+        },
         getUnittestConfiguration(): IUnittestConfiguration {
             throw new Error();
         },
@@ -80,6 +83,9 @@ export function createUnittestConfiguration(python: string, folder: string): IWo
         },
         getCwd(): string {
             return wf.uri.fsPath;
+        },
+        envFile(): string {
+            return path.join(wf.uri.fsPath, '.env');
         },
         getUnittestConfiguration(): IUnittestConfiguration {
             return {

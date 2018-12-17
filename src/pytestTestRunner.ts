@@ -5,6 +5,7 @@ import {
 
 import * as tmp from 'tmp';
 
+import { EnvironmentVariablesLoader } from './environmentVariablesLoader';
 import { ILogger } from './logging/logger';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
@@ -30,13 +31,14 @@ pytest.main(sys.argv[1:])`;
             this.logger.log('info', 'Pytest test discovery is disabled');
             return undefined;
         }
-
+        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
         this.logger.log('info', `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()}`);
         const output = await runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
             args: ['--collect-only'],
             cwd: config.getCwd(),
+            environment: additionalEnvironment,
         });
         const suites = parseTestSuites(output, config.getCwd());
         if (empty(suites)) {
@@ -55,6 +57,7 @@ pytest.main(sys.argv[1:])`;
     public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
         this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()}`);
 
+        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
         const tempFile = await this.createTemporaryFile();
         const xunitArgument = `--junitxml=${tempFile.file}`;
         await runScript({
@@ -62,6 +65,7 @@ pytest.main(sys.argv[1:])`;
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
             cwd: config.getCwd(),
             args: test !== this.adapterId ? [xunitArgument, test] : [xunitArgument],
+            environment: additionalEnvironment,
         });
 
         this.logger.log('info', 'Test execution completed');

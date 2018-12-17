@@ -26,6 +26,12 @@
         },
         {
             "path": "workspaces/python_extension_configured_with_placeholders"
+        },
+        {
+            "path": "workspaces/bad_env_file"
+        },
+        {
+            "path": "workspaces/not_existent_env_file"
         }
     ],
     "settings": {}

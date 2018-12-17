@@ -2,18 +2,19 @@ import { spawn } from 'child_process';
 import * as iconv from 'iconv-lite';
 import { EOL } from 'os';
 
-export interface IPythonScriptRunConfiguration {
+interface ICommonPythonRunConfiguration {
     pythonPath: string;
-    script: string;
     cwd: string;
     args?: string[];
+    environment: { [key: string]: string | undefined };
 }
 
-export interface IPythonModuleRunConfiguration {
-    pythonPath: string;
+export interface IPythonScriptRunConfiguration extends ICommonPythonRunConfiguration {
+    script: string;
+}
+
+export interface IPythonModuleRunConfiguration extends ICommonPythonRunConfiguration {
     module: string;
-    cwd: string;
-    args?: string[];
 }
 
 async function run(
@@ -29,6 +30,7 @@ async function run(
                 cwd: configuration.cwd,
                 env: {
                     ...process.env,
+                    ...configuration.environment,
                     PYTHONUNBUFFERED: '1',
                 },
             });

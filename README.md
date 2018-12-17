@@ -39,8 +39,9 @@ Property                          | Description
 `python.unitTest.cwd`             | Optional working directory for unit tests
 `python.unitTest.unittestEnabled` | Whether to enable or disable unit testing using unittest (enables or disables test discovery for Test Explorer)
 `python.unitTest.unittestArgs`    | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered)
-`python.unitTest.pyTestEnabled` | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer)
-`pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension property `python.unitTest.unittestEnabled`)
+`python.unitTest.pyTestEnabled`   | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer)
+`python.envFile`                  | Path to environment variable definitions file
+`pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension properties `python.unitTest.unittestEnabled` and `python.unitTest.pyTestEnabled`)
 
 Configuration supports placeholders for workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
 

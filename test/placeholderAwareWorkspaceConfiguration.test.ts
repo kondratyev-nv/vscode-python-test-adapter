@@ -27,6 +27,9 @@ suite('Placeholder aware workspace configuration', () => {
             getCwd(): string {
                 return '${env:SOME_PATH_USED_IN_CWD}/some/cwd/suffix';
             },
+            envFile(): string {
+                return '${workspaceFolder}/.env';
+            },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
                     isUnittestEnabled: true,
@@ -64,6 +67,9 @@ suite('Placeholder aware workspace configuration', () => {
             getCwd(): string {
                 return '${env:SOME_RELATIVE_PATH_USED_IN_CWD}/some/cwd/suffix';
             },
+            envFile(): string {
+                return '${workspaceFolder}/.env';
+            },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
                     isUnittestEnabled: true,
@@ -99,6 +105,9 @@ suite('Placeholder aware workspace configuration', () => {
             },
             getCwd(): string {
                 return './some/cwd/prefix/${env:SOME_RELATIVE_PATH_USED_IN_CWD}';
+            },
+            envFile(): string {
+                return '${workspaceFolder}/.env';
             },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {

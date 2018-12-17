@@ -18,6 +18,8 @@ export interface IWorkspaceConfiguration {
 
     getCwd(): string;
 
+    envFile(): string;
+
     getUnittestConfiguration(): IUnittestConfiguration;
 
     getPytestConfiguration(): IPytestConfiguration;

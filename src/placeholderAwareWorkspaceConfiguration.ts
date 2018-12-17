@@ -21,6 +21,10 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         return this.resolve(this.configuration.getCwd());
     }
 
+    public envFile(): string {
+        return this.resolve(this.configuration.envFile());
+    }
+
     public getUnittestConfiguration(): IUnittestConfiguration {
         const original = this.configuration.getUnittestConfiguration();
         return {

@@ -4,6 +4,7 @@ import {
     TestSuiteInfo
 } from 'vscode-test-adapter-api';
 
+import { EnvironmentVariablesLoader } from './environmentVariablesLoader';
 import { ILogger } from './logging/logger';
 import { runScript } from './pythonRunner';
 import { ITestRunner } from './testRunner';
@@ -24,6 +25,7 @@ export class UnittestTestRunner implements ITestRunner {
             return undefined;
         }
 
+        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
         this.logger.log('info', `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
             `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);
@@ -32,6 +34,7 @@ export class UnittestTestRunner implements ITestRunner {
             script: unittestHelperScript(unittestArguments),
             args: ['discover'],
             cwd: config.getCwd(),
+            environment: additionalEnvironment,
         });
         const suites = parseTestSuites(output, path.resolve(config.getCwd(), unittestArguments.startDirectory));
         if (empty(suites)) {
@@ -51,11 +54,13 @@ export class UnittestTestRunner implements ITestRunner {
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
         this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
             `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);
+        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
         const output = await runScript({
             pythonPath: config.pythonPath(),
             script: unittestHelperScript(unittestArguments),
             cwd: config.getCwd(),
             args: test !== this.adapterId ? ['run', test] : ['run'],
+            environment: additionalEnvironment,
         });
         return parseTestStates(output);
     }

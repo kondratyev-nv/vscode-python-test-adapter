@@ -22,8 +22,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     }
 
     public pythonPath() {
-        const pythonPath = this.pythonConfiguration.get<string>('pythonPath', 'python');
-        return pythonPath;
+        return this.pythonConfiguration.get<string>('pythonPath', 'python');
     }
 
     public getCwd(): string {
@@ -31,6 +30,10 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
         return unitTestCwd ?
             unitTestCwd :
             this.workspaceFolder.uri.fsPath;
+    }
+
+    public envFile(): string {
+        return this.pythonConfiguration.get<string>('envFile', '${workspaceFolder}/.env');
     }
 
     public getUnittestConfiguration(): IUnittestConfiguration {

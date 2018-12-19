@@ -22,6 +22,11 @@
       "description": "Continuous integration (Travis)"
     },
     {
+      "url": "https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_apis/build/status/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code%20CI?branchName=master",
+      "href": "https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_build/latest?definitionId=1?branchName=master",
+      "description": "Continuous integration (Azure Pipelines)"
+    },
+    {
       "url": "https://david-dm.org/kondratyev-nv/vscode-python-unittest-adapter/status.svg",
       "href": "https://david-dm.org/kondratyev-nv/vscode-python-unittest-adapter",
       "description": "Dependencies status (David)"
@@ -75,6 +80,7 @@
     "chai": "^4.2.0",
     "cross-env": "^5.2.0",
     "mocha": "^5.2.0",
+    "mocha-junit-reporter": "^1.18.0",
     "tslint": "^5.11.0",
     "typescript": "^3.2.1",
     "vsce": "^1.53.2",

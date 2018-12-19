@@ -4,9 +4,9 @@ import { EOL } from 'os';
 
 interface ICommonPythonRunConfiguration {
     pythonPath: string;
-    cwd: string;
-    args?: string[];
     environment: { [key: string]: string | undefined };
+    cwd?: string;
+    args?: string[];
 }
 
 export interface IPythonScriptRunConfiguration extends ICommonPythonRunConfiguration {
@@ -57,10 +57,6 @@ async function run(
             reject(`Error occurred during process execution: ${error}`);
         });
     });
-}
-
-export async function runModule(configuration: IPythonModuleRunConfiguration): Promise<string> {
-    return await run(['-m', configuration.module].concat(configuration.args || []), configuration);
 }
 
 export async function runScript(configuration: IPythonScriptRunConfiguration): Promise<string> {

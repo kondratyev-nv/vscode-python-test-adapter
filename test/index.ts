@@ -10,14 +10,48 @@
 // to report the results back to the caller. When the tests are finished, return
 // a possible error to the callback or null if none.
 
+import * as path from 'path';
 import * as testRunner from 'vscode/lib/testrunner';
 
-// You can directly control Mocha options by uncommenting the following lines
-// See https://github.com/mochajs/mocha/wiki/Using-mocha-programmatically#set-options for more info
-testRunner.configure({
+import { runScript } from '../src/pythonRunner';
+
+function getReporter() {
+    const emptyOptions = {
+        name: 'spec',
+        options: {},
+    };
+
+    if (!process.env.CI_BUILD) {
+        console.log('Not a CI build, using default reporter');
+        return emptyOptions;
+    }
+
+    const testResultsFile = path.resolve(
+        path.join(process.env.TEST_RESULT_DIRECTORY || './', 'test-results.xml')
+    );
+    console.log(`Results will be placed in ${testResultsFile}`);
+    return {
+        name: 'mocha-junit-reporter',
+        options: {
+            mochaFile: testResultsFile,
+        },
+    };
+}
+
+runScript({
+    script: 'from __future__ import print_function; import sys; print(sys.executable, sys.version)',
+    pythonPath: 'python',
+    environment: {},
+}).then(pythonInterpreter => console.log(`Using python ${pythonInterpreter}`));
+
+const reporter = getReporter();
+testRunner.configure(<any>{
     ui: 'tdd',       // the TDD UI is being used in extension.test.ts (suite, test, etc.)
     useColors: true, // colored output from test results
     timeout: 5000,
+    reporter: reporter.name,
+    reporterOptions: reporter.options,
 });
 
 module.exports = testRunner;
+

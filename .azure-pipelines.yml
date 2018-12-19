@@ -1,0 +1,164 @@
+variables:
+  CI_BUILD: 1
+  TEST_RESULT_DIRECTORY: $(Build.SourcesDirectory)
+
+jobs:
+
+- job: Windows
+  pool:
+    name: Hosted VS2017
+    demands: npm
+  strategy:
+    matrix:
+      Windows_Python27:
+        python.version: '2.7'
+      Windows_Python35:
+        python.version: '3.5'
+      Windows_Python36:
+        python.version: '3.6'
+    maxParallel: 3
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Setting up Python version'
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: 'x64'
+  - task: NodeTool@0
+    displayName: 'Use Node 8.x'
+    inputs:
+      versionSpec: 8.x
+  - task: Npm@1
+    displayName: 'Install dependencies'
+    inputs:
+      verbose: false
+  - task: Npm@1
+    displayName: 'Compile sources'
+    inputs:
+      command: custom
+      verbose: false
+      customCommand: 'run build'
+  - script: python -m pip install --upgrade pip
+    displayName: 'Update pip'
+  - script: python -m pip install -r requirements.txt
+    displayName: 'Install requirements'
+  - script: npm test
+    displayName: 'Run tests'
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: $(Build.SourcesDirectory)\test-results.xml
+      testRunTitle: '$(Agent.JobName) ($(Agent.OS), $(python.version))'
+
+- job: macOS
+  pool:
+    name: Hosted macOS
+    demands: npm
+  strategy:
+    matrix:
+      macOS_Python27:
+        python.version: '2.7'
+        TOXENV: 'py27'
+      macOS_Python35:
+        python.version: '3.5'
+        TOXENV: 'py35'
+      macOS_Python36:
+        python.version: '3.6'
+        TOXENV: 'py36'
+    maxParallel: 3
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Setting up Python version'
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: 'x64'
+  - task: NodeTool@0
+    displayName: 'Use Node 8.x'
+    inputs:
+      versionSpec: 8.x
+  - task: Npm@1
+    displayName: 'Install dependencies'
+    inputs:
+      verbose: false
+  - task: Npm@1
+    displayName: 'Compile sources'
+    inputs:
+      command: custom
+      verbose: false
+      customCommand: 'run build'
+  - script: python -m pip install --upgrade pip
+    displayName: 'Update pip'
+  - script: |
+      python -m pip install --upgrade setuptools tox
+    displayName: 'Install requirements'
+  - script: tox -e $(TOXENV)
+    displayName: 'Run tests'
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: $(Build.SourcesDirectory)/test-results.xml
+      testRunTitle: '$(Agent.JobName) ($(Agent.OS), $(python.version))'
+
+- job: Linux
+  pool:
+    name: Hosted Ubuntu 1604
+    demands: npm
+  strategy:
+    matrix:
+      Linux_Python27:
+        python.version: '2.7'
+      Linux_Python35:
+        python.version: '3.5'
+      Linux_Python36:
+        python.version: '3.6'
+    maxParallel: 3
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Setting up Python version'
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: 'x64'
+  - task: NodeTool@0
+    displayName: 'Use Node 8.x'
+    inputs:
+      versionSpec: 8.x
+  - task: Npm@1
+    displayName: 'Install dependencies'
+    inputs:
+      verbose: false
+  - task: Npm@1
+    displayName: 'Compile sources'
+    inputs:
+      command: custom
+      verbose: false
+      customCommand: 'run build'
+  - script: python -m pip install --upgrade pip
+    displayName: 'Update pip'
+  - script: python -m pip install -r requirements.txt
+    displayName: 'Install requirements'
+  - script: |
+      set -e
+      /usr/bin/Xvfb :10 -ac >> /tmp/Xvfb.out 2>&1 &
+      disown -ar
+    displayName: 'Start xvfb'
+  - script: npm test
+    displayName: 'Run tests'
+    env:
+      DISPLAY: :10
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: $(Build.SourcesDirectory)/test-results.xml
+      testRunTitle: '$(Agent.JobName) ($(Agent.OS), $(python.version))'
+  - script: npm run package
+    displayName: 'Package'
+  - task: CopyFiles@2
+    inputs:
+      contents: vscode-python-test-adapter-*.vsix
+      targetFolder: $(Build.ArtifactStagingDirectory)
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: $(Build.ArtifactStagingDirectory)
+      artifactName: Packed extension

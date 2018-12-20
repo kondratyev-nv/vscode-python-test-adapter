@@ -2,7 +2,7 @@ language: python
 
 env:
   global:
-    - CI_BUILD=1
+    - ENABLE_TEST_LOGGING=1
 
 matrix:
   include:

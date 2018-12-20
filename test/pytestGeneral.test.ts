@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 
-import { PytestTestRunner } from '../src/pytestTestRunner';
-import { IWorkspaceConfiguration } from '../src/workspaceConfiguration';
+import { IWorkspaceConfiguration } from '../src/configuration/workspaceConfiguration';
+import { PytestTestRunner } from '../src/pytest/pytestTestRunner';
 import { createPytestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from './helpers';
 
 suite('Pytest test discovery', async () => {

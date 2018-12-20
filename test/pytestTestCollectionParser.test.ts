@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 
-import { parseTestSuites } from '../src/pytestTestCollectionParser';
+import { parseTestSuites } from '../src/pytest/pytestTestCollectionParser';
 
 suite('Pytest test collection parser', () => {
   test('should parse pytest output', () => {

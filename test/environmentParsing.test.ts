@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 
-import { PytestTestRunner } from '../src/pytestTestRunner';
-import { UnittestTestRunner } from '../src/unittestTestRunner';
-import { IPytestConfiguration, IUnittestConfiguration } from '../src/workspaceConfiguration';
+import { IPytestConfiguration, IUnittestConfiguration } from '../src/configuration/workspaceConfiguration';
+import { PytestTestRunner } from '../src/pytest/pytestTestRunner';
+import { UnittestTestRunner } from '../src/unittest/unittestTestRunner';
 import { findWorkspaceFolder, logger } from './helpers';
 
 [

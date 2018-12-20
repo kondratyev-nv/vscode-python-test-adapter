@@ -2,8 +2,12 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 
-import { PlaceholderAwareWorkspaceConfiguration } from '../src/placeholderAwareWorkspaceConfiguration';
-import { IPytestConfiguration, IUnittestConfiguration, IWorkspaceConfiguration } from '../src/workspaceConfiguration';
+import { PlaceholderAwareWorkspaceConfiguration } from '../src/configuration/placeholderAwareWorkspaceConfiguration';
+import {
+    IPytestConfiguration,
+    IUnittestConfiguration,
+    IWorkspaceConfiguration
+} from '../src/configuration/workspaceConfiguration';
 import { findWorkspaceFolder } from './helpers';
 
 function getWorkspaceFolder() {

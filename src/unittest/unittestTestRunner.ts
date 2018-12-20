@@ -4,14 +4,14 @@ import {
     TestSuiteInfo
 } from 'vscode-test-adapter-api';
 
-import { EnvironmentVariablesLoader } from './environmentVariablesLoader';
-import { ILogger } from './logging/logger';
-import { runScript } from './pythonRunner';
-import { ITestRunner } from './testRunner';
+import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
+import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
+import { ILogger } from '../logging/logger';
+import { runScript } from '../pythonRunner';
+import { ITestRunner } from '../testRunner';
+import { empty } from '../utilities';
 import { unittestHelperScript } from './unittestScripts';
 import { parseTestStates, parseTestSuites } from './unittestSuitParser';
-import { empty } from './utilities';
-import { IWorkspaceConfiguration } from './workspaceConfiguration';
 
 export class UnittestTestRunner implements ITestRunner {
     constructor(

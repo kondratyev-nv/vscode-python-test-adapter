@@ -3,7 +3,7 @@ import 'mocha';
 import * as path from 'path';
 import { TestSuiteInfo } from 'vscode-test-adapter-api';
 
-import { parseTestStates, parseTestSuites } from '../src/unittestSuitParser';
+import { parseTestStates, parseTestSuites } from '../src/unittest/unittestSuitParser';
 
 suite('Unittest suite parser', () => {
     test('should return empty root suite for empty output', () => {

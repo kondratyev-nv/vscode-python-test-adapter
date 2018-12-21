@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 import * as vscode from 'vscode';
-import { VscodeWorkspaceConfiguration } from '../src/vscodeWorkspaceConfiguration';
+import { VscodeWorkspaceConfiguration } from '../src/configuration/vscodeWorkspaceConfiguration';
 import { findWorkspaceFolder } from './helpers';
 
 function createWorkspaceConfiguration(name: string) {

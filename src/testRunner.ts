@@ -2,7 +2,7 @@ import {
     TestEvent,
     TestSuiteInfo
 } from 'vscode-test-adapter-api';
-import { IWorkspaceConfiguration } from './workspaceConfiguration';
+import { IWorkspaceConfiguration } from './configuration/workspaceConfiguration';
 
 export interface ITestRunner {
     readonly adapterId: string;

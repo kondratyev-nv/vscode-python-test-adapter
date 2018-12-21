@@ -21,13 +21,13 @@ function getReporter() {
         options: {},
     };
 
-    if (!process.env.CI_BUILD) {
-        console.log('Not a CI build, using default reporter');
+    if (!process.env.JUNIT_REPORTER_ENABLED) {
+        console.log('JUNIT_REPORTER_ENABLED variable is not defined, using default reporter');
         return emptyOptions;
     }
 
     const testResultsFile = path.resolve(
-        path.join(process.env.TEST_RESULT_DIRECTORY || './', 'test-results.xml')
+        path.join(process.env.JUNIT_REPORTER_RESULT_DIRECTORY || './', 'test-results.xml')
     );
     console.log(`Results will be placed in ${testResultsFile}`);
     return {

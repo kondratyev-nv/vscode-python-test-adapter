@@ -11,7 +11,7 @@ import {
     TestSuiteInfo
 } from 'vscode-test-adapter-api';
 
-import { ConfigurationFactory } from './configurationFactory';
+import { IConfigurationFactory } from './configuration/configurationFactory';
 import { ILogger } from './logging/logger';
 import { ITestRunner } from './testRunner';
 
@@ -39,6 +39,7 @@ export class PythonTestAdapter implements TestAdapter {
     constructor(
         public readonly workspaceFolder: WorkspaceFolder,
         private readonly testRunner: ITestRunner,
+        private readonly configurationFactory: IConfigurationFactory,
         private readonly logger: ILogger
     ) {
         this.disposables = [
@@ -53,7 +54,7 @@ export class PythonTestAdapter implements TestAdapter {
             this.testsEmitter.fire({ type: 'started' });
 
             this.testsById.clear();
-            const config = ConfigurationFactory.get(this.workspaceFolder, this.logger);
+            const config = this.configurationFactory.get(this.workspaceFolder);
             const tests = await this.testRunner.load(config);
             this.saveToMap(tests);
             this.sortTests(tests);
@@ -68,7 +69,7 @@ export class PythonTestAdapter implements TestAdapter {
     public async run(tests: string[]): Promise<void> {
         try {
             this.testStatesEmitter.fire({ type: 'started', tests });
-            const config = ConfigurationFactory.get(this.workspaceFolder, this.logger);
+            const config = this.configurationFactory.get(this.workspaceFolder);
             const testRuns = tests.map(test => {
                 return this.testRunner.run(config, test)
                     .then(states => states.forEach(state => this.testStatesEmitter.fire(state)))

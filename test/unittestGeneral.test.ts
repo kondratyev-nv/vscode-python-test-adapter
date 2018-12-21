@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import 'mocha';
 import * as vscode from 'vscode';
 
-import { UnittestTestRunner } from '../src/unittestTestRunner';
-import { IWorkspaceConfiguration } from '../src/workspaceConfiguration';
+import { IWorkspaceConfiguration } from '../src/configuration/workspaceConfiguration';
+import { UnittestTestRunner } from '../src/unittest/unittestTestRunner';
 import { createUnittestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from './helpers';
 
 suite('Unittest test discovery', () => {

@@ -1,14 +1,15 @@
 import * as vscode from 'vscode';
 import { testExplorerExtensionId, TestHub } from 'vscode-test-adapter-api';
 
+import { DefaultConfigurationFactory } from './configuration/configurationFactory';
 import { nextId } from './idGenerator';
 import { DefaultLogger } from './logging/defaultLogger';
 import { ILogger } from './logging/logger';
 import { NoopOutputChannel } from './logging/outputChannels/noopOutputChannel';
 import { VscodeOutputChannel } from './logging/outputChannels/vscodeOutputChannel';
-import { PytestTestRunner } from './pytestTestRunner';
+import { PytestTestRunner } from './pytest/pytestTestRunner';
 import { PythonTestAdapter } from './pythonTestAdapter';
-import { UnittestTestRunner } from './unittestTestRunner';
+import { UnittestTestRunner } from './unittest/unittestTestRunner';
 
 type LoggerFactory = (framework: string, wf: vscode.WorkspaceFolder) => ILogger;
 
@@ -23,9 +24,12 @@ function registerTestAdapters(
     const pytestLogger = loggerFactory('pytest', wf);
     const pytestRunner = new PytestTestRunner(nextId(), pytestLogger);
 
+    const unittestConfigurationFactory = new DefaultConfigurationFactory(unittestLogger);
+    const pytestConfigurationFactory = new DefaultConfigurationFactory(pytestLogger);
+
     const adapters = [
-        new PythonTestAdapter(wf, unittestRunner, unittestLogger),
-        new PythonTestAdapter(wf, pytestRunner, pytestLogger)
+        new PythonTestAdapter(wf, unittestRunner, unittestConfigurationFactory, unittestLogger),
+        new PythonTestAdapter(wf, pytestRunner, pytestConfigurationFactory, pytestLogger)
     ];
     adapters.forEach(adapter => extension.exports.registerTestAdapter(adapter));
     return adapters;

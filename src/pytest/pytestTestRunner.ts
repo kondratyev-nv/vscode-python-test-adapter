@@ -5,14 +5,14 @@ import {
 
 import * as tmp from 'tmp';
 
-import { EnvironmentVariablesLoader } from './environmentVariablesLoader';
-import { ILogger } from './logging/logger';
+import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
+import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
+import { ILogger } from '../logging/logger';
+import { runScript } from '../pythonRunner';
+import { ITestRunner } from '../testRunner';
+import { empty } from '../utilities';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
-import { runScript } from './pythonRunner';
-import { ITestRunner } from './testRunner';
-import { empty } from './utilities';
-import { IWorkspaceConfiguration } from './workspaceConfiguration';
 
 export class PytestTestRunner implements ITestRunner {
     private static readonly PYTEST_WRAPPER_SCRIPT = `

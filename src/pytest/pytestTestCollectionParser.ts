@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
-import { empty } from './utilities';
+import { empty } from '../utilities';
 
 export function parseTestSuites(content: string, cwd: string): Array<TestSuiteInfo | TestInfo> {
     const token = parsePytestCollectionTokens(content, cwd);

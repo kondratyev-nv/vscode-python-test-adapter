@@ -1,17 +1,27 @@
 import { expect } from 'chai';
 import 'mocha';
+import * as vscode from 'vscode';
 import { TestEvent, TestLoadFinishedEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 
-import { ConfigurationFactory } from '../src/configurationFactory';
-import { PytestTestRunner } from '../src/pytestTestRunner';
+import { IConfigurationFactory } from '../src/configuration/configurationFactory';
+import { IWorkspaceConfiguration } from '../src/configuration/workspaceConfiguration';
+import { PytestTestRunner } from '../src/pytest/pytestTestRunner';
 import { PythonTestAdapter } from '../src/pythonTestAdapter';
-import { UnittestTestRunner } from '../src/unittestTestRunner';
-import { extractExpectedState, findTestSuiteByLabel, findWorkspaceFolder, logger } from './helpers';
+import { UnittestTestRunner } from '../src/unittest/unittestTestRunner';
+import {
+    createPytestConfiguration,
+    createUnittestConfiguration,
+    extractExpectedState,
+    findTestSuiteByLabel,
+    findWorkspaceFolder,
+    logger
+} from './helpers';
 
 [
     {
         label: 'unittest',
         runner: new UnittestTestRunner('first-id', logger()),
+        configuration: createUnittestConfiguration('python', 'unittest'),
         testsToRun: [
             'test_two_plus_one_is_three_passed',
             'test_two_plus_two_is_five_failed',
@@ -29,6 +39,7 @@ import { extractExpectedState, findTestSuiteByLabel, findWorkspaceFolder, logger
     {
         label: 'pytest',
         runner: new PytestTestRunner('second-id', logger()),
+        configuration: createPytestConfiguration('python', 'pytest'),
         testsToRun: [
             'test_one_plus_two_is_three_passed',
             'test_two_plus_two_is_five_failed',
@@ -46,12 +57,17 @@ import { extractExpectedState, findTestSuiteByLabel, findWorkspaceFolder, logger
             ],
         },
     }
-].forEach(({ label, runner, testsToRun, suiteToSort }) => {
-    suite.skip(`Adapter events with ${label} runner`, () => {
+].forEach(({ label, runner, configuration, testsToRun, suiteToSort }) => {
+    suite(`Adapter events with ${label} runner`, () => {
         const workspaceFolder = findWorkspaceFolder(label)!;
+        const configurationFactory: IConfigurationFactory = {
+            get(_: vscode.WorkspaceFolder): IWorkspaceConfiguration {
+                return configuration;
+            },
+        };
 
         test('discovery events should be successfully fired', async () => {
-            const adapter = new PythonTestAdapter(workspaceFolder, runner, logger());
+            const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
             let startedNotifications = 0;
             let finishedNotifications = 0;
             let finishedEvent: TestLoadFinishedEvent | undefined;
@@ -74,9 +90,8 @@ import { extractExpectedState, findTestSuiteByLabel, findWorkspaceFolder, logger
         });
 
         test(`test execution events should be successfully fired for ${label}`, async () => {
-            const adapter = new PythonTestAdapter(workspaceFolder, runner, logger());
-            const configuration = ConfigurationFactory.get(workspaceFolder, logger());
-            const mainSuite = await runner.load(configuration);
+            const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+            const mainSuite = await runner.load(configurationFactory.get(workspaceFolder));
             expect(mainSuite).to.be.not.undefined;
             const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);
 
@@ -108,7 +123,7 @@ import { extractExpectedState, findTestSuiteByLabel, findWorkspaceFolder, logger
         });
 
         test('discovered tests should be sorted alphabetically', async () => {
-            const adapter = new PythonTestAdapter(workspaceFolder, runner, logger());
+            const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
             let startedNotifications = 0;
             let finishedNotifications = 0;
             let finishedEvent: TestLoadFinishedEvent | undefined;

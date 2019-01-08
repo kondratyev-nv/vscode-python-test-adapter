@@ -35,6 +35,7 @@ suite('Pytest test discovery', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         const expectedSuites = [
+            'describe_test.py',
             'env_variables_test.py',
             'fixture_test.py',
             'generate_test.py',
@@ -94,6 +95,15 @@ suite('Run pytest tests', () => {
                     case: '::Test_CheckMyApp::Test_NestedClassB::Test_nested_classC_Of_B::test_e_passed',
                 }
             ],
+        },
+        {
+            suite: 'describe_append',
+            cases: [
+                {
+                    file: 'test/describe_test.py',
+                    case: '::describe_list::describe_append::adds_to_end_of_list_passed',
+                }
+            ],
         }
     ].forEach(({ suite, cases }) => {
         test(`should run ${suite} suite`, async () => {
@@ -121,7 +131,8 @@ suite('Run pytest tests', () => {
         'test_lower_passed',
         'test_passed[3-a-z]',
         'test_nested_class_methodC_passed',
-        'test_d_passed'
+        'test_d_passed',
+        'removes_item_from_list_passed'
     ].forEach(testMethod => {
         test(`should run ${testMethod} test`, async () => {
             const mainSuite = await runner.load(config);

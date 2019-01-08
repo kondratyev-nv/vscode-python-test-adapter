@@ -80,7 +80,10 @@ function parseLine(line: string, level: number, parent: ITestToken): ITestToken 
         };
     }
 
-    if (line.startsWith('<Class \'') || line.startsWith('<UnitTestCase \'')) {
+    if (line.startsWith('<Class \'') ||
+        line.startsWith('<UnitTestCase \'') ||
+        line.startsWith('<DescribeBlock \'')
+    ) {
         return {
             path: `${parent.path}::${name}`,
             file: parent.file,
@@ -99,6 +102,7 @@ function parseLine(line: string, level: number, parent: ITestToken): ITestToken 
             tokens: [],
         };
     }
+
     return undefined;
 }
 

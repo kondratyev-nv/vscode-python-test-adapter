@@ -11,6 +11,12 @@ suite('Pytest test collection parser', () => {
 platform linux -- Python 3.6.6, pytest-3.8.0, py-1.6.0, pluggy-0.7.1
 rootdir: /some/prefix, inifile:
 collected 94 items
+<Module 'pytest/test/describe_test.py'>
+  <DescribeBlock 'describe_list'>
+    <DescribeBlock 'describe_append'>
+      <Function 'adds_to_end_of_list'>
+    <DescribeBlock 'describe_remove'>
+      <Function 'removes_item_from_list'>
 <Module 'pytest/test/generate_test.py'>
   <Class 'TestSampleWithScenarios'>
     <Instance '()'>
@@ -61,6 +67,50 @@ collected 94 items
 `, '/some/prefix');
     expect(suites).to.be.not.empty;
     expect(suites).to.have.deep.members([
+      {
+        type: 'suite',
+        id: path.resolve('/some/prefix/', 'pytest/test/describe_test.py'),
+        file: path.resolve('/some/prefix/', 'pytest/test/describe_test.py'),
+        label: 'describe_test.py',
+        children: [
+          {
+            type: 'suite',
+            id: `${path.resolve('/some/prefix/', 'pytest/test/describe_test.py')}::describe_list`,
+            file: path.resolve('/some/prefix/', 'pytest/test/describe_test.py'),
+            label: 'describe_list',
+            children: [
+              {
+                type: 'suite',
+                id: `${path.resolve('/some/prefix/', 'pytest/test/describe_test.py')}::describe_list::describe_append`,
+                file: path.resolve('/some/prefix/', 'pytest/test/describe_test.py'),
+                label: 'describe_append',
+                children: [
+                  {
+                    type: 'test',
+                    id: path.resolve('/some/prefix/', 'pytest/test/describe_test.py')
+                      + '::describe_list::describe_append::adds_to_end_of_list',
+                    label: 'adds_to_end_of_list',
+                  }
+                ],
+              },
+              {
+                type: 'suite',
+                id: `${path.resolve('/some/prefix/', 'pytest/test/describe_test.py')}::describe_list::describe_remove`,
+                file: path.resolve('/some/prefix/', 'pytest/test/describe_test.py'),
+                label: 'describe_remove',
+                children: [
+                  {
+                    type: 'test',
+                    id: path.resolve('/some/prefix/', 'pytest/test/describe_test.py')
+                      + '::describe_list::describe_remove::removes_item_from_list',
+                    label: 'removes_item_from_list',
+                  }
+                ],
+              }
+            ],
+          }
+        ],
+      },
       {
         type: 'suite',
         id: path.resolve('/some/prefix/', 'pytest/test/generate_test.py'),

@@ -6,3 +6,7 @@ tslint.json
 .vscode/**
 .gitignore
 .travis.yml
+.azure-pipelines.yml
+.tox
+tox.ini
+requirements.txt

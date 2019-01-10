@@ -10,7 +10,14 @@ suite('Pytest test collection parser', () => {
 ============================== test session starts ==============================
 platform linux -- Python 3.6.6, pytest-3.8.0, py-1.6.0, pluggy-0.7.1
 rootdir: /some/prefix, inifile:
-collected 94 items
+plugins: describe-0.11.1
+collected 73 items / 1 errors
+<Module 'pytest/test/describe_test.py'>
+  <DescribeBlock 'describe_list'>
+    <DescribeBlock 'describe_append'>
+      <Function 'adds_to_end_of_list'>
+    <DescribeBlock 'describe_remove'>
+      <Function 'removes_item_from_list'>
 <Module 'pytest/test/generate_test.py'>
   <Class 'TestSampleWithScenarios'>
     <Instance '()'>
@@ -57,10 +64,64 @@ collected 94 items
             <Instance '()'>
               <Function 'test_d'>
 
-========================= no tests ran in 0.05 seconds ==========================
+==================================== ERRORS =====================================
+_________________ ERROR collecting pytest/test/describe_test.py _________________
+/python2.7/site-packages/pytest_describe/plugin.py:110: in _getobj
+    return self._importtestmodule()
+/python2.7/site-packages/pytest_describe/plugin.py:119: in _importtestmodule
+    copy_markinfo(module, self.funcobj)
+/python2.7/site-packages/pytest_describe/plugin.py:60: in copy_markinfo
+    from _pytest.mark import MarkInfo
+E   ImportError: cannot import name MarkInfo
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================ 1 error in 0.76 seconds ============================
 `, '/some/prefix');
     expect(suites).to.be.not.empty;
     expect(suites).to.have.deep.members([
+      {
+        type: 'suite',
+        id: path.resolve('/some/prefix/', 'pytest/test/describe_test.py'),
+        file: path.resolve('/some/prefix/', 'pytest/test/describe_test.py'),
+        label: 'describe_test.py',
+        children: [
+          {
+            type: 'suite',
+            id: `${path.resolve('/some/prefix/', 'pytest/test/describe_test.py')}::describe_list`,
+            file: path.resolve('/some/prefix/', 'pytest/test/describe_test.py'),
+            label: 'describe_list',
+            children: [
+              {
+                type: 'suite',
+                id: `${path.resolve('/some/prefix/', 'pytest/test/describe_test.py')}::describe_list::describe_append`,
+                file: path.resolve('/some/prefix/', 'pytest/test/describe_test.py'),
+                label: 'describe_append',
+                children: [
+                  {
+                    type: 'test',
+                    id: path.resolve('/some/prefix/', 'pytest/test/describe_test.py')
+                      + '::describe_list::describe_append::adds_to_end_of_list',
+                    label: 'adds_to_end_of_list',
+                  }
+                ],
+              },
+              {
+                type: 'suite',
+                id: `${path.resolve('/some/prefix/', 'pytest/test/describe_test.py')}::describe_list::describe_remove`,
+                file: path.resolve('/some/prefix/', 'pytest/test/describe_test.py'),
+                label: 'describe_remove',
+                children: [
+                  {
+                    type: 'test',
+                    id: path.resolve('/some/prefix/', 'pytest/test/describe_test.py')
+                      + '::describe_list::describe_remove::removes_item_from_list',
+                    label: 'removes_item_from_list',
+                  }
+                ],
+              }
+            ],
+          }
+        ],
+      },
       {
         type: 'suite',
         id: path.resolve('/some/prefix/', 'pytest/test/generate_test.py'),

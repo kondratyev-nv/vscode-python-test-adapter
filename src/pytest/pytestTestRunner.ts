@@ -16,10 +16,19 @@ import { parseTestSuites } from './pytestTestCollectionParser';
 
 export class PytestTestRunner implements ITestRunner {
     private static readonly PYTEST_WRAPPER_SCRIPT = `
+from __future__ import print_function
+
 import pytest
 import sys
 
-pytest.main(sys.argv[1:])`;
+class PythonTestExplorerDiscoveryOutputPlugin(object):
+    def pytest_collection_finish(self, session):
+        print('==DISCOVERED TESTS BEGIN==')
+        for item in session.items:
+            print(item.nodeid)
+        print('==DISCOVERED TESTS   END==')
+
+pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
 
     constructor(
         public readonly adapterId: string,
@@ -36,7 +45,7 @@ pytest.main(sys.argv[1:])`;
         const output = await runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
-            args: ['--collect-only'],
+            args: ['--collect-only', '-qq'],
             cwd: config.getCwd(),
             environment: additionalEnvironment,
         });

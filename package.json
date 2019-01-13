@@ -37,10 +37,10 @@
   ],
   "keywords": [
     "python",
-    "unittest",
-    "pytest",
     "test",
-    "testing"
+    "testing",
+    "unittest",
+    "pytest"
   ],
   "scripts": {
     "postinstall": "node ./node_modules/vscode/bin/install",

@@ -1,141 +1,77 @@
 import * as path from 'path';
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
-import { empty } from '../utilities';
+import { empty, getTestOutputBySplittingString, groupBy } from '../utilities';
 
 export function parseTestSuites(content: string, cwd: string): Array<TestSuiteInfo | TestInfo> {
-    const token = parsePytestCollectionTokens(content, cwd);
-    return getTests(token.tokens);
+    const allTests = getTestOutputBySplittingString(content, '==DISCOVERED TESTS BEGIN==')
+        .split(/\r?\n/g)
+        .map(line => line.trim())
+        .map(line => line.replace(/::\(\)/g, ''))
+        .filter(line => line)
+        .map(line => splitModule(line, cwd))
+        .filter(line => line)
+        .map(line => line!);
+    return Array.from(groupBy(allTests, t => t.modulePath).entries())
+        .map(([modulePath, tests]) => ({
+            type: 'suite' as 'suite',
+            id: modulePath,
+            label: path.basename(modulePath),
+            file: modulePath,
+            children: toTestSuites(tests.map(t => ({ head: t.modulePath, tail: t.testPath }))),
+        }));
 }
 
-interface ITestToken {
-    path: string;
-    file: string;
-    type: 'package' | 'module' | 'class' | 'method';
-    level: number;
-    tokens: ITestToken[];
-}
-
-function getTests(tokens: ITestToken[]): Array<TestSuiteInfo | TestInfo> {
-    if (empty(tokens)) {
+function toTestSuites(tests: Array<{ head: string, tail: string }>): Array<TestSuiteInfo | TestInfo> {
+    if (empty(tests)) {
         return [];
     }
-    return tokens.map(token => {
-        if (token.type === 'module' || token.type === 'class') {
-            const suite: TestSuiteInfo = {
-                type: 'suite',
-                id: token.path,
-                label: getLabel(token.path),
-                file: token.file,
-                children: getTests(token.tokens),
-            };
-            return [suite];
-        }
-        if (token.type === 'method') {
-            const test: TestInfo = {
-                type: 'test',
-                id: token.path,
-                label: getLabel(token.path),
-            };
-            return [test];
-        }
-        return getTests(token.tokens);
-    }).filter(x => x).map(x => x!).reduce((r, x) => r.concat(x), []);
+    const testsAndSuites = groupBy(tests, t => t.tail.includes('::'));
+    return (toFirstLevelTests(testsAndSuites.get(false)) as Array<TestSuiteInfo | TestInfo>)
+        .concat(toSuites(testsAndSuites.get(true)) as Array<TestSuiteInfo | TestInfo>);
 }
 
-function getLabel(tokenPath: string): string {
-    const indexOfSplit = tokenPath.lastIndexOf('::');
-    if (indexOfSplit < 0) {
-        return path.basename(tokenPath);
+function toSuites(suites: Array<{ head: string, tail: string }> | undefined): TestSuiteInfo[] {
+    if (!suites) {
+        return [];
     }
-    return tokenPath.substring(indexOfSplit + 2);
+    return Array.from(groupBy(suites.map(test => splitTest(test)), group => group.head).entries())
+        .map(([suite, suiteTests]) => ({
+            type: 'suite' as 'suite',
+            id: suite,
+            label: suiteTests[0].name,
+            file: suite,
+            children: toTestSuites(suiteTests),
+        }));
 }
 
-function parseLine(line: string, level: number, parent: ITestToken): ITestToken | undefined {
-    const nameBeginIndex = line.indexOf('\'');
-    const nameEndIndex = line.lastIndexOf('\'');
-    if (nameBeginIndex < 0 || nameEndIndex < 0 || (nameEndIndex - nameBeginIndex) < 1) {
-        return undefined;
+function toFirstLevelTests(tests: Array<{ head: string, tail: string }> | undefined): TestInfo[] {
+    if (!tests) {
+        return [];
     }
-
-    const name = line.substring(nameBeginIndex + 1, nameEndIndex);
-    if (line.startsWith('<Package \'')) {
-        return {
-            path: name,
-            file: name,
-            type: 'package',
-            level,
-            tokens: [],
-        };
-    }
-
-    if (line.startsWith('<Module \'')) {
-        const modulePath = path.resolve(parent.path, name);
-        return {
-            path: modulePath,
-            file: modulePath,
-            type: 'module',
-            level,
-            tokens: [],
-        };
-    }
-
-    if (line.startsWith('<Class \'') ||
-        line.startsWith('<UnitTestCase \'') ||
-        line.startsWith('<DescribeBlock \'')
-    ) {
-        return {
-            path: `${parent.path}::${name}`,
-            file: parent.file,
-            type: 'class',
-            level,
-            tokens: [],
-        };
-    }
-
-    if (line.startsWith('<TestCaseFunction \'') || line.startsWith('<Function \'')) {
-        return {
-            path: `${parent.path}::${name}`,
-            file: parent.file,
-            type: 'method',
-            level,
-            tokens: [],
-        };
-    }
-
-    return undefined;
+    return tests.map(test => ({
+        id: `${test.head}::${test.tail}`,
+        label: test.tail,
+        type: 'test' as 'test',
+    }));
 }
 
-function parsePytestCollectionTokens(content: string, cwd: string): ITestToken {
-    const rootTestSuite: ITestToken = {
-        path: cwd,
-        file: cwd,
-        type: 'package',
-        level: -1,
-        tokens: [],
+function splitTest(test: { head: string, tail: string }) {
+    const separatorIndex = test.tail.indexOf('::');
+    return {
+        head: `${test.head}::${test.tail.substring(0, separatorIndex)}`,
+        tail: test.tail.substring(separatorIndex + 2),
+        name: test.tail.substring(0, separatorIndex),
     };
-    const testSuites: ITestToken[] = [rootTestSuite];
-    content.split(/\r?\n/g)
-        .forEach(line => {
-            const trimmedLine = line.trim();
-            if (!trimmedLine) {
-                return;
-            }
+}
 
-            const level = line.indexOf('<');
-            if (level < 0) {
-                return;
-            }
-            while (level <= testSuites[testSuites.length - 1].level) {
-                testSuites.pop();
-            }
-            const parent = testSuites[testSuites.length - 1];
-            const token = parseLine(trimmedLine, level, parent);
-            if (!token) {
-                return;
-            }
-            parent.tokens.push(token);
-            testSuites.push(token);
-        });
-    return rootTestSuite;
+function splitModule(testId: string, cwd: string) {
+    const separatorIndex = testId.indexOf('::');
+    if (separatorIndex < 0) {
+        return null;
+    }
+    return {
+        modulePath: path.resolve(cwd, testId.substring(0, separatorIndex)),
+        testPath: testId.substring(separatorIndex + 2),
+    };
 }

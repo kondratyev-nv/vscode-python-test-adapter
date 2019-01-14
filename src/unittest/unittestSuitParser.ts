@@ -1,6 +1,7 @@
 import { Base64 } from 'js-base64';
 import * as path from 'path';
 import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
+import { getTestOutputBySplittingString, groupBy } from '../utilities';
 
 export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
     const allTests = getTestOutputBySplittingString(output, '==DISCOVERED TESTS==')
@@ -51,11 +52,6 @@ function tryParseTestState(line: string): TestEvent | undefined {
     };
 }
 
-function getTestOutputBySplittingString(output: string, stringToSplitWith: string): string {
-    const split = output.split(stringToSplitWith);
-    return split && split.pop() || '';
-}
-
 function toState(value: string): 'running' | 'passed' | 'failed' | 'skipped' | undefined {
     switch (value) {
         case 'running':
@@ -66,17 +62,6 @@ function toState(value: string): 'running' | 'passed' | 'failed' | 'skipped' | u
         default:
             return undefined;
     }
-}
-
-function groupBy<T, U>(values: T[], key: (v: T) => U) {
-    return values.reduce((accumulator, x) => {
-        if (accumulator.has(key(x))) {
-            accumulator.get(key(x))!.push(x);
-        } else {
-            accumulator.set(key(x), [x]);
-        }
-        return accumulator;
-    }, new Map<U, T[]>());
 }
 
 function splitTestId(testId: string) {

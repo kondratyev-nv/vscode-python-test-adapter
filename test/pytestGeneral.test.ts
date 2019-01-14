@@ -147,4 +147,24 @@ suite('Run pytest tests', () => {
             });
         });
     });
+
+    [
+        'test_one_plus_two_is_three_passed',
+        'test_two_plus_two_is_five_failed'
+    ].forEach(testMethod => {
+        test(`should capture output from ${testMethod} test`, async () => {
+            const mainSuite = await runner.load(config);
+            expect(mainSuite).to.be.not.undefined;
+            const suite = findTestSuiteByLabel(mainSuite!, testMethod);
+            expect(suite).to.be.not.undefined;
+            const states = await runner.run(config, suite!.id);
+            expect(states).to.be.not.empty;
+            states.forEach(state => {
+                const expectedState = extractExpectedState(state.test as string);
+                expect(state.state).to.be.eq(expectedState);
+                expect(state.message).to.be.not.empty;
+                expect(state.message!.startsWith(`Hello from ${testMethod}`)).to.be.true;
+            });
+        });
+    });
 });

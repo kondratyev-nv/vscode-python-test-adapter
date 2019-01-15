@@ -4,6 +4,7 @@ import * as path from 'path';
 import { TestEvent } from 'vscode-test-adapter-api';
 import * as xml2js from 'xml2js';
 
+import { empty } from '../utilities';
 
 interface ITestSuiteResult {
     $: {
@@ -39,6 +40,7 @@ interface ITestCaseResult {
         _: string;
         $: { message: string; type: string };
     }>;
+    'system-out': string[];
 }
 
 export async function parseTestStates(
@@ -86,23 +88,24 @@ export async function parseTestStates(
 }
 
 function getTestState(testcase: ITestCaseResult): ['passed' | 'failed' | 'skipped', string] {
+    const output = empty(testcase['system-out']) ? '' : testcase['system-out'].join(EOL) + EOL;
     if (testcase.error) {
-        return ['failed', extractErrorMessage(testcase.error)];
+        return ['failed', output + extractErrorMessage(testcase.error)];
     }
     if (testcase.failure) {
-        return ['failed', extractErrorMessage(testcase.failure)];
+        return ['failed', output + extractErrorMessage(testcase.failure)];
     }
     if (testcase.skipped) {
-        return ['skipped', extractErrorMessage(testcase.skipped)];
+        return ['skipped', output + extractErrorMessage(testcase.skipped)];
     }
-    return ['passed', ''];
+    return ['passed', output];
 }
 
-function extractErrorMessage(errors: Array<{ $: { message: string; }; }>): string {
+function extractErrorMessage(errors: Array<{ _: string, $: { message: string; }; }>): string {
     if (!errors || !errors.length) {
         return '';
     }
-    return errors.map(e => e.$.message).join(EOL);
+    return errors.map(e => e.$.message + EOL + e._).join(EOL);
 }
 
 function buildTestName(cwd: string, test: ITestCaseDescription): string | undefined {

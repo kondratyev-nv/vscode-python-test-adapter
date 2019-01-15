@@ -1,4 +1,4 @@
-import { Event, EventEmitter, WorkspaceFolder } from 'vscode';
+import { debug, Event, EventEmitter, WorkspaceFolder } from 'vscode';
 import {
     TestAdapter,
     TestEvent,
@@ -84,8 +84,20 @@ export class PythonTestAdapter implements TestAdapter {
         }
     }
 
-    public debug(): Promise<void> {
-        throw new Error('Method not implemented.');
+    public debug(tests: string[]): Promise<void> {
+        const config = this.configurationFactory.get(this.workspaceFolder);
+        const debugConfiguration = this.testRunner.debugConfiguration(config, tests[0]);
+        return new Promise<void>(() => {
+            debug.startDebugging(this.workspaceFolder, {
+                ...{
+                    name: `Debug ${tests[0]}`,
+                    type: 'python',
+                    request: 'launch',
+                    console: 'none',
+                },
+                ...debugConfiguration,
+            }).then(() => { /* intentionally omitted */ });
+        });
     }
 
     public cancel(): void {

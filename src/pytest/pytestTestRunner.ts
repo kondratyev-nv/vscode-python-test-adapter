@@ -9,7 +9,7 @@ import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { runScript } from '../pythonRunner';
-import { ITestRunner } from '../testRunner';
+import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
@@ -34,6 +34,15 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         public readonly adapterId: string,
         private readonly logger: ILogger
     ) { }
+
+    public debugConfiguration(config: IWorkspaceConfiguration, test: string): IDebugConfiguration {
+        return {
+            module: 'pytest',
+            cwd: config.getCwd(),
+            args: test !== this.adapterId ? [test] : [],
+            envFile: config.envFile(),
+        };
+    }
 
     public async load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined> {
         if (!config.getPytestConfiguration().isPytestEnabled) {
@@ -76,7 +85,6 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
             args: test !== this.adapterId ? [xunitArgument, test] : [xunitArgument],
             environment: additionalEnvironment,
         });
-
         this.logger.log('info', 'Test execution completed');
         const states = await parseTestStates(tempFile.file, config.getCwd());
         tempFile.cleanupCallback();

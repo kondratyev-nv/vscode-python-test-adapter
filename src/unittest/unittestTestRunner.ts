@@ -8,7 +8,7 @@ import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { runScript } from '../pythonRunner';
-import { ITestRunner } from '../testRunner';
+import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities';
 import { unittestHelperScript } from './unittestScripts';
 import { parseTestStates, parseTestSuites } from './unittestSuitParser';
@@ -18,6 +18,10 @@ export class UnittestTestRunner implements ITestRunner {
         public readonly adapterId: string,
         private readonly logger: ILogger
     ) { }
+
+    public debugConfiguration(): IDebugConfiguration {
+        throw new Error('Unittest debugging is not supported at the time.');
+    }
 
     public async load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined> {
         if (!config.getUnittestConfiguration().isUnittestEnabled) {

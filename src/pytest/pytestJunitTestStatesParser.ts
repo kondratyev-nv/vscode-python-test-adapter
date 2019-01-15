@@ -88,15 +88,15 @@ export async function parseTestStates(
 }
 
 function getTestState(testcase: ITestCaseResult): ['passed' | 'failed' | 'skipped', string] {
-    const output = empty(testcase['system-out']) ? '' : testcase['system-out'].join(EOL);
+    const output = empty(testcase['system-out']) ? '' : testcase['system-out'].join(EOL) + EOL;
     if (testcase.error) {
-        return ['failed', output + EOL + extractErrorMessage(testcase.error)];
+        return ['failed', output + extractErrorMessage(testcase.error)];
     }
     if (testcase.failure) {
-        return ['failed', output + EOL + extractErrorMessage(testcase.failure)];
+        return ['failed', output + extractErrorMessage(testcase.failure)];
     }
     if (testcase.skipped) {
-        return ['skipped', output + EOL + extractErrorMessage(testcase.skipped)];
+        return ['skipped', output + extractErrorMessage(testcase.skipped)];
     }
     return ['passed', output];
 }

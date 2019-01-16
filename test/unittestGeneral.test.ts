@@ -36,7 +36,8 @@ suite('Unittest test discovery', () => {
         const expectedSuites = [
             'TestWithOutputBeforeImport',
             'TestWithSetUpClassMethod',
-            'AddTests',
+            'AddTests (basic_tests.test_add)',
+            'AddTests (other_tests.test_add)',
             'EnvironmentVariablesTests'
         ];
         const labels = mainSuite!.children.map(x => x.label);
@@ -63,7 +64,7 @@ suite('Run unittest tests', () => {
     [
         'TestWithOutputBeforeImport',
         'TestWithSetUpClassMethod',
-        'AddTests'
+        'AddTests (basic_tests.test_add)'
     ].forEach(testCase => {
         test(`should run ${testCase} suite`, async () => {
             const mainSuite = await runner.load(config);

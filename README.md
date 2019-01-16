@@ -14,6 +14,7 @@ tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?ite
 * Shows a Test Explorer in the Test view in VS Code's sidebar with all detected tests and suites and their state
 * Shows a failed test's log when the test is selected in the explorer
 * Supports multi-root workspaces
+* Supports Unittest and Pytest test frameworks
 
 ## Getting started
 * Install the extension
@@ -52,5 +53,5 @@ Whether no tests were discovered in the Test Explorer view or anything else does
 
 ## Questions, issues, feature requests, and contributions
 
-* If you have any question or a problem with the extension, please [file an issue](https://github.com/kondratyev-nv/vscode-python-test-adapter/issues)
-* Contributions are always welcome! Please see [contributing guide](CONTRIBUTING.md) for more details
+* If you have any question or a problem with the extension, please [file an issue](https://github.com/kondratyev-nv/vscode-python-test-adapter/issues).
+* Contributions are always welcome! Please see [contributing guide](CONTRIBUTING.md) for more details.

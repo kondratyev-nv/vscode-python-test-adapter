@@ -72,7 +72,7 @@ export function createPytestConfiguration(python: string, folder: string): IWork
                 pytestArguments: [],
             };
         },
-    }, wf);
+    }, wf, logger());
 }
 
 export function createUnittestConfiguration(python: string, folder: string): IWorkspaceConfiguration {
@@ -99,5 +99,5 @@ export function createUnittestConfiguration(python: string, folder: string): IWo
         getPytestConfiguration(): IPytestConfiguration {
             throw new Error();
         },
-    }, wf);
+    }, wf, logger());
 }

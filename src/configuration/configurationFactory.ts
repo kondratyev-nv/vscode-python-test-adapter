@@ -16,7 +16,8 @@ export class DefaultConfigurationFactory implements IConfigurationFactory {
         this.logger.log('info', `Reading configuration for workspace ${workspaceFolder.name}`);
         return new PlaceholderAwareWorkspaceConfiguration(
             new VscodeWorkspaceConfiguration(workspaceFolder),
-            workspaceFolder
+            workspaceFolder,
+            this.logger
         );
     }
 }

@@ -8,7 +8,7 @@ import {
     IUnittestConfiguration,
     IWorkspaceConfiguration
 } from '../src/configuration/workspaceConfiguration';
-import { findWorkspaceFolder } from './helpers';
+import { findWorkspaceFolder, logger } from './helpers';
 
 function getWorkspaceFolder() {
     return findWorkspaceFolder('empty_configuration')!;
@@ -16,7 +16,7 @@ function getWorkspaceFolder() {
 
 function getConfiguration(configuration: IWorkspaceConfiguration) {
     const wf = getWorkspaceFolder();
-    return new PlaceholderAwareWorkspaceConfiguration(configuration, wf);
+    return new PlaceholderAwareWorkspaceConfiguration(configuration, wf, logger());
 }
 
 suite('Placeholder aware workspace configuration', () => {
@@ -133,5 +133,78 @@ suite('Placeholder aware workspace configuration', () => {
         const wfPath = getWorkspaceFolder().uri.fsPath;
         expect(configuration.pythonPath()).to.be.eq('python');
         expect(configuration.getCwd()).to.be.eq(path.normalize(path.resolve(wfPath, 'some', 'cwd', 'suffix')));
+    });
+
+    [
+        ['${workspaceFolder}', getWorkspaceFolder().uri.fsPath],
+        ['${workspaceRoot}', getWorkspaceFolder().uri.fsPath],
+        ['${cwd}', getWorkspaceFolder().uri.fsPath]
+    ].forEach(([placeholder, expectedPath]) => {
+        test(`should resolve placeholder ${placeholder} from configuration`, () => {
+            const configuration = getConfiguration({
+                pythonPath(): string {
+                    return `${placeholder}/some/local/python`;
+                },
+                getCwd(): string {
+                    return '';
+                },
+                envFile(): string {
+                    return '${workspaceFolder}/.env';
+                },
+                getUnittestConfiguration(): IUnittestConfiguration {
+                    return {
+                        isUnittestEnabled: true,
+                        unittestArguments: {
+                            startDirectory: './',
+                            pattern: 'test_*.py',
+                        },
+                    };
+                },
+                getPytestConfiguration(): IPytestConfiguration {
+                    return {
+                        isPytestEnabled: true,
+                        pytestArguments: [],
+                    };
+                },
+            });
+
+            expect(configuration.pythonPath()).to.be.eq(path.resolve(expectedPath, 'some', 'local', 'python'));
+        });
+    });
+
+    [
+        ['${workspaceFolderBasename}', getWorkspaceFolder().name],
+        ['${workspaceRootFolderName}', getWorkspaceFolder().name]
+    ].forEach(([placeholder, expectedPath]) => {
+        test(`should resolve placeholder ${placeholder} from configuration`, () => {
+            const configuration = getConfiguration({
+                pythonPath(): string {
+                    return `/some/prefix/${placeholder}/some/local/python`;
+                },
+                getCwd(): string {
+                    return '';
+                },
+                envFile(): string {
+                    return '${workspaceFolder}/.env';
+                },
+                getUnittestConfiguration(): IUnittestConfiguration {
+                    return {
+                        isUnittestEnabled: true,
+                        unittestArguments: {
+                            startDirectory: './',
+                            pattern: 'test_*.py',
+                        },
+                    };
+                },
+                getPytestConfiguration(): IPytestConfiguration {
+                    return {
+                        isPytestEnabled: true,
+                        pytestArguments: [],
+                    };
+                },
+            });
+
+            expect(configuration.pythonPath()).to.be.eq(`/some/prefix/${expectedPath}/some/local/python`);
+        });
     });
 });

@@ -204,7 +204,9 @@ suite('Placeholder aware workspace configuration', () => {
                 },
             });
 
-            expect(configuration.pythonPath()).to.be.eq(`/some/prefix/${expectedPath}/some/local/python`);
+            expect(configuration.pythonPath()).to.be.eq(
+                path.normalize(path.resolve('/some', 'prefix' , expectedPath, 'some', 'local', 'python'))
+            );
         });
     });
 });

@@ -1,16 +1,16 @@
+import * as path from 'path';
+import * as tmp from 'tmp';
 import {
     TestEvent,
     TestSuiteInfo
 } from 'vscode-test-adapter-api';
-
-import * as tmp from 'tmp';
 
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { runScript } from '../pythonRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
-import { empty } from '../utilities';
+import { empty, ensureDifferentLabels } from '../utilities';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
 
@@ -58,11 +58,13 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
             cwd: config.getCwd(),
             environment: additionalEnvironment,
         });
+
         const suites = parseTestSuites(output, config.getCwd());
         if (empty(suites)) {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
         }
+        ensureDifferentLabels(suites, path.sep);
 
         return {
             type: 'suite',

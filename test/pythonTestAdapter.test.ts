@@ -28,7 +28,7 @@ import {
             'test_two_plus_zero_is_two_skipped'
         ],
         suiteToSort: {
-            suite: 'AddTests',
+            suite: 'AddTests (basic_tests.test_add)',
             sortedTests: [
                 'test_two_plus_one_is_three_passed',
                 'test_two_plus_two_is_five_failed',

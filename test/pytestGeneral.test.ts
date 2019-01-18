@@ -41,7 +41,8 @@ suite('Pytest test discovery', async () => {
             'generate_test.py',
             'inner_fixture_test.py',
             'string_test.py',
-            'add_test.py'
+            'add_test.py (inner_tests)',
+            'add_test.py (other_tests)'
         ];
         const labels = mainSuite!.children.map(x => x.label);
         expect(labels).to.have.members(expectedSuites);
@@ -81,7 +82,7 @@ suite('Run pytest tests', () => {
             ],
         },
         {
-            suite: 'add_test.py',
+            suite: 'add_test.py (inner_tests)',
             cases: [
                 { file: 'test/inner_tests/add_test.py', case: '::test_one_plus_two_is_three_passed' },
                 { file: 'test/inner_tests/add_test.py', case: '::test_two_plus_two_is_five_failed' }

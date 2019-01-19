@@ -49,7 +49,7 @@ testRunner.configure(<any>{
     ui: 'tdd',       // the TDD UI is being used in extension.test.ts (suite, test, etc.)
     useColors: true, // colored output from test results
     slow: 1000,
-    timeout: 5000,
+    timeout: 10000,
     reporter: reporter.name,
     reporterOptions: reporter.options,
 });

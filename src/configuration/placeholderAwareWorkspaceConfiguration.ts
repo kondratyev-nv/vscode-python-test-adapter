@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { WorkspaceFolder } from 'vscode';
 
+import { ILogger } from '../logging/logger';
 import {
     IPytestConfiguration,
     IUnittestConfiguration,
@@ -10,7 +11,8 @@ import {
 export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfiguration {
     constructor(
         private readonly configuration: IWorkspaceConfiguration,
-        public readonly workspaceFolder: WorkspaceFolder
+        public readonly workspaceFolder: WorkspaceFolder,
+        private readonly logger: ILogger
     ) { }
 
     public pythonPath(): string {
@@ -47,6 +49,10 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
     private resolvePlaceholders(rawValue: string): string {
         const availableReplacements = new Map<string, string>();
         availableReplacements.set('workspaceFolder', this.workspaceFolder.uri.fsPath);
+        availableReplacements.set('workspaceRoot', this.workspaceFolder.uri.fsPath);
+        availableReplacements.set('workspaceFolderBasename', path.basename(this.workspaceFolder.uri.fsPath));
+        availableReplacements.set('workspaceRootFolderName', path.basename(this.workspaceFolder.uri.fsPath));
+        availableReplacements.set('cwd', this.workspaceFolder.uri.fsPath);
         Object.keys(process.env)
             .filter(key => process.env[key])
             .forEach(key => {
@@ -59,6 +65,7 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
             if (replacement) {
                 return replacement;
             }
+            this.logger.log('warn', `Placeholder ${match} was not recognized and can not be replaced.`);
             return match;
         });
     }

@@ -18,5 +18,7 @@ export interface ITestRunner {
 
     run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]>;
 
+    cancel(): void;
+
     debugConfiguration(config: IWorkspaceConfiguration, test: string): IDebugConfiguration;
 }

@@ -6,6 +6,7 @@ from unittest import TextTestRunner, TextTestResult, TestLoader, TestSuite, defa
 import sys
 import base64
 
+TEST_RESULT_PREFIX = 'TEST_EXECUTION_RESULT:'
 
 class TextTestResultWithSuccesses(TextTestResult):
     def __init__(self, *args, **kwargs):
@@ -50,24 +51,22 @@ def run_tests(test_names):
     runner = TextTestRunnerWithSingleResult()
 
     tests = [TestSuite([test]) for test in filter_by_test_ids(discover_tests(), test_names)]
-    results = [runner.run(test) for test in tests]
-    print("==TEST RESULTS==")
-
-    for result in results:
+    for test in tests:
+        result = runner.run(test)
         for r in result.skipped:
-            print("skipped:", r[0].id(), ":", base64.b64encode(
+            print("TEST_RESULT_PREFIX:skipped:", r[0].id(), ":", base64.b64encode(
                 r[1].encode('utf8')).decode('ascii'))
 
         for r in result.failures:
-            print("failed:", r[0].id(), ":", base64.b64encode(
+            print("TEST_RESULT_PREFIX:failed:", r[0].id(), ":", base64.b64encode(
                 r[1].encode('utf8')).decode('ascii'))
 
         for r in result.errors:
-            print("failed:", r[0].id(), ":", base64.b64encode(
+            print("TEST_RESULT_PREFIX:failed:", r[0].id(), ":", base64.b64encode(
                 r[1].encode('utf8')).decode('ascii'))
 
         for r in result.successes:
-            print("passed:", r.id())
+            print("TEST_RESULT_PREFIX:passed:", r.id())
 
 
 action = sys.argv[1]

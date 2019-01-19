@@ -26,10 +26,12 @@ export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
 }
 
 export function parseTestStates(output: string): TestEvent[] {
-    return getTestOutputBySplittingString(output, '==TEST RESULTS==')
+    return output
         .split(/\r?\n/g)
         .map(line => line.trim())
         .filter(line => line)
+        .filter(line => line.startsWith('TEST_RESULT_PREFIX:'))
+        .map(line => line.replace('TEST_RESULT_PREFIX:', ''))
         .map(line => tryParseTestState(line))
         .filter(line => line)
         .map(line => line!);

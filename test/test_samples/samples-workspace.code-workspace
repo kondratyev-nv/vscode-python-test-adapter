@@ -32,6 +32,12 @@
         },
         {
             "path": "workspaces/not_existent_env_file"
+        },
+        {
+            "path": "pytest_test_cancellation"
+        },
+        {
+            "path": "unittest_test_cancellation"
         }
     ],
     "settings": {}

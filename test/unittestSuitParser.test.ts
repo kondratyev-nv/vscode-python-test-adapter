@@ -107,10 +107,10 @@ suite('Unittest test states parser', () => {
 
     test('should return events for different states', () => {
         const testOutput = [
-            'failed:some_module.TestCase1.test_function1:c29tZSBtdWx0aWxpbmUKZXJyb3IgbWVzc2FnZQ==',
-            'passed:some_module.TestCase1.test_function2',
-            'skipped:some_module.TestCase1.test_function3',
-            'passed:some_other_module.TestCase2.test_function'
+            'TEST_RESULT_PREFIX:failed:some_module.TestCase1.test_function1:c29tZSBtdWx0aWxpbmUKZXJyb3IgbWVzc2FnZQ==',
+            'TEST_RESULT_PREFIX:passed:some_module.TestCase1.test_function2',
+            'TEST_RESULT_PREFIX:skipped:some_module.TestCase1.test_function3',
+            'TEST_RESULT_PREFIX:passed:some_other_module.TestCase2.test_function'
         ];
         const states = parseTestStates(testOutput.join('\n'));
         expect(states).to.be.not.empty;

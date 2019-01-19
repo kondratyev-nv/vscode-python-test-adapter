@@ -9,7 +9,7 @@ import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { runScript } from '../pythonRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
-import { empty } from '../utilities';
+import { empty, ensureDifferentLabels } from '../utilities';
 import { unittestHelperScript } from './unittestScripts';
 import { parseTestStates, parseTestSuites } from './unittestSuitParser';
 
@@ -40,11 +40,13 @@ export class UnittestTestRunner implements ITestRunner {
             cwd: config.getCwd(),
             environment: additionalEnvironment,
         });
+
         const suites = parseTestSuites(output, path.resolve(config.getCwd(), unittestArguments.startDirectory));
         if (empty(suites)) {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
         }
+        ensureDifferentLabels(suites, '.');
 
         return {
             type: 'suite',

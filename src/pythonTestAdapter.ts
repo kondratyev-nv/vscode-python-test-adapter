@@ -111,7 +111,7 @@ export class PythonTestAdapter implements TestAdapter {
         this.disposables = [];
     }
 
-    private sortTests(test: TestSuiteInfo | undefined): any {
+    private sortTests(test: TestSuiteInfo | undefined): void {
         if (!test) {
             return;
         }

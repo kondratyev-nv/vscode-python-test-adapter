@@ -27,6 +27,8 @@ jobs:
     displayName: 'Use Node 8.x'
     inputs:
       versionSpec: 8.x
+  - script: npm install npm -g
+    displayName: 'Update npm'
   - task: Npm@1
     displayName: 'Install dependencies'
     inputs:
@@ -41,6 +43,10 @@ jobs:
     displayName: 'Update pip'
   - script: python -m pip install -r requirements.txt
     displayName: 'Install requirements'
+  - script: npm run lint
+    displayName: 'Linting'
+  - script: npm audit
+    displayName: 'Npm security audit'
   - script: npm test
     displayName: 'Run tests'
   - task: PublishTestResults@2
@@ -76,6 +82,8 @@ jobs:
     displayName: 'Use Node 8.x'
     inputs:
       versionSpec: 8.x
+  - script: npm install npm -g
+    displayName: 'Update npm'
   - task: Npm@1
     displayName: 'Install dependencies'
     inputs:
@@ -91,6 +99,10 @@ jobs:
   - script: |
       python -m pip install --upgrade setuptools tox
     displayName: 'Install requirements'
+  - script: npm run lint
+    displayName: 'Linting'
+  - script: npm audit
+    displayName: 'Npm security audit'
   - script: tox -e $(TOXENV)
     displayName: 'Run tests'
   - task: PublishTestResults@2
@@ -123,6 +135,8 @@ jobs:
     displayName: 'Use Node 8.x'
     inputs:
       versionSpec: 8.x
+  - script: npm install npm -g
+    displayName: 'Update npm'
   - task: Npm@1
     displayName: 'Install dependencies'
     inputs:
@@ -142,6 +156,10 @@ jobs:
       /usr/bin/Xvfb :10 -ac >> /tmp/Xvfb.out 2>&1 &
       disown -ar
     displayName: 'Start xvfb'
+  - script: npm run lint
+    displayName: 'Linting'
+  - script: npm audit
+    displayName: 'Npm security audit'
   - script: npm test
     displayName: 'Run tests'
     env:

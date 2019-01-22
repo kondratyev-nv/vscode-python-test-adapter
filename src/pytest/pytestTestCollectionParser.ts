@@ -22,25 +22,39 @@ export function parseTestSuites(content: string, cwd: string): Array<TestSuiteIn
             id: modulePath,
             label: path.basename(modulePath),
             file: modulePath,
-            children: toTestSuites(tests.map(t => ({ head: t.modulePath, tail: t.testPath, line: t.line, path: modulePath }))),
+            children: toTestSuites(
+                tests.map(t => ({
+                    idHead: t.modulePath,
+                    idTail: t.testPath,
+                    line: t.line,
+                    path: modulePath,
+                }))
+            ),
         }));
 }
 
-function toTestSuites(tests: Array<{ head: string, tail: string, line: number, path: string }>): Array<TestSuiteInfo | TestInfo> {
+interface ITestCaseSplit {
+    idHead: string;
+    idTail: string;
+    line: number;
+    path: string;
+}
+
+function toTestSuites(tests: ITestCaseSplit[]): Array<TestSuiteInfo | TestInfo> {
     if (empty(tests)) {
         return [];
     }
-    const testsAndSuites = groupBy(tests, t => t.tail.includes('::'));
+    const testsAndSuites = groupBy(tests, t => t.idTail.includes('::'));
     const firstLevelTests: Array<TestSuiteInfo | TestInfo> = toFirstLevelTests(testsAndSuites.get(false));
     const suites: Array<TestSuiteInfo | TestInfo> = toSuites(testsAndSuites.get(true));
     return firstLevelTests.concat(suites);
 }
 
-function toSuites(suites: Array<{ head: string, tail: string, line: number, path: string }> | undefined): TestSuiteInfo[] {
+function toSuites(suites: ITestCaseSplit[] | undefined): TestSuiteInfo[] {
     if (!suites) {
         return [];
     }
-    return Array.from(groupBy(suites.map(test => splitTest(test)), group => group.head).entries())
+    return Array.from(groupBy(suites.map(test => splitTest(test)), group => group.idHead).entries())
         .map(([suite, suiteTests]) => ({
             type: 'suite' as 'suite',
             id: suite,
@@ -50,25 +64,25 @@ function toSuites(suites: Array<{ head: string, tail: string, line: number, path
         }));
 }
 
-function toFirstLevelTests(tests: Array<{ head: string, tail: string, path: string, line: number }> | undefined): TestInfo[] {
+function toFirstLevelTests(tests: ITestCaseSplit[] | undefined): TestInfo[] {
     if (!tests) {
         return [];
     }
     return tests.map(test => ({
-        id: `${test.head}::${test.tail}`,
-        label: test.tail,
+        id: `${test.idHead}::${test.idTail}`,
+        label: test.idTail,
         type: 'test' as 'test',
         file: test.path,
         line: test.line,
     }));
 }
 
-function splitTest(test: { head: string, tail: string, line: number, path: string }) {
-    const separatorIndex = test.tail.indexOf('::');
+function splitTest(test: ITestCaseSplit) {
+    const separatorIndex = test.idTail.indexOf('::');
     return {
-        head: `${test.head}::${test.tail.substring(0, separatorIndex)}`,
-        tail: test.tail.substring(separatorIndex + 2),
-        name: test.tail.substring(0, separatorIndex),
+        idHead: `${test.idHead}::${test.idTail.substring(0, separatorIndex)}`,
+        idTail: test.idTail.substring(separatorIndex + 2),
+        name: test.idTail.substring(0, separatorIndex),
         path: test.path,
         line: test.line,
     };

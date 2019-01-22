@@ -4,5 +4,6 @@
     "typescript.implementationsCodeLens.enabled": true,
     "tslint.enable": true,
     "tslint.alwaysShowStatus": true,
-    "tslint.autoFixOnSave": true
+    "tslint.autoFixOnSave": true,
+    "editor.rulers": [120]
 }

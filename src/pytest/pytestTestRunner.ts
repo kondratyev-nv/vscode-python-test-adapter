@@ -20,13 +20,32 @@ from __future__ import print_function
 
 import pytest
 import sys
+import json
+import py
+
+from _pytest.compat import getfslineno
+
+
+def get_line_number(item):
+    location = getattr(item, "location", None)
+    if location is not None:
+        return location[1]
+    obj = getattr(item, "obj", None)
+    if obj is not None:
+        return getfslineno(obj)[1]
+    return None
+
 
 class PythonTestExplorerDiscoveryOutputPlugin(object):
     def pytest_collection_finish(self, session):
         print('==DISCOVERED TESTS BEGIN==')
+        tests = []
         for item in session.items:
-            print(item.nodeid)
-        print('==DISCOVERED TESTS   END==')
+            line = get_line_number(item)
+            tests.append({'id': item.nodeid,
+                          'line': line})
+        print(json.dumps(tests))
+        print('==DISCOVERED TESTS END==')
 
 pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
 

@@ -1,14 +1,18 @@
 import * as path from 'path';
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
-import { empty, getTestOutputBySplittingString, groupBy } from '../utilities';
+import { empty, groupBy } from '../utilities';
+
+const DISCOVERED_TESTS_START_MARK = '==DISCOVERED TESTS BEGIN==';
+const DISCOVERED_TESTS_END_MARK = '==DISCOVERED TESTS END==';
 
 export function parseTestSuites(content: string, cwd: string): Array<TestSuiteInfo | TestInfo> {
-    const allTests = getTestOutputBySplittingString(content, '==DISCOVERED TESTS BEGIN==')
-        .split(/\r?\n/g)
-        .map(line => line.trim())
-        .map(line => line.replace(/::\(\)/g, ''))
-        .filter(line => line)
+    const from = content.indexOf(DISCOVERED_TESTS_START_MARK);
+    const to = content.indexOf(DISCOVERED_TESTS_END_MARK);
+    const discoveredTestsJson = content.substring(from + DISCOVERED_TESTS_START_MARK.length, to);
+    const allTests = (JSON.parse(discoveredTestsJson) as Array<{ id: string, line: number }>)
+        .map(line => ({ ...line, id: line.id.replace(/::\(\)/g, '') }))
+        .filter(line => line.id)
         .map(line => splitModule(line, cwd))
         .filter(line => line)
         .map(line => line!);
@@ -18,60 +22,80 @@ export function parseTestSuites(content: string, cwd: string): Array<TestSuiteIn
             id: modulePath,
             label: path.basename(modulePath),
             file: modulePath,
-            children: toTestSuites(tests.map(t => ({ head: t.modulePath, tail: t.testPath }))),
+            children: toTestSuites(
+                tests.map(t => ({
+                    idHead: t.modulePath,
+                    idTail: t.testPath,
+                    line: t.line,
+                    path: modulePath,
+                }))
+            ),
         }));
 }
 
-function toTestSuites(tests: Array<{ head: string, tail: string }>): Array<TestSuiteInfo | TestInfo> {
+interface ITestCaseSplit {
+    idHead: string;
+    idTail: string;
+    line: number;
+    path: string;
+}
+
+function toTestSuites(tests: ITestCaseSplit[]): Array<TestSuiteInfo | TestInfo> {
     if (empty(tests)) {
         return [];
     }
-    const testsAndSuites = groupBy(tests, t => t.tail.includes('::'));
-    return (toFirstLevelTests(testsAndSuites.get(false)) as Array<TestSuiteInfo | TestInfo>)
-        .concat(toSuites(testsAndSuites.get(true)) as Array<TestSuiteInfo | TestInfo>);
+    const testsAndSuites = groupBy(tests, t => t.idTail.includes('::'));
+    const firstLevelTests: Array<TestSuiteInfo | TestInfo> = toFirstLevelTests(testsAndSuites.get(false));
+    const suites: Array<TestSuiteInfo | TestInfo> = toSuites(testsAndSuites.get(true));
+    return firstLevelTests.concat(suites);
 }
 
-function toSuites(suites: Array<{ head: string, tail: string }> | undefined): TestSuiteInfo[] {
+function toSuites(suites: ITestCaseSplit[] | undefined): TestSuiteInfo[] {
     if (!suites) {
         return [];
     }
-    return Array.from(groupBy(suites.map(test => splitTest(test)), group => group.head).entries())
+    return Array.from(groupBy(suites.map(test => splitTest(test)), group => group.idHead).entries())
         .map(([suite, suiteTests]) => ({
             type: 'suite' as 'suite',
             id: suite,
             label: suiteTests[0].name,
-            file: suite,
+            file: suiteTests[0].path,
             children: toTestSuites(suiteTests),
         }));
 }
 
-function toFirstLevelTests(tests: Array<{ head: string, tail: string }> | undefined): TestInfo[] {
+function toFirstLevelTests(tests: ITestCaseSplit[] | undefined): TestInfo[] {
     if (!tests) {
         return [];
     }
     return tests.map(test => ({
-        id: `${test.head}::${test.tail}`,
-        label: test.tail,
+        id: `${test.idHead}::${test.idTail}`,
+        label: test.idTail,
         type: 'test' as 'test',
+        file: test.path,
+        line: test.line,
     }));
 }
 
-function splitTest(test: { head: string, tail: string }) {
-    const separatorIndex = test.tail.indexOf('::');
+function splitTest(test: ITestCaseSplit) {
+    const separatorIndex = test.idTail.indexOf('::');
     return {
-        head: `${test.head}::${test.tail.substring(0, separatorIndex)}`,
-        tail: test.tail.substring(separatorIndex + 2),
-        name: test.tail.substring(0, separatorIndex),
+        idHead: `${test.idHead}::${test.idTail.substring(0, separatorIndex)}`,
+        idTail: test.idTail.substring(separatorIndex + 2),
+        name: test.idTail.substring(0, separatorIndex),
+        path: test.path,
+        line: test.line,
     };
 }
 
-function splitModule(testId: string, cwd: string) {
-    const separatorIndex = testId.indexOf('::');
+function splitModule(test: { id: string, line: number }, cwd: string) {
+    const separatorIndex = test.id.indexOf('::');
     if (separatorIndex < 0) {
         return null;
     }
     return {
-        modulePath: path.resolve(cwd, testId.substring(0, separatorIndex)),
-        testPath: testId.substring(separatorIndex + 2),
+        modulePath: path.resolve(cwd, test.id.substring(0, separatorIndex)),
+        testPath: test.id.substring(separatorIndex + 2),
+        line: test.line,
     };
 }

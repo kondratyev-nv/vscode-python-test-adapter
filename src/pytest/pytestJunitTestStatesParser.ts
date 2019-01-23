@@ -70,6 +70,9 @@ export async function parseTestStates(
 }
 
 function parseTestResults(parserResult: any, cwd: string) {
+    if (!parserResult) {
+        return [];
+    }
     const testSuiteResult: ITestSuiteResult = parserResult.testsuite;
     if (!Array.isArray(testSuiteResult.testcase)) {
         return [];

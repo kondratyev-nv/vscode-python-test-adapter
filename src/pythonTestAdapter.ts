@@ -101,7 +101,7 @@ export class PythonTestAdapter implements TestAdapter {
     }
 
     public cancel(): void {
-        throw new Error('Method not implemented.');
+        this.testRunner.cancel();
     }
 
     public dispose(): void {

@@ -39,7 +39,7 @@ install:
   - nvm install 8.9.1
   - nvm use 8.9.1
   - npm install npm@latest -g
-  - npm install
+  - npm ci
 
 before_script:
   - npm run lint

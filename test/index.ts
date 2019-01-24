@@ -42,7 +42,7 @@ runScript({
     script: 'from __future__ import print_function; import sys; print(sys.executable, sys.version)',
     pythonPath: 'python',
     environment: {},
-}).then(pythonInterpreter => console.log(`Using python ${pythonInterpreter}`));
+}).complete().then(({ output }) => console.log(`Using python ${output}`));
 
 const reporter = getReporter();
 testRunner.configure(<any>{

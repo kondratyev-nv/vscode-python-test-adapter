@@ -2,6 +2,7 @@ import { Base64 } from 'js-base64';
 import * as path from 'path';
 import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 import { getTestOutputBySplittingString, groupBy } from '../utilities';
+import { TEST_RESULT_PREFIX } from './unittestScripts';
 
 export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
     const allTests = getTestOutputBySplittingString(output, '==DISCOVERED TESTS==')
@@ -26,17 +27,22 @@ export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
 }
 
 export function parseTestStates(output: string): TestEvent[] {
-    return getTestOutputBySplittingString(output, '==TEST RESULTS==')
+    return output
         .split(/\r?\n/g)
         .map(line => line.trim())
-        .filter(line => line)
         .map(line => tryParseTestState(line))
         .filter(line => line)
         .map(line => line!);
 }
 
 function tryParseTestState(line: string): TestEvent | undefined {
-    const [result, testId, base64Message = ''] = line.split(':');
+    if (!line) {
+        return undefined;
+    }
+    if (!line.startsWith(TEST_RESULT_PREFIX)) {
+        return undefined;
+    }
+    const [, result, testId, base64Message = ''] = line.split(':');
     if (result == null || testId == null) {
         return undefined;
     }

@@ -1,4 +1,7 @@
 
+
+export const TEST_RESULT_PREFIX = 'TEST_EXECUTION_RESULT';
+
 export function unittestHelperScript(configuration: { startDirectory: string, pattern: string }) {
     return `
 from __future__ import print_function
@@ -6,6 +9,7 @@ from unittest import TextTestRunner, TextTestResult, TestLoader, TestSuite, defa
 import sys
 import base64
 
+TEST_RESULT_PREFIX = '${TEST_RESULT_PREFIX}'
 
 class TextTestResultWithSuccesses(TextTestResult):
     def __init__(self, *args, **kwargs):
@@ -45,29 +49,27 @@ def filter_by_test_ids(tests, test_ids):
         return tests
     return filter(lambda test: any(test.id().startswith(name) for name in test_ids), tests)
 
+def write_test_state(state, result):
+    message = base64.b64encode(result[1].encode('utf8')).decode('ascii')
+    print("{}:{}:{}:{}".format(TEST_RESULT_PREFIX, state, result[0].id(), message))
 
 def run_tests(test_names):
     runner = TextTestRunnerWithSingleResult()
 
     tests = [TestSuite([test]) for test in filter_by_test_ids(discover_tests(), test_names)]
-    results = [runner.run(test) for test in tests]
-    print("==TEST RESULTS==")
-
-    for result in results:
+    for test in tests:
+        result = runner.run(test)
         for r in result.skipped:
-            print("skipped:", r[0].id(), ":", base64.b64encode(
-                r[1].encode('utf8')).decode('ascii'))
+            write_test_state("skipped", r)
 
         for r in result.failures:
-            print("failed:", r[0].id(), ":", base64.b64encode(
-                r[1].encode('utf8')).decode('ascii'))
+            write_test_state("failed", r)
 
         for r in result.errors:
-            print("failed:", r[0].id(), ":", base64.b64encode(
-                r[1].encode('utf8')).decode('ascii'))
+            write_test_state("failed", r)
 
         for r in result.successes:
-            print("passed:", r.id())
+            print("{}:{}:{}".format(TEST_RESULT_PREFIX, "passed", r.id()))
 
 
 action = sys.argv[1]

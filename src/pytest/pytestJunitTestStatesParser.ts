@@ -50,7 +50,7 @@ export async function parseTestStates(
     return new Promise<any>((resolve, reject) => {
         fs.readFile(outputXmlFile, 'utf8', (readError, data) => {
             if (readError) {
-                return reject(readError);
+                return reject(`Can not read test results: ${readError}`);
             }
 
             xml2js.parseString(data, (parseError, parserResult) => {
@@ -58,33 +58,45 @@ export async function parseTestStates(
                     return reject(parseError);
                 }
 
-                const testSuiteResult: ITestSuiteResult = parserResult.testsuite;
-                if (!Array.isArray(testSuiteResult.testcase)) {
-                    return resolve([]);
+                try {
+                    const results = parseTestResults(parserResult, cwd);
+                    resolve(results);
+                } catch (exception) {
+                    reject(`Can not parse test results: ${exception}`);
                 }
-                const results = testSuiteResult.testcase.map((testcase: ITestCaseResult) => {
-                    const testId = buildTestName(cwd, testcase.$);
-                    if (!testId) {
-                        return undefined;
-                    }
-                    const [state, message] = getTestState(testcase);
-                    const decorations = state !== 'passed' ? [{
-                        line: testcase.$.line,
-                        message,
-                    }] : null;
-                    return {
-                        state,
-                        test: testId,
-                        type: 'test',
-                        message,
-                        decorations,
-                    };
-                }).filter(x => x);
-
-                resolve(results);
             });
         });
     });
+}
+
+function parseTestResults(parserResult: any, cwd: string) {
+    if (!parserResult) {
+        return [];
+    }
+    const testSuiteResult: ITestSuiteResult = parserResult.testsuite;
+    if (!Array.isArray(testSuiteResult.testcase)) {
+        return [];
+    }
+    return testSuiteResult.testcase.map(testcase => mapToTestState(testcase, cwd)).filter(x => x);
+}
+
+function mapToTestState(testcase: ITestCaseResult, cwd: string) {
+    const testId = buildTestName(cwd, testcase.$);
+    if (!testId) {
+        return undefined;
+    }
+    const [state, message] = getTestState(testcase);
+    const decorations = state !== 'passed' ? [{
+        line: testcase.$.line,
+        message,
+    }] : null;
+    return {
+        state,
+        test: testId,
+        type: 'test',
+        message,
+        decorations,
+    };
 }
 
 function getTestState(testcase: ITestCaseResult): ['passed' | 'failed' | 'skipped', string] {
@@ -101,7 +113,7 @@ function getTestState(testcase: ITestCaseResult): ['passed' | 'failed' | 'skippe
     return ['passed', output];
 }
 
-function extractErrorMessage(errors: Array<{ _: string, $: { message: string; }; }>): string {
+function extractErrorMessage(errors: Array<{ _: string, $: { message: string } }>): string {
     if (!errors || !errors.length) {
         return '';
     }
@@ -109,6 +121,9 @@ function extractErrorMessage(errors: Array<{ _: string, $: { message: string; };
 }
 
 function buildTestName(cwd: string, test: ITestCaseDescription): string | undefined {
+    if (!test || !test.file || !test.classname || !test.name) {
+        return undefined;
+    }
     const pathParts = test.file.split(path.sep);
     const classParts = test.classname.split('.').filter(p => p !== '()');
     if (classParts.length < pathParts.length) {

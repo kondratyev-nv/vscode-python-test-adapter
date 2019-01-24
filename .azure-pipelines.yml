@@ -32,7 +32,8 @@ jobs:
   - task: Npm@1
     displayName: 'Install dependencies'
     inputs:
-      verbose: false
+      command: 'custom'
+      customCommand: 'ci'
   - task: Npm@1
     displayName: 'Compile sources'
     inputs:
@@ -87,7 +88,8 @@ jobs:
   - task: Npm@1
     displayName: 'Install dependencies'
     inputs:
-      verbose: false
+      command: 'custom'
+      customCommand: 'ci'
   - task: Npm@1
     displayName: 'Compile sources'
     inputs:
@@ -140,7 +142,8 @@ jobs:
   - task: Npm@1
     displayName: 'Install dependencies'
     inputs:
-      verbose: false
+      command: 'custom'
+      customCommand: 'ci'
   - task: Npm@1
     displayName: 'Compile sources'
     inputs:

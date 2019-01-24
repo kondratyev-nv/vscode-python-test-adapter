@@ -8,7 +8,7 @@ import {
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
-import { runScript } from '../pythonRunner';
+import { IProcessExecution, runScript } from '../pythonRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty, ensureDifferentLabels } from '../utilities';
 import { parseTestStates } from './pytestJunitTestStatesParser';
@@ -49,10 +49,23 @@ class PythonTestExplorerDiscoveryOutputPlugin(object):
 
 pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
 
+    private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
+
     constructor(
         public readonly adapterId: string,
         private readonly logger: ILogger
     ) { }
+
+    public cancel(): void {
+        this.testExecutions.forEach((execution, test) => {
+            this.logger.log('info', `Cancelling execution of ${test}`);
+            try {
+                execution.cancel();
+            } catch (error) {
+                this.logger.log('crit', `Cancelling execution of ${test} failed: ${error}`);
+            }
+        });
+    }
 
     public debugConfiguration(config: IWorkspaceConfiguration, test: string): IDebugConfiguration {
         return {
@@ -70,15 +83,15 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         }
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
         this.logger.log('info', `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()}`);
-        const output = await runScript({
+        const result = await runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
             args: ['--collect-only', '-qq'],
             cwd: config.getCwd(),
             environment: additionalEnvironment,
-        });
+        }).complete();
 
-        const suites = parseTestSuites(output, config.getCwd());
+        const suites = parseTestSuites(result.output, config.getCwd());
         if (empty(suites)) {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
@@ -97,18 +110,21 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()}`);
 
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
-        const tempFile = await this.createTemporaryFile();
-        const xunitArgument = `--junitxml=${tempFile.file}`;
-        await runScript({
+        const { file, cleanupCallback } = await this.createTemporaryFile();
+        const xunitArgument = `--junitxml=${file}`;
+        const testExecution = runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
             cwd: config.getCwd(),
             args: test !== this.adapterId ? [xunitArgument, test] : [xunitArgument],
             environment: additionalEnvironment,
         });
+        this.testExecutions.set(test, testExecution);
+        await testExecution.complete();
+        this.testExecutions.delete(test);
         this.logger.log('info', 'Test execution completed');
-        const states = await parseTestStates(tempFile.file, config.getCwd());
-        tempFile.cleanupCallback();
+        const states = await parseTestStates(file, config.getCwd());
+        cleanupCallback();
         return states;
     }
 
@@ -116,7 +132,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         return new Promise<{ file: string, cleanupCallback: () => void }>((resolve, reject) => {
             tmp.file((error, file, _, cleanupCallback) => {
                 if (error) {
-                    reject('Can not create temporary file: ' + error);
+                    reject(`Can not create temporary file ${file}: ${error}`);
                 }
                 resolve({ file, cleanupCallback });
             });

@@ -77,24 +77,26 @@ function parseTestResults(parserResult: any, cwd: string) {
     if (!Array.isArray(testSuiteResult.testcase)) {
         return [];
     }
-    return testSuiteResult.testcase.map((testcase: ITestCaseResult) => {
-        const testId = buildTestName(cwd, testcase.$);
-        if (!testId) {
-            return undefined;
-        }
-        const [state, message] = getTestState(testcase);
-        const decorations = state !== 'passed' ? [{
-            line: testcase.$.line,
-            message,
-        }] : null;
-        return {
-            state,
-            test: testId,
-            type: 'test',
-            message,
-            decorations,
-        };
-    }).filter(x => x);
+    return testSuiteResult.testcase.map(testcase => mapToTestState(testcase, cwd)).filter(x => x);
+}
+
+function mapToTestState(testcase: ITestCaseResult, cwd: string) {
+    const testId = buildTestName(cwd, testcase.$);
+    if (!testId) {
+        return undefined;
+    }
+    const [state, message] = getTestState(testcase);
+    const decorations = state !== 'passed' ? [{
+        line: testcase.$.line,
+        message,
+    }] : null;
+    return {
+        state,
+        test: testId,
+        type: 'test',
+        message,
+        decorations,
+    };
 }
 
 function getTestState(testcase: ITestCaseResult): ['passed' | 'failed' | 'skipped', string] {
@@ -111,7 +113,7 @@ function getTestState(testcase: ITestCaseResult): ['passed' | 'failed' | 'skippe
     return ['passed', output];
 }
 
-function extractErrorMessage(errors: Array<{ _: string, $: { message: string; }; }>): string {
+function extractErrorMessage(errors: Array<{ _: string, $: { message: string } }>): string {
     if (!errors || !errors.length) {
         return '';
     }

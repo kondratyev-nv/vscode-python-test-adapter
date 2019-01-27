@@ -4,7 +4,7 @@ import * as path from 'path';
 
 import { IWorkspaceConfiguration } from '../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../src/pytest/pytestTestRunner';
-import { createPytestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from './helpers';
+import { createPytestConfiguration, excectAllTestsCorrectlyRun, findTestSuiteByLabel, logger } from './helpers';
 
 suite('Pytest test discovery', async () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration('python', 'pytest');
@@ -53,16 +53,12 @@ suite('Run pytest tests', () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration('python', 'pytest');
     const runner = new PytestTestRunner('some-id', logger());
 
-    test('should run all tests', async () => {
+    test('should run all discovered tests', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(mainSuite!.label).to.be.eq('Pytest tests');
         const states = await runner.run(config, runner.adapterId);
-        expect(states).to.be.not.empty;
-        states.forEach(state => {
-            const expectedState = extractExpectedState(state.test as string);
-            expect(state.state).to.be.eq(expectedState);
-        });
+        excectAllTestsCorrectlyRun(mainSuite!, states);
     });
 
     [
@@ -113,15 +109,11 @@ suite('Run pytest tests', () => {
             const suiteToRun = findTestSuiteByLabel(mainSuite!, suite);
             expect(suiteToRun).to.be.not.undefined;
             const states = await runner.run(config, suiteToRun!.id);
-            expect(states).to.be.not.empty;
             const cwd = config.getCwd();
             expect(states.map(s => s.test)).to.have.deep.members(
                 cases.map(c => path.resolve(cwd, c.file) + c.case)
             );
-            states.forEach(state => {
-                const expectedState = extractExpectedState(state.test as string);
-                expect(state.state).to.be.eq(expectedState);
-            });
+            excectAllTestsCorrectlyRun(suiteToRun!, states);
         });
     });
 
@@ -141,11 +133,7 @@ suite('Run pytest tests', () => {
             const suite = findTestSuiteByLabel(mainSuite!, testMethod);
             expect(suite).to.be.not.undefined;
             const states = await runner.run(config, suite!.id);
-            expect(states).to.be.not.empty;
-            states.forEach(state => {
-                const expectedState = extractExpectedState(state.test as string);
-                expect(state.state).to.be.eq(expectedState);
-            });
+            excectAllTestsCorrectlyRun(suite!, states);
         });
     });
 
@@ -160,12 +148,13 @@ suite('Run pytest tests', () => {
             expect(suite).to.be.not.undefined;
             const states = await runner.run(config, suite!.id);
             expect(states).to.be.not.empty;
-            states.forEach(state => {
-                const expectedState = extractExpectedState(state.test as string);
-                expect(state.state).to.be.eq(expectedState);
-                expect(state.message).to.be.not.empty;
-                expect(state.message!.startsWith(`Hello from ${testMethod}`)).to.be.true;
-            });
+            excectAllTestsCorrectlyRun(suite!, states);
+            // states.forEach(state => {
+            //     const expectedState = extractExpectedState(state.test as string);
+            //     expect(state.state).to.be.eq(expectedState);
+            //     expect(state.message).to.be.not.empty;
+            //     expect(state.message!.startsWith(`Hello from ${testMethod}`)).to.be.true;
+            // });
         });
     });
 });

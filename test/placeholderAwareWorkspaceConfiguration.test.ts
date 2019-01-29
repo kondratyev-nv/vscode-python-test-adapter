@@ -101,7 +101,7 @@ suite('Placeholder aware workspace configuration', () => {
         ).to.be.eq(wfPath);
         expect(
             configuration.getPytestConfiguration().pytestArguments
-        ).to.have.members([`--result-log=${path.resolve(wfPath, 'some', 'path', 'to', 'log')}`]);
+        ).to.have.members([`--result-log=${wfPath + '/some/path/to/log'}`]);
     });
 
     test('should resolve relative path placeholders from configuration', () => {

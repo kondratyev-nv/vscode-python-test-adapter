@@ -5,6 +5,7 @@ import {
     TestSuiteInfo
 } from 'vscode-test-adapter-api';
 
+import { ArgumentParser } from 'argparse';
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
@@ -27,10 +28,10 @@ from _pytest.compat import getfslineno
 
 
 def get_line_number(item):
-    location = getattr(item, "location", None)
+    location = getattr(item, 'location', None)
     if location is not None:
         return location[1]
-    obj = getattr(item, "obj", None)
+    obj = getattr(item, 'obj', None)
     if obj is not None:
         return getfslineno(obj)[1]
     return None
@@ -82,11 +83,11 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
             return undefined;
         }
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
-        this.logger.log('info', `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()}`);
+        this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
         const result = await runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
-            args: ['--collect-only', '-qq'],
+            args: this.getDiscoveryArguments(config.getPytestConfiguration().pytestArguments),
             cwd: config.getCwd(),
             environment: additionalEnvironment,
         }).complete();
@@ -107,16 +108,15 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
     }
 
     public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
-        this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()}`);
+        this.logger.log('info', `Running tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
         const { file, cleanupCallback } = await this.createTemporaryFile();
-        const xunitArgument = `--junitxml=${file}`;
         const testExecution = runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
             cwd: config.getCwd(),
-            args: test !== this.adapterId ? [xunitArgument, test] : [xunitArgument],
+            args: this.getRunArguments(test, file, config.getPytestConfiguration().pytestArguments),
             environment: additionalEnvironment,
         });
         this.testExecutions.set(test, testExecution);
@@ -126,6 +126,80 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         const states = await parseTestStates(file, config.getCwd());
         cleanupCallback();
         return states;
+    }
+
+    private getDiscoveryArguments(rawPytestArguments: string[]): string[] {
+        const argumentParser = this.configureCommonArgumentParser();
+        const [, argumentsToPass] = argumentParser.parseKnownArgs(rawPytestArguments);
+        return ['--collect-only'].concat(argumentsToPass);
+    }
+
+    private getRunArguments(test: string, outFile: string, rawPytestArguments: string[]): string[] {
+        const argumentParser = this.configureCommonArgumentParser();
+        argumentParser.addArgument(
+            ['--setuponly', '--setup-only'],
+            { action: 'storeTrue' });
+        argumentParser.addArgument(
+            ['--setupshow', '--setup-show'],
+            { action: 'storeTrue' });
+        argumentParser.addArgument(
+            ['--setupplan', '--setup-plan'],
+            { action: 'storeTrue' });
+        argumentParser.addArgument(
+            ['--collectonly', '--collect-only'],
+            { action: 'storeTrue' });
+        argumentParser.addArgument(
+            ['--trace'],
+            { dest: 'trace', action: 'storeTrue' });
+        const [, argumentsToPass] = argumentParser.parseKnownArgs(rawPytestArguments);
+        return [`--junitxml=${outFile}`].concat(argumentsToPass).concat(test !== this.adapterId ? [test] : []);
+    }
+
+    private configureCommonArgumentParser() {
+        const argumentParser = new ArgumentParser();
+        argumentParser.addArgument(
+            ['--rootdir'],
+            { action: 'store', dest: 'rootdir' });
+        argumentParser.addArgument(
+            ['-x', '--exitfirst'],
+            { dest: 'maxfail', action: 'storeConst', constant: 1 });
+        argumentParser.addArgument(
+            ['--maxfail'],
+            { dest: 'maxfail', action: 'store', defaultValue: 0 });
+        argumentParser.addArgument(
+            ['--fixtures', '--funcargs'],
+            { action: 'storeTrue', dest: 'showfixtures', defaultValue: false });
+        argumentParser.addArgument(
+            ['--fixtures-per-test'],
+            { action: 'storeTrue', dest: 'show_fixtures_per_test', defaultValue: false });
+        argumentParser.addArgument(
+            ['--lf', '--last-failed'],
+            { action: 'storeTrue', dest: 'lf' });
+        argumentParser.addArgument(
+            ['--ff', '--failed-first'],
+            { action: 'storeTrue', dest: 'failedfirst' });
+        argumentParser.addArgument(
+            ['--nf', '--new-first'],
+            { action: 'storeTrue', dest: 'newfirst' });
+        argumentParser.addArgument(
+            ['--cache-show'],
+            { action: 'storeTrue', dest: 'cacheshow' });
+        argumentParser.addArgument(
+            ['--lfnf', '--last-failed-no-failures'],
+            { action: 'store', dest: 'last_failed_no_failures', choices: ['all', 'none'], defaultValue: 'all' });
+        argumentParser.addArgument(
+            ['--pdb'],
+            { dest: 'usepdb', action: 'storeTrue' });
+        argumentParser.addArgument(
+            ['--pdbcls'],
+            { dest: 'usepdb_cls' });
+        argumentParser.addArgument(
+            ['--junitxml', '--junit-xml'],
+            { action: 'store', dest: 'xmlpath' });
+        argumentParser.addArgument(
+            ['--junitprefix', '--junit-prefix'],
+            { action: 'store' });
+        return argumentParser;
     }
 
     private async createTemporaryFile(): Promise<{ file: string, cleanupCallback: () => void }> {

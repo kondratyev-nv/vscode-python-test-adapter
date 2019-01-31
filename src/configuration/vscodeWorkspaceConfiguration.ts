@@ -46,7 +46,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     public getPytestConfiguration(): IPytestConfiguration {
         return {
             isPytestEnabled: this.isPytestTestEnabled(),
-            pytestArguments: [],
+            pytestArguments: this.getPyTestArguments(),
         };
     }
 
@@ -71,6 +71,10 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
             return 'pytest' === overriddenTestFramework;
         }
         return this.pythonConfiguration.get<boolean>('unitTest.pyTestEnabled', false);
+    }
+
+    private getPyTestArguments(): string[] {
+        return this.pythonConfiguration.get<string[]>('unitTest.pyTestArgs', []);
     }
 
     private configureUnittestArgumentParser() {

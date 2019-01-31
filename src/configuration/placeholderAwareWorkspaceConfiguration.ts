@@ -16,15 +16,15 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
     ) { }
 
     public pythonPath(): string {
-        return this.resolve(this.configuration.pythonPath());
+        return this.resolvePath(this.configuration.pythonPath());
     }
 
     public getCwd(): string {
-        return this.resolve(this.configuration.getCwd());
+        return this.resolvePath(this.configuration.getCwd());
     }
 
     public envFile(): string {
-        return this.resolve(this.configuration.envFile());
+        return this.resolvePath(this.configuration.envFile());
     }
 
     public getUnittestConfiguration(): IUnittestConfiguration {
@@ -32,8 +32,8 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         return {
             isUnittestEnabled: original.isUnittestEnabled,
             unittestArguments: {
-                pattern: this.resolve(original.unittestArguments.pattern),
-                startDirectory: this.resolvePlaceholders(original.unittestArguments.startDirectory),
+                pattern: this.resolvePlaceholders(original.unittestArguments.pattern),
+                startDirectory: this.resolvePath(original.unittestArguments.startDirectory),
             },
         };
     }
@@ -42,7 +42,7 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         const original = this.configuration.getPytestConfiguration();
         return {
             isPytestEnabled: original.isPytestEnabled,
-            pytestArguments: original.pytestArguments.map(argument => this.resolve(argument)),
+            pytestArguments: original.pytestArguments.map(argument => this.resolvePlaceholders(argument)),
         };
     }
 
@@ -70,11 +70,11 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         });
     }
 
-    private resolve(rawValue: string): string {
-        return this.resolvePath(this.resolvePlaceholders(rawValue));
+    private resolvePath(rawValue: string): string {
+        return this.normalizePath(this.resolvePlaceholders(rawValue));
     }
 
-    private resolvePath(value: string): string {
+    private normalizePath(value: string): string {
         if (value.includes(path.posix.sep) || value.includes(path.win32.sep)) {
             const absolutePath = path.isAbsolute(value) ?
                 path.resolve(value) :

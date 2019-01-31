@@ -51,7 +51,7 @@ export function findWorkspaceFolder(folder: string): vscode.WorkspaceFolder | un
     return vscode.workspace.workspaceFolders!.find(f => f.name === folder);
 }
 
-export function createPytestConfiguration(python: string, folder: string): IWorkspaceConfiguration {
+export function createPytestConfiguration(python: string, folder: string, args?: string[]): IWorkspaceConfiguration {
     const wf = findWorkspaceFolder(folder)!;
     return new PlaceholderAwareWorkspaceConfiguration({
         pythonPath(): string {
@@ -69,7 +69,7 @@ export function createPytestConfiguration(python: string, folder: string): IWork
         getPytestConfiguration(): IPytestConfiguration {
             return {
                 isPytestEnabled: true,
-                pytestArguments: [],
+                pytestArguments: args || [],
             };
         },
     }, wf, logger());

@@ -56,12 +56,12 @@ suite('Placeholder aware workspace configuration', () => {
         expect(configuration.getCwd()).to.be.eq(path.resolve('/some', 'prefix', 'some', 'cwd', 'suffix'));
         expect(
             configuration.getUnittestConfiguration().unittestArguments.startDirectory
-        ).to.be.eq(wfPath + '/./');
+        ).to.be.eq(wfPath);
     });
 
     test('should resolve values from configuration without placeholders', () => {
         process.env.SOME_RELATIVE_PATH_USED_IN_CWD = '../some/prefix';
-        process.env.SOME_RELATIVE_PATH_USED_IN_START_DIR = '../some/prefix';
+        process.env.RELATIVE_PYTEST_LOG_PATH = 'some/path/to/log';
         expect(Object.keys(process.env)).to.include('SOME_RELATIVE_PATH_USED_IN_CWD');
 
         const configuration = getConfiguration({
@@ -86,7 +86,9 @@ suite('Placeholder aware workspace configuration', () => {
             getPytestConfiguration(): IPytestConfiguration {
                 return {
                     isPytestEnabled: true,
-                    pytestArguments: [],
+                    pytestArguments: [
+                        '--result-log=${workspaceFolder}/${env:RELATIVE_PYTEST_LOG_PATH}'
+                    ],
                 };
             },
         });
@@ -96,7 +98,10 @@ suite('Placeholder aware workspace configuration', () => {
         expect(configuration.getCwd()).to.be.eq(path.resolve(wfPath, '..', 'some', 'prefix', 'some', 'cwd', 'suffix'));
         expect(
             configuration.getUnittestConfiguration().unittestArguments.startDirectory
-        ).to.be.eq('./');
+        ).to.be.eq(wfPath);
+        expect(
+            configuration.getPytestConfiguration().pytestArguments
+        ).to.have.members([`--result-log=${wfPath + '/some/path/to/log'}`]);
     });
 
     test('should resolve relative path placeholders from configuration', () => {

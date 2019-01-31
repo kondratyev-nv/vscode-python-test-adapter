@@ -1,7 +1,7 @@
 import { Base64 } from 'js-base64';
 import * as path from 'path';
 import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
-import { getTestOutputBySplittingString, groupBy } from '../utilities';
+import { distinctBy, getTestOutputBySplittingString, groupBy } from '../utilities';
 import { TEST_RESULT_PREFIX } from './unittestScripts';
 
 export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
@@ -27,12 +27,16 @@ export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
 }
 
 export function parseTestStates(output: string): TestEvent[] {
-    return output
+    const testEvents = output
         .split(/\r?\n/g)
         .map(line => line.trim())
         .map(line => tryParseTestState(line))
         .filter(line => line)
         .map(line => line!);
+
+    // HACK: Remove duplicates by id so it does not appear in the debug console more than once,
+    // because right now script is printing test results multiple times.
+    return distinctBy(testEvents, e => e.test);
 }
 
 function tryParseTestState(line: string): TestEvent | undefined {

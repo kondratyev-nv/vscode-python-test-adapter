@@ -81,9 +81,9 @@ suite('Run unittest tests', () => {
     });
 
     [
-        'test_two_plus_one_is_three_passed',
-        'test_two_plus_two_is_five_failed',
-        'test_two_plus_zero_is_two_skipped',
+        'test_basic_two_plus_one_is_three_passed',
+        'test_basic_two_plus_two_is_five_failed',
+        'test_basic_two_plus_zero_is_two_skipped',
         'test_set_up_called_before_test_case1_passed',
         'test_set_up_called_before_test_case2_passed'
     ].forEach(testMethod => {
@@ -97,6 +97,30 @@ suite('Run unittest tests', () => {
             states.forEach(state => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
+            });
+        });
+    });
+
+    [
+        'test_basic_two_plus_one_is_three_passed',
+        'test_basic_two_plus_two_is_five_failed'
+    ].forEach(testMethod => {
+        test(`should capture output from ${testMethod} test`, async () => {
+            const mainSuite = await runner.load(config);
+            expect(mainSuite).to.be.not.undefined;
+            const suite = findTestSuiteByLabel(mainSuite!, testMethod);
+            expect(suite).to.be.not.undefined;
+            const states = await runner.run(config, suite!.id);
+            expect(states).to.be.not.empty;
+            states.forEach(state => {
+                const expectedState = extractExpectedState(state.test as string);
+                expect(state.state).to.be.eq(expectedState);
+                expect(state.message).to.be.not.empty;
+                const firstOutput = state.message!.indexOf(`${testMethod}: checking 2 +`);
+                const lastOutput = state.message!.lastIndexOf(`${testMethod}: checking 2 +`);
+                expect(firstOutput).to.be.gte(0);
+                expect(lastOutput).to.be.gte(0);
+                expect(firstOutput).to.be.eq(lastOutput);
             });
         });
     });

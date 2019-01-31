@@ -22,10 +22,10 @@ class TextTestResultWithSuccesses(TextTestResult):
     # similar to how unittest.TestResult done capturing
     def addSuccess(self, test):
         super(TextTestResultWithSuccesses, self).addSuccess(test)
-        self.successes.append((test, self._excution_info_to_string(test)))
+        self.successes.append((test, self._execution_info_to_string(test)))
         self._mirrorOutput = True
 
-    def _excution_info_to_string(self, test):
+    def _execution_info_to_string(self, test):
         msgLines = []
         if self.buffer:
             output = sys.stdout.getvalue()
@@ -69,11 +69,14 @@ def filter_by_test_ids(tests, test_ids):
         return tests
     return filter(lambda test: any(test.id().startswith(name) for name in test_ids), tests)
 
+
 def write_test_state(state, result):
     message = base64.b64encode(result[1].encode('utf8')).decode('ascii')
     print("{}:{}:{}:{}".format(TEST_RESULT_PREFIX, state, result[0].id(), message))
 
+
 def run_tests(test_names):
+    runner = TextTestRunnerWithSingleResult()
     tests = [TestSuite([test]) for test in filter_by_test_ids(discover_tests(), test_names)]
     for test in tests:
         result = runner.run(test)

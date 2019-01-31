@@ -1,9 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { expect } from 'chai';
-
-import { TestEvent, TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
+import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 import { PlaceholderAwareWorkspaceConfiguration } from '../src/configuration/placeholderAwareWorkspaceConfiguration';
 import {
     IPytestConfiguration,
@@ -20,22 +18,6 @@ export function logger(): ILogger {
             }
         },
     };
-}
-
-export function excectTestsStatesCorrect(states: TestEvent[]) {
-    expect(states).to.be.not.empty;
-    states.forEach(state => {
-        const expectedState = extractExpectedState(state.test as string);
-        expect(state.state).to.be.eq(expectedState);
-    });
-}
-
-export function excectAllTestsCorrectlyRun(suit: TestSuiteInfo | TestInfo, states: TestEvent[]) {
-    const expectedTests = linearizeTests(suit);
-    expect(states).to.be.not.empty;
-    expect(states.length).to.be.gte(expectedTests.length);
-    expect(states.map(state => state.test)).to.have.members(expectedTests.map(t => t.id));
-    excectTestsStatesCorrect(states);
 }
 
 export function extractExpectedState(name: string) {
@@ -124,11 +106,4 @@ export async function sleep(ms: number): Promise<void> {
     return new Promise<void>((resolve, _) => {
         setTimeout(() => resolve(), ms);
     });
-}
-
-function linearizeTests(root: TestSuiteInfo | TestInfo): TestInfo[] {
-    if (root.type === 'test') {
-        return [root];
-    }
-    return root.children.map(t => linearizeTests(t)).reduce((r, x) => r.concat(x), []);
 }

@@ -11,7 +11,7 @@ import { UnittestTestRunner } from '../src/unittest/unittestTestRunner';
 import {
     createPytestConfiguration,
     createUnittestConfiguration,
-    excectTestsStatesCorrect,
+    extractExpectedState,
     findTestSuiteByLabel,
     findWorkspaceFolder,
     logger
@@ -116,7 +116,10 @@ import {
 
             expect(states).to.be.not.empty;
             expect(states).to.have.length(testsToRun.length);
-            excectTestsStatesCorrect(states);
+            states.forEach(state => {
+                const expectedState = extractExpectedState(state.test as string);
+                expect(state.state).to.be.eq(expectedState);
+            });
         });
 
         test('discovered tests should be sorted alphabetically', async () => {

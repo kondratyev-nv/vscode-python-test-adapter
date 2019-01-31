@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 
 import { IWorkspaceConfiguration } from '../src/configuration/workspaceConfiguration';
 import { UnittestTestRunner } from '../src/unittest/unittestTestRunner';
-import { createUnittestConfiguration, excectAllTestsCorrectlyRun, findTestSuiteByLabel, logger } from './helpers';
+import { createUnittestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from './helpers';
 
 suite('Unittest test discovery', () => {
     const config: IWorkspaceConfiguration = createUnittestConfiguration('python', 'unittest');
@@ -54,7 +54,11 @@ suite('Run unittest tests', () => {
         expect(mainSuite).to.be.not.undefined;
         expect(mainSuite!.label).to.be.eq('Unittest tests');
         const states = await runner.run(config, mainSuite!.id);
-        excectAllTestsCorrectlyRun(mainSuite!, states);
+        expect(states).to.be.not.empty;
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+        });
     });
 
     [
@@ -68,7 +72,11 @@ suite('Run unittest tests', () => {
             const suite = findTestSuiteByLabel(mainSuite!, testCase);
             expect(suite).to.be.not.undefined;
             const states = await runner.run(config, suite!.id);
-            excectAllTestsCorrectlyRun(suite!, states);
+            expect(states).to.be.not.empty;
+            states.forEach(state => {
+                const expectedState = extractExpectedState(state.test as string);
+                expect(state.state).to.be.eq(expectedState);
+            });
         });
     });
 
@@ -85,7 +93,11 @@ suite('Run unittest tests', () => {
             const suite = findTestSuiteByLabel(mainSuite!, testMethod);
             expect(suite).to.be.not.undefined;
             const states = await runner.run(config, suite!.id);
-            excectAllTestsCorrectlyRun(suite!, states);
+            expect(states).to.be.not.empty;
+            states.forEach(state => {
+                const expectedState = extractExpectedState(state.test as string);
+                expect(state.state).to.be.eq(expectedState);
+            });
         });
     });
 });
@@ -133,7 +145,11 @@ suite('Unittest run and discovery with start folder in config', () => {
         expect(mainSuite).to.be.not.undefined;
         expect(mainSuite!.label).to.be.eq('Unittest tests');
         const states = await runner.run(config, mainSuite!.id);
-        excectAllTestsCorrectlyRun(mainSuite!, states);
+        expect(states).to.be.not.empty;
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+        });
     });
 
     test('should run suite with start folder in config', async () => {
@@ -142,7 +158,11 @@ suite('Unittest run and discovery with start folder in config', () => {
         const suite = findTestSuiteByLabel(mainSuite!, 'AddTestsWithoutInit');
         expect(suite).to.be.not.undefined;
         const states = await runner.run(config, suite!.id);
-        excectAllTestsCorrectlyRun(suite!, states);
+        expect(states).to.be.not.empty;
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+        });
     });
 
     test('should run test from suite with start folder in config', async () => {
@@ -151,6 +171,10 @@ suite('Unittest run and discovery with start folder in config', () => {
         const suite = findTestSuiteByLabel(mainSuite!, 'test_two_plus_one_is_three_passed');
         expect(suite).to.be.not.undefined;
         const states = await runner.run(config, suite!.id);
-        excectAllTestsCorrectlyRun(suite!, states);
+        expect(states).to.be.not.empty;
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+        });
     });
 });

@@ -74,7 +74,6 @@ def write_test_state(state, result):
     print("{}:{}:{}:{}".format(TEST_RESULT_PREFIX, state, result[0].id(), message))
 
 def run_tests(test_names):
-    runner = TextTestRunnerWithSingleResult()
     tests = [TestSuite([test]) for test in filter_by_test_ids(discover_tests(), test_names)]
     for test in tests:
         result = runner.run(test)

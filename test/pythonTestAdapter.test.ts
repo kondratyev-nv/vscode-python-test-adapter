@@ -23,16 +23,16 @@ import {
         runner: new UnittestTestRunner('first-id', logger()),
         configuration: createUnittestConfiguration('python', 'unittest'),
         testsToRun: [
-            'test_two_plus_one_is_three_passed',
-            'test_two_plus_two_is_five_failed',
-            'test_two_plus_zero_is_two_skipped'
+            'test_basic_two_plus_one_is_three_passed',
+            'test_basic_two_plus_two_is_five_failed',
+            'test_basic_two_plus_zero_is_two_skipped'
         ],
         suiteToSort: {
             suite: 'AddTests (basic_tests.test_add)',
             sortedTests: [
-                'test_two_plus_one_is_three_passed',
-                'test_two_plus_two_is_five_failed',
-                'test_two_plus_zero_is_two_skipped'
+                'test_basic_two_plus_one_is_three_passed',
+                'test_basic_two_plus_two_is_five_failed',
+                'test_basic_two_plus_zero_is_two_skipped'
             ],
         },
     },

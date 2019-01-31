@@ -19,6 +19,14 @@ export function groupBy<T, U>(values: T[], key: (v: T) => U) {
     }, new Map<U, T[]>());
 }
 
+export function distinctBy<T, U>(values: T[], key: (v: T) => U): T[] {
+    const byKey = new Map<U, T>();
+    values.forEach(x => {
+        byKey.set(key(x), x);
+    });
+    return Array.from(byKey.values());
+}
+
 export function ensureDifferentLabels(values: Array<{ id: string, label: string }>, idSeparator: string) {
     /* Assuming label is last part of id */
     const notAllIdsEndsWithLabel = values.some(v => !v.id.endsWith(v.label));

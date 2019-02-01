@@ -42,6 +42,7 @@ Property                          | Description
 `python.unitTest.unittestEnabled` | Whether to enable or disable unit testing using unittest (enables or disables test discovery for Test Explorer)
 `python.unitTest.unittestArgs`    | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered)
 `python.unitTest.pyTestEnabled`   | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer)
+`python.unitTest.pyTestArgs`      | Arguments passed to the pytest. Each argument is a separate item in the array.
 `python.envFile`                  | Path to environment variable definitions file
 `pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension properties `python.unitTest.unittestEnabled` and `python.unitTest.pyTestEnabled`)
 

@@ -45,7 +45,7 @@ runScript({
 }).complete().then(({ output }) => console.log(`Using python ${output}`));
 
 const reporter = getReporter();
-testRunner.configure(<any>{
+testRunner.configure({
     ui: 'tdd',       // the TDD UI is being used in extension.test.ts (suite, test, etc.)
     useColors: true, // colored output from test results
     slow: 1000,

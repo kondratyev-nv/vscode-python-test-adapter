@@ -72,7 +72,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         return {
             module: 'pytest',
             cwd: config.getCwd(),
-            args: test !== this.adapterId ? [test] : [],
+            args: this.getRunArguments(test, config.getPytestConfiguration().pytestArguments),
             envFile: config.envFile(),
         };
     }
@@ -112,11 +112,13 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
 
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
         const { file, cleanupCallback } = await this.createTemporaryFile();
+        const runArguments = [`--junitxml=${file}`].concat(
+            this.getRunArguments(test, config.getPytestConfiguration().pytestArguments));
         const testExecution = runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
             cwd: config.getCwd(),
-            args: this.getRunArguments(test, file, config.getPytestConfiguration().pytestArguments),
+            args: runArguments,
             environment: additionalEnvironment,
         });
         this.testExecutions.set(test, testExecution);
@@ -134,7 +136,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         return ['--collect-only'].concat(argumentsToPass);
     }
 
-    private getRunArguments(test: string, outFile: string, rawPytestArguments: string[]): string[] {
+    private getRunArguments(test: string, rawPytestArguments: string[]): string[] {
         const argumentParser = this.configureCommonArgumentParser();
         argumentParser.addArgument(
             ['--setuponly', '--setup-only'],
@@ -152,7 +154,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
             ['--trace'],
             { dest: 'trace', action: 'storeTrue' });
         const [, argumentsToPass] = argumentParser.parseKnownArgs(rawPytestArguments);
-        return [`--junitxml=${outFile}`].concat(argumentsToPass).concat(test !== this.adapterId ? [test] : []);
+        return argumentsToPass.concat(test !== this.adapterId ? [test] : []);
     }
 
     private configureCommonArgumentParser() {

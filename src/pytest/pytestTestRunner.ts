@@ -24,16 +24,17 @@ import sys
 import json
 import py
 
-from _pytest.compat import getfslineno
-
-
 def get_line_number(item):
     location = getattr(item, 'location', None)
     if location is not None:
         return location[1]
     obj = getattr(item, 'obj', None)
     if obj is not None:
-        return getfslineno(obj)[1]
+        try:
+            from _pytest.compat import getfslineno
+            return getfslineno(obj)[1]
+        except:
+            pass
     return None
 
 

@@ -2,8 +2,7 @@
 
 export const TEST_RESULT_PREFIX = 'TEST_EXECUTION_RESULT';
 
-export function unittestHelperScript(configuration: { startDirectory: string, pattern: string }) {
-    return `
+export const UNITTEST_TEST_RUNNER_SCRIPT = `
 from __future__ import print_function
 from unittest import TextTestRunner, TextTestResult, TestLoader, TestSuite, defaultTestLoader as loader
 import sys
@@ -60,8 +59,8 @@ def get_tests(suite):
         return [suite]
 
 
-def discover_tests():
-    return get_tests(loader.discover("${configuration.startDirectory}", pattern="${configuration.pattern}"))
+def discover_tests(start_directory, pattern):
+    return get_tests(loader.discover(start_directory, pattern=pattern))
 
 
 def filter_by_test_ids(tests, test_ids):
@@ -75,9 +74,9 @@ def write_test_state(state, result):
     print("{}:{}:{}:{}".format(TEST_RESULT_PREFIX, state, result[0].id(), message))
 
 
-def run_tests(test_names):
+def run_tests(start_directory, pattern, test_names):
     runner = TextTestRunnerWithSingleResult()
-    tests = [TestSuite([test]) for test in filter_by_test_ids(discover_tests(), test_names)]
+    tests = [TestSuite([test]) for test in filter_by_test_ids(discover_tests(start_directory, pattern), test_names)]
     for test in tests:
         result = runner.run(test)
         for r in result.skipped:
@@ -91,13 +90,14 @@ def run_tests(test_names):
 
 
 action = sys.argv[1]
+start_directory = sys.argv[2]
+pattern = sys.argv[3]
 if action == "discover":
-    tests = discover_tests()
+    tests = discover_tests(start_directory, pattern)
     print("==DISCOVERED TESTS==")
     for test in tests:
         print(test.id())
 elif action == "run":
-    run_tests(sys.argv[2:])
+    run_tests(start_directory, pattern, sys.argv[4:])
 else:
     raise ValueError("invalid command: should be discover or run")`;
-}

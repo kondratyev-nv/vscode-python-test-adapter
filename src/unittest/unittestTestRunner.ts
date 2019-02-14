@@ -10,7 +10,7 @@ import { ILogger } from '../logging/logger';
 import { IProcessExecution, runScript } from '../pythonRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty, ensureDifferentLabels } from '../utilities';
-import { unittestHelperScript } from './unittestScripts';
+import { UNITTEST_TEST_RUNNER_SCRIPT } from './unittestScripts';
 import { parseTestStates, parseTestSuites } from './unittestSuitParser';
 
 export class UnittestTestRunner implements ITestRunner {
@@ -49,8 +49,8 @@ export class UnittestTestRunner implements ITestRunner {
 
         const result = await runScript({
             pythonPath: config.pythonPath(),
-            script: unittestHelperScript(unittestArguments),
-            args: ['discover'],
+            script: UNITTEST_TEST_RUNNER_SCRIPT,
+            args: ['discover', unittestArguments.startDirectory, unittestArguments.pattern],
             cwd: config.getCwd(),
             environment: additionalEnvironment,
         }).complete();
@@ -77,9 +77,11 @@ export class UnittestTestRunner implements ITestRunner {
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
         const testExecution = runScript({
             pythonPath: config.pythonPath(),
-            script: unittestHelperScript(unittestArguments),
+            script: UNITTEST_TEST_RUNNER_SCRIPT,
             cwd: config.getCwd(),
-            args: test !== this.adapterId ? ['run', test] : ['run'],
+            args: test !== this.adapterId ?
+                ['run', unittestArguments.startDirectory, unittestArguments.pattern, test] :
+                ['run', unittestArguments.startDirectory, unittestArguments.pattern],
             environment: additionalEnvironment,
         });
         this.testExecutions.set(test, testExecution);

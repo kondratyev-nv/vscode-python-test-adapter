@@ -51,8 +51,8 @@ class PythonProcessExecution implements IProcessExecution {
         return new Promise<{ exitCode: number, output: string }>((resolve, reject) => {
             const stdoutBuffer: Buffer[] = [];
             const stderrBuffer: Buffer[] = [];
-            this.pythonProcess.stdout.on('data', chunk => stdoutBuffer.push(chunk));
-            this.pythonProcess.stderr.on('data', chunk => stderrBuffer.push(chunk));
+            this.pythonProcess.stdout!.on('data', chunk => stdoutBuffer.push(chunk));
+            this.pythonProcess.stderr!.on('data', chunk => stderrBuffer.push(chunk));
 
             this.pythonProcess.once('close', exitCode => {
                 if (exitCode !== 0 && !this.pythonProcess.killed) {

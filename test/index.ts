@@ -16,14 +16,9 @@ import * as testRunner from 'vscode/lib/testrunner';
 import { runScript } from '../src/pythonRunner';
 
 function getReporter() {
-    const emptyOptions = {
-        name: 'spec',
-        options: {},
-    };
-
     if (!process.env.JUNIT_REPORTER_ENABLED) {
         console.log('JUNIT_REPORTER_ENABLED variable is not defined, using default reporter');
-        return emptyOptions;
+        return {};
     }
 
     const testResultsFile = path.resolve(
@@ -31,8 +26,8 @@ function getReporter() {
     );
     console.log(`Results will be placed in ${testResultsFile}`);
     return {
-        name: 'mocha-junit-reporter',
-        options: {
+        reporter: 'mocha-junit-reporter',
+        reporterOptions: {
             mochaFile: testResultsFile,
         },
     };
@@ -46,12 +41,13 @@ runScript({
 
 const reporter = getReporter();
 testRunner.configure({
-    ui: 'tdd',       // the TDD UI is being used in extension.test.ts (suite, test, etc.)
-    useColors: true, // colored output from test results
-    slow: 1000,
-    timeout: 10000,
-    reporter: reporter.name,
-    reporterOptions: reporter.options,
+    ...{
+        ui: 'tdd',       // the TDD UI is being used in extension.test.ts (suite, test, etc.)
+        useColors: true, // colored output from test results
+        slow: 1000,
+        timeout: 10000,
+    },
+    ...reporter,
 });
 
 module.exports = testRunner;

@@ -27,7 +27,10 @@ export function distinctBy<T, U>(values: T[], key: (v: T) => U): T[] {
     return Array.from(byKey.values());
 }
 
-export function ensureDifferentLabels(values: Array<{ id: string, label: string }>, idSeparator: string) {
+export function setDescriptionForEqualLabels(
+    values: Array<{ id: string, label: string, description?: string }>,
+    idSeparator: string
+) {
     /* Assuming label is last part of id */
     const notAllIdsEndsWithLabel = values.some(v => !v.id.endsWith(v.label));
     if (notAllIdsEndsWithLabel) {
@@ -37,7 +40,7 @@ export function ensureDifferentLabels(values: Array<{ id: string, label: string 
     values.filter(v => updatedLabels.has(v.id))
         .filter(v => updatedLabels.get(v.id)!.prefix)
         .forEach(v => {
-            v.label = `${v.label} (${updatedLabels.get(v.id)!.prefix})`;
+            v.description = `${updatedLabels.get(v.id)!.prefix}`;
         });
 }
 

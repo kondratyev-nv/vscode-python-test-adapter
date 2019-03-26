@@ -36,8 +36,8 @@ suite('Unittest test discovery', () => {
         const expectedSuites = [
             'TestWithOutputBeforeImport',
             'TestWithSetUpClassMethod',
-            'AddTests (basic_tests.test_add)',
-            'AddTests (other_tests.test_add)',
+            'AddTests',
+            'AddTests',
             'EnvironmentVariablesTests'
         ];
         const labels = mainSuite!.children.map(x => x.label);
@@ -62,14 +62,14 @@ suite('Run unittest tests', () => {
     });
 
     [
-        'TestWithOutputBeforeImport',
-        'TestWithSetUpClassMethod',
-        'AddTests (basic_tests.test_add)'
-    ].forEach(testCase => {
+        { testCase: 'TestWithOutputBeforeImport' },
+        { testCase: 'TestWithSetUpClassMethod' },
+        { testCase: 'AddTests', description: 'basic_tests.test_add' }
+    ].forEach(({ testCase, description }) => {
         test(`should run ${testCase} suite`, async () => {
             const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
-            const suite = findTestSuiteByLabel(mainSuite!, testCase);
+            const suite = findTestSuiteByLabel(mainSuite!, testCase, description);
             expect(suite).to.be.not.undefined;
             const states = await runner.run(config, suite!.id);
             expect(states).to.be.not.empty;

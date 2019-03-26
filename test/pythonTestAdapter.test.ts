@@ -28,7 +28,7 @@ import {
             'test_basic_two_plus_zero_is_two_skipped'
         ],
         suiteToSort: {
-            suite: 'AddTests (basic_tests.test_add)',
+            suite: { label: 'AddTests', description: 'basic_tests.test_add' },
             sortedTests: [
                 'test_basic_two_plus_one_is_three_passed',
                 'test_basic_two_plus_two_is_five_failed',
@@ -46,7 +46,7 @@ import {
             'test_capitalize_passed'
         ],
         suiteToSort: {
-            suite: 'TestSampleWithScenarios',
+            suite: { label: 'TestSampleWithScenarios' },
             sortedTests: [
                 'test_demo1_passed[advanced]',
                 'test_demo1_passed[basic]',
@@ -144,7 +144,10 @@ import {
             expect(finishedEvent!.suite).to.be.not.undefined;
             expect(finishedEvent!.suite!.children).to.be.not.empty;
 
-            const suiteToCheck = findTestSuiteByLabel(finishedEvent!.suite!, suiteToSort.suite)! as TestSuiteInfo;
+            const suiteToCheck = findTestSuiteByLabel(
+                finishedEvent!.suite!,
+                suiteToSort.suite.label,
+                suiteToSort.suite.description)! as TestSuiteInfo;
             expect(suiteToCheck.type).to.be.eq('suite');
             expect(suiteToCheck.children).to.be.not.empty;
             expect(suiteToCheck.children.map(t => t.label)).to.have.ordered.members(suiteToSort.sortedTests);

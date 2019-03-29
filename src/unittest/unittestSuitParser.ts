@@ -18,10 +18,12 @@ export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
             id: suitId,
             label: suitId.substring(suitId.lastIndexOf('.') + 1),
             file: filePathBySuitId(cwd, suitId),
+            tooltip: suitId,
             children: tests.map(test => ({
                 id: test.testId,
                 label: test.testLabel,
                 type: 'test' as 'test',
+                tooltip: test.testId,
             })),
         }));
 }

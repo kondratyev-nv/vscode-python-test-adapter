@@ -9,7 +9,7 @@ import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { IProcessExecution, runScript } from '../pythonRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
-import { empty, ensureDifferentLabels } from '../utilities';
+import { empty, setDescriptionForEqualLabels } from '../utilities';
 import { UNITTEST_TEST_RUNNER_SCRIPT } from './unittestScripts';
 import { parseTestStates, parseTestSuites } from './unittestSuitParser';
 
@@ -60,7 +60,7 @@ export class UnittestTestRunner implements ITestRunner {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
         }
-        ensureDifferentLabels(suites, '.');
+        setDescriptionForEqualLabels(suites, '.');
 
         return {
             type: 'suite',

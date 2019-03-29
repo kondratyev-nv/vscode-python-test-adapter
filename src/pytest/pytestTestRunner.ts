@@ -11,7 +11,7 @@ import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { IProcessExecution, runScript } from '../pythonRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
-import { empty, ensureDifferentLabels } from '../utilities';
+import { empty, setDescriptionForEqualLabels } from '../utilities';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
 
@@ -98,7 +98,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
             this.logger.log('warn', 'No tests discovered');
             return undefined;
         }
-        ensureDifferentLabels(suites, path.sep);
+        setDescriptionForEqualLabels(suites, path.sep);
 
         return {
             type: 'suite',

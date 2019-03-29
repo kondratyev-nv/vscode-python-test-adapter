@@ -34,10 +34,12 @@ suite('Unittest suite parser', () => {
             id: expectedSuitId,
             label: expectedSuitLabel,
             file: path.join(prefixPath, 'some_test_module.py'),
+            tooltip: expectedSuitId,
             children: [{
                 type: 'test',
                 id: expectedTestId,
                 label: expectedTestLabel,
+                tooltip: expectedTestId,
             }],
         });
     });
@@ -62,10 +64,12 @@ suite('Unittest suite parser', () => {
             id: expectedSuitId,
             label: expectedSuitLabel,
             file: path.join(prefixPath, 'some_test_module.py'),
+            tooltip: expectedSuitId,
             children: expectedTests.map(test => ({
                 type: 'test',
                 id: test.id,
                 label: test.label,
+                tooltip: test.id,
             })),
         });
     });
@@ -90,10 +94,12 @@ suite('Unittest suite parser', () => {
             id: expectedSuitId,
             label: expectedSuitLabel,
             file: undefined,
+            tooltip: expectedSuitId,
             children: expectedTests.map(test => ({
                 type: 'test',
                 id: test.id,
                 label: test.label,
+                tooltip: test.id,
             })),
         });
     });

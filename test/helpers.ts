@@ -29,17 +29,26 @@ export function extractExpectedState(name: string) {
 
 export function findTestSuiteByLabel(
     suite: TestSuiteInfo | TestInfo,
-    label: string
+    label: string,
+    description?: string
 ): TestSuiteInfo | TestInfo | undefined {
 
     if (suite.label === label) {
-        return suite;
+        if (description) {
+            if (suite.description === description) {
+                return suite;
+            }
+        } else {
+            if (!suite.description) {
+                return suite;
+            }
+        }
     }
     if (suite.type === 'test') {
         return undefined;
     }
     for (const child of suite.children) {
-        const r = findTestSuiteByLabel(child, label);
+        const r = findTestSuiteByLabel(child, label, description);
         if (r !== undefined) {
             return r;
         }

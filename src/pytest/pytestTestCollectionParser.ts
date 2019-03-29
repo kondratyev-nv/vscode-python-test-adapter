@@ -22,6 +22,7 @@ export function parseTestSuites(content: string, cwd: string): Array<TestSuiteIn
             id: modulePath,
             label: path.basename(modulePath),
             file: modulePath,
+            tooltip: modulePath,
             children: toTestSuites(
                 tests.map(t => ({
                     idHead: t.modulePath,
@@ -61,6 +62,7 @@ function toSuites(suites: ITestCaseSplit[] | undefined): TestSuiteInfo[] {
             label: suiteTests[0].name,
             file: suiteTests[0].path,
             children: toTestSuites(suiteTests),
+            tooltip: suite,
         }));
 }
 
@@ -68,13 +70,17 @@ function toFirstLevelTests(tests: ITestCaseSplit[] | undefined): TestInfo[] {
     if (!tests) {
         return [];
     }
-    return tests.map(test => ({
-        id: `${test.idHead}::${test.idTail}`,
-        label: test.idTail,
-        type: 'test' as 'test',
-        file: test.path,
-        line: test.line,
-    }));
+    return tests.map(test => {
+        const testId = `${test.idHead}::${test.idTail}`;
+        return {
+            id: testId,
+            label: test.idTail,
+            type: 'test' as 'test',
+            file: test.path,
+            line: test.line,
+            tooltip: testId,
+        };
+    });
 }
 
 function splitTest(test: ITestCaseSplit) {
@@ -94,6 +100,7 @@ function splitModule(test: { id: string, line: number }, cwd: string) {
         return null;
     }
     return {
+        // Use full path for matching with test results from junit-xml
         modulePath: path.resolve(cwd, test.id.substring(0, separatorIndex)),
         testPath: test.id.substring(separatorIndex + 2),
         line: test.line,

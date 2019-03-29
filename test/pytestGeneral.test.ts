@@ -41,8 +41,8 @@ suite('Pytest test discovery', async () => {
             'generate_test.py',
             'inner_fixture_test.py',
             'string_test.py',
-            'add_test.py (inner_tests)',
-            'add_test.py (other_tests)'
+            'add_test.py',
+            'add_test.py'
         ];
         const labels = mainSuite!.children.map(x => x.label);
         expect(labels).to.have.members(expectedSuites);
@@ -67,7 +67,7 @@ suite('Run pytest tests', () => {
 
     [
         {
-            suite: 'string_test.py',
+            suite: { label: 'string_test.py' },
             cases: [
                 { file: 'test/string_test.py', case: '::test_lower_passed' },
                 { file: 'test/string_test.py', case: '::test_capitalize_passed' },
@@ -82,14 +82,14 @@ suite('Run pytest tests', () => {
             ],
         },
         {
-            suite: 'add_test.py (inner_tests)',
+            suite: { label: 'add_test.py', description: 'inner_tests' },
             cases: [
                 { file: 'test/inner_tests/add_test.py', case: '::test_one_plus_two_is_three_passed' },
                 { file: 'test/inner_tests/add_test.py', case: '::test_two_plus_two_is_five_failed' }
             ],
         },
         {
-            suite: 'Test_NestedClassB',
+            suite: { label: 'Test_NestedClassB' },
             cases: [
                 {
                     file: 'test/inner_fixture_test.py',
@@ -98,7 +98,7 @@ suite('Run pytest tests', () => {
             ],
         },
         {
-            suite: 'describe_append',
+            suite: { label: 'describe_append' },
             cases: [
                 {
                     file: 'test/describe_test.py',
@@ -110,7 +110,7 @@ suite('Run pytest tests', () => {
         test(`should run ${suite} suite`, async () => {
             const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
-            const suiteToRun = findTestSuiteByLabel(mainSuite!, suite);
+            const suiteToRun = findTestSuiteByLabel(mainSuite!, suite.label, suite.description);
             expect(suiteToRun).to.be.not.undefined;
             const states = await runner.run(config, suiteToRun!.id);
             expect(states).to.be.not.empty;

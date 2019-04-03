@@ -76,17 +76,16 @@ def write_test_state(state, result):
 
 def run_tests(start_directory, pattern, test_names):
     runner = TextTestRunnerWithSingleResult()
-    tests = [TestSuite([test]) for test in filter_by_test_ids(discover_tests(start_directory, pattern), test_names)]
-    for test in tests:
-        result = runner.run(test)
-        for r in result.skipped:
-            write_test_state("skipped", r)
-        for r in result.failures:
-            write_test_state("failed", r)
-        for r in result.errors:
-            write_test_state("failed", r)
-        for r in result.successes:
-            write_test_state("passed", r)
+    tests = [test for test in filter_by_test_ids(discover_tests(start_directory, pattern), test_names)]
+    result = runner.run(TestSuite(tests))
+    for r in result.skipped:
+        write_test_state("skipped", r)
+    for r in result.failures:
+        write_test_state("failed", r)
+    for r in result.errors:
+        write_test_state("failed", r)
+    for r in result.successes:
+        write_test_state("passed", r)
 
 
 action = sys.argv[1]

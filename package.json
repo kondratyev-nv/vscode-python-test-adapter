@@ -63,18 +63,18 @@
     "dotenv": "^7.0.0",
     "iconv-lite": "^0.4.24",
     "js-base64": "^2.5.1",
-    "tmp": "^0.0.33",
+    "tmp": "^0.1.0",
     "tslib": "^1.9.3",
-    "vscode-test-adapter-api": "^1.6.0",
+    "vscode-test-adapter-api": "^1.7.0",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "@types/argparse": "^1.0.36",
     "@types/chai": "^4.1.7",
-    "@types/dotenv": "^6.1.0",
+    "@types/dotenv": "^6.1.1",
     "@types/js-base64": "^2.3.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^11.11.6",
+    "@types/node": "^11.12.2",
     "@types/tmp": "^0.0.34",
     "@types/xml2js": "^0.4.3",
     "chai": "^4.2.0",
@@ -83,8 +83,8 @@
     "mocha-junit-reporter": "^1.18.0",
     "rimraf": "^2.6.3",
     "tslint": "^5.14.0",
-    "typescript": "^3.3.4000",
-    "vsce": "^1.58.0",
+    "typescript": "^3.4.1",
+    "vsce": "^1.59.0",
     "vscode": "^1.1.33"
   },
   "engines": {

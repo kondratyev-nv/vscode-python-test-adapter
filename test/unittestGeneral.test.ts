@@ -38,6 +38,7 @@ suite('Unittest test discovery', () => {
             'TestWithSetUpClassMethod',
             'AddTests',
             'AddTests',
+            'TestWithTearDownClassMethod',
             'EnvironmentVariablesTests'
         ];
         const labels = mainSuite!.children.map(x => x.label);

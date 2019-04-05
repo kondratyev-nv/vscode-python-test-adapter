@@ -107,7 +107,7 @@ suite('Run pytest tests', () => {
             ],
         }
     ].forEach(({ suite, cases }) => {
-        test(`should run ${suite} suite`, async () => {
+        test(`should run ${suite.label} suite`, async () => {
             const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
             const suiteToRun = findTestSuiteByLabel(mainSuite!, suite.label, suite.description);

@@ -1,5 +1,5 @@
 {
    "python.pythonPath": "python",
-   "python.unitTest.pyTestEnabled": true,
-   "python.unitTest.pyTestArgs": ["--rootdir", "test/inner_tests", "--doctest-module"]
+   "python.testing.pyTestEnabled": true,
+   "python.testing.pyTestArgs": ["--rootdir", "test/inner_tests", "--doctest-module"]
 }

@@ -1,5 +1,5 @@
 {
-   "python.unitTest.pyTestEnabled": true,
-   "python.unitTest.unittestEnabled": true,
+   "python.testing.pyTestEnabled": true,
+   "python.testing.unittestEnabled": true,
    "python.envFile": "/some/not/existent/path/.env"
 }

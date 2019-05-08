@@ -1,4 +1,4 @@
 {
-    "python.unitTest.unittestEnabled": true,
+    "python.testing.unittestEnabled": true,
     "pythonTestExplorer.testFramework": "pytest"
 }

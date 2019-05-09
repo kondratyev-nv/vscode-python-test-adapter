@@ -8,6 +8,8 @@ import {
     IWorkspaceConfiguration
 } from './workspaceConfiguration';
 
+import { firstNotEmpty } from '../utilities';
+
 export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private readonly argumentParser: ArgumentParser;
     private readonly pythonConfiguration: WorkspaceConfiguration;
@@ -26,10 +28,11 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     }
 
     public getCwd(): string {
-        const unitTestCwd = this.pythonConfiguration.get<string>('testing.cwd');
-        return unitTestCwd ?
-            unitTestCwd :
-            this.workspaceFolder.uri.fsPath;
+        return this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['unitTest.cwd', 'testing.cwd'],
+            this.workspaceFolder.uri.fsPath
+        );
     }
 
     public envFile(): string {
@@ -50,17 +53,36 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
         };
     }
 
+    private getConfigurationValueOrDefault<T>(
+        configuration: WorkspaceConfiguration,
+        keys: string[], defaultValue: T
+    ): T {
+        return firstNotEmpty(
+            keys.map(key => (() => configuration.get<T>(key))),
+            defaultValue
+        );
+    }
+
     private isUnitTestEnabled(): boolean {
         const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
         if (overriddenTestFramework) {
             return 'unittest' === overriddenTestFramework;
         }
-        return this.pythonConfiguration.get<boolean>('testing.unittestEnabled', false);
+        return this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['unitTest.unittestEnabled', 'testing.unittestEnabled'],
+            false
+        );
     }
 
     private getUnitTestArguments(): IUnittestArguments {
         const [known] = this.argumentParser.parseKnownArgs(
-            this.pythonConfiguration.get<string[]>('testing.unittestArgs', [])
+            this.getConfigurationValueOrDefault(
+                this.pythonConfiguration,
+                ['unitTest.unittestArgs', 'testing.unittestArgs'],
+                []
+            )
+
         );
         return known;
     }
@@ -70,11 +92,19 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
         if (overriddenTestFramework) {
             return 'pytest' === overriddenTestFramework;
         }
-        return this.pythonConfiguration.get<boolean>('testing.pyTestEnabled', false);
+        return this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['unitTest.pyTestEnabled', 'testing.pyTestEnabled'],
+            false
+        );
     }
 
     private getPyTestArguments(): string[] {
-        return this.pythonConfiguration.get<string[]>('testing.pyTestArgs', []);
+        return this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['unitTest.pyTestArgs', 'testing.pyTestArgs'],
+            []
+        );
     }
 
     private configureUnittestArgumentParser() {

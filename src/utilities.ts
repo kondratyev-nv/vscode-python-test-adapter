@@ -3,6 +3,16 @@ export function empty<T>(x: T[]) {
     return !x || !x.length;
 }
 
+export function firstNotEmpty<T>(fns: Array<() => T | undefined>, defaultValue: T): T {
+    for (const fn of fns) {
+        const result = fn();
+        if (result) {
+            return result;
+        }
+    }
+    return defaultValue;
+}
+
 export function getTestOutputBySplittingString(output: string, stringToSplitWith: string): string {
     const split = output.split(stringToSplitWith);
     return split && split.pop() || '';

@@ -1,5 +1,5 @@
 {
-    "python.unitTest.pyTestEnabled": true,
+    "python.testing.pyTestEnabled": true,
     "python.pythonPath": "/some/path/to/python",
-    "python.unitTest.cwd": "/some/unittest/cwd"
+    "python.testing.cwd": "/some/unittest/cwd"
 }

@@ -24,7 +24,7 @@ matrix:
       env: PYTHON=3.6 TOXENV=py36
     - os: osx
       language: generic
-      env: PYTHON=3.7 TOXENV=py37
+      env: PYTHON=3.7.0 TOXENV=py37
       
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then

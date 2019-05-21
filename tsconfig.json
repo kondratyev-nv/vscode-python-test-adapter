@@ -17,7 +17,8 @@
     "removeComments": true,
     "skipLibCheck": true,
     "charset": "utf8",
-    "newLine": "LF"
+    "newLine": "LF",
+    "esModuleInterop": true
   },
   "include": [
     "**/*.ts"

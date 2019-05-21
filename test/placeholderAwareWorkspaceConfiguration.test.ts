@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
+import * as os from 'os';
 import * as path from 'path';
 
 import { PlaceholderAwareWorkspaceConfiguration } from '../src/configuration/placeholderAwareWorkspaceConfiguration';
@@ -138,6 +139,42 @@ suite('Placeholder aware workspace configuration', () => {
         const wfPath = getWorkspaceFolder().uri.fsPath;
         expect(configuration.pythonPath()).to.be.eq('python');
         expect(configuration.getCwd()).to.be.eq(path.normalize(path.resolve(wfPath, 'some', 'cwd', 'suffix')));
+    });
+
+    test('should resolve home path from configuration', () => {
+        process.env.SOME_RELATIVE_PATH_USED_IN_CWD = '../suffix';
+        expect(Object.keys(process.env)).to.include('SOME_RELATIVE_PATH_USED_IN_CWD');
+
+        const configuration = getConfiguration({
+            pythonPath(): string {
+                return 'python';
+            },
+            getCwd(): string {
+                return '~/some/cwd/prefix/${env:SOME_RELATIVE_PATH_USED_IN_CWD}';
+            },
+            envFile(): string {
+                return '~/.env';
+            },
+            getUnittestConfiguration(): IUnittestConfiguration {
+                return {
+                    isUnittestEnabled: true,
+                    unittestArguments: {
+                        startDirectory: './',
+                        pattern: 'test_*.py',
+                    },
+                };
+            },
+            getPytestConfiguration(): IPytestConfiguration {
+                return {
+                    isPytestEnabled: true,
+                    pytestArguments: [],
+                };
+            },
+        });
+
+        const homePath = os.homedir();
+        expect(configuration.pythonPath()).to.be.eq('python');
+        expect(configuration.getCwd()).to.be.eq(path.normalize(path.resolve(homePath, 'some', 'cwd', 'suffix')));
     });
 
     [

@@ -70,7 +70,7 @@ export function createPytestConfiguration(python: string, folder: string, args?:
             return wf.uri.fsPath;
         },
         envFile(): string {
-            return path.join(wf.uri.fsPath, '.env');
+            return path.join(wf.uri.fsPath, '..', '.env');
         },
         getUnittestConfiguration(): IUnittestConfiguration {
             throw new Error();

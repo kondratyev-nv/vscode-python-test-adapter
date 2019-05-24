@@ -38,13 +38,13 @@ List of currently used properties:
 Property                          | Description
 ----------------------------------|---------------------------------------------------------------
 `python.pythonPath`               | Path to Python
-`python.unitTest.cwd`             | Optional working directory for unit tests
-`python.unitTest.unittestEnabled` | Whether to enable or disable unit testing using unittest (enables or disables test discovery for Test Explorer)
-`python.unitTest.unittestArgs`    | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered)
-`python.unitTest.pyTestEnabled`   | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer)
-`python.unitTest.pyTestArgs`      | Arguments passed to the pytest. Each argument is a separate item in the array.
 `python.envFile`                  | Path to environment variable definitions file
-`pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension properties `python.unitTest.unittestEnabled` and `python.unitTest.pyTestEnabled`)
+`python.testing.cwd`              | Optional working directory for unit tests
+`python.testing.unittestEnabled`  | Whether to enable or disable unit testing using unittest (enables or disables test discovery for Test Explorer)
+`python.testing.unittestArgs`     | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered)
+`python.testing.pyTestEnabled`    | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer)
+`python.testing.pyTestArgs`       | Arguments passed to the pytest. Each argument is a separate item in the array.
+`pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension properties `python.unitTest.unittestEnabled` and `python.testing.pyTestEnabled`)
 
 Configuration supports placeholders for workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
 

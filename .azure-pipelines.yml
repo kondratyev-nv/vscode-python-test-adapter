@@ -48,6 +48,7 @@ jobs:
     displayName: 'Linting'
   - script: npm audit
     displayName: 'Npm security audit'
+    continueOnError: 'true'
   - script: npm test
     displayName: 'Run tests'
   - task: PublishTestResults@2
@@ -105,6 +106,7 @@ jobs:
     displayName: 'Linting'
   - script: npm audit
     displayName: 'Npm security audit'
+    continueOnError: 'true'
   - script: tox -e $(TOXENV)
     displayName: 'Run tests'
   - task: PublishTestResults@2
@@ -163,6 +165,7 @@ jobs:
     displayName: 'Linting'
   - script: npm audit
     displayName: 'Npm security audit'
+    continueOnError: 'true'
   - script: npm test
     displayName: 'Run tests'
     env:

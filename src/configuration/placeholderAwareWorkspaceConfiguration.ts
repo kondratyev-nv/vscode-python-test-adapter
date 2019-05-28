@@ -1,4 +1,5 @@
 import * as path from 'path';
+import untildify from 'untildify';
 import { WorkspaceFolder } from 'vscode';
 
 import { ILogger } from '../logging/logger';
@@ -74,7 +75,8 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         return this.normalizePath(this.resolvePlaceholders(rawValue));
     }
 
-    private normalizePath(value: string): string {
+    private normalizePath(originalValue: string): string {
+        const value = untildify(originalValue);
         if (value.includes(path.posix.sep) || value.includes(path.win32.sep)) {
             const absolutePath = path.isAbsolute(value) ?
                 path.resolve(value) :

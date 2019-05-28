@@ -52,7 +52,7 @@ install:
 
 before_script:
   - npm run lint
-  - npm audit
+  - travis_retry npm audit
 
 script:
   - tox -e $TOXENV

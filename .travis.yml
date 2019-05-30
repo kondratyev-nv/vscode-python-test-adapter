@@ -20,10 +20,10 @@ matrix:
       env: TOXENV=py37
     - os: osx
       language: generic
-      env: PYTHON=2.7 TOXENV=py27
+      env: PYTHON=2.7.16 TOXENV=py27
     - os: osx
       language: generic
-      env: PYTHON=3.6 TOXENV=py36
+      env: PYTHON=3.6.8 TOXENV=py36
     - os: osx
       language: generic
       env: PYTHON=3.7.3 TOXENV=py37
@@ -37,8 +37,10 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       brew update;
       brew upgrade pyenv;
+      
+      eval "$(pyenv init -)";
       pyenv install $PYTHON;
-      pyenv local $PYTHON;
+      pyenv global $PYTHON;
       python --version;
     fi
 
@@ -57,4 +59,4 @@ before_script:
   - travis_retry npm audit
 
 script:
-  - tox -e $TOXENV
+  - python -m tox -e $TOXENV

@@ -7,27 +7,40 @@ env:
 matrix:
   include:
     - os: linux
+      dist: xenial
       python: "2.7"
       env: TOXENV=py27
     - os: linux
+      dist: xenial
       python: "3.6"
       env: TOXENV=py36
+    - os: linux
+      dist: xenial
+      python: "3.7"
+      env: TOXENV=py37
     - os: osx
       language: generic
-      env: PYTHON=2.7 TOXENV=py27
+      env: PYTHON=2.7.16 TOXENV=py27
     - os: osx
       language: generic
-      env: PYTHON=3.6 TOXENV=py36
-      
+      env: PYTHON=3.6.8 TOXENV=py36
+    - os: osx
+      language: generic
+      env: PYTHON=3.7.3 TOXENV=py37
+services:
+  - xvfb
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
       export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
-      sh -e /etc/init.d/xvfb start;
       sleep 3;
     fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      brew update;
+      brew upgrade pyenv;
+      
+      eval "$(pyenv init -)";
       pyenv install $PYTHON;
-      pyenv local $PYTHON;
+      pyenv global $PYTHON;
       python --version;
     fi
 
@@ -46,4 +59,4 @@ before_script:
   - travis_retry npm audit
 
 script:
-  - tox -e $TOXENV
+  - python -m tox -e $TOXENV

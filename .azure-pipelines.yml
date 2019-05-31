@@ -16,7 +16,9 @@ jobs:
         python.version: '3.5'
       Windows_Python36:
         python.version: '3.6'
-    maxParallel: 3
+      Windows_Python37:
+        python.version: '3.7'
+    maxParallel: 4
   steps:
   - task: UsePythonVersion@0
     displayName: 'Setting up Python version'
@@ -73,7 +75,10 @@ jobs:
       macOS_Python36:
         python.version: '3.6'
         TOXENV: 'py36'
-    maxParallel: 3
+      macOS_Python37:
+        python.version: '3.7'
+        TOXENV: 'py37'
+    maxParallel: 4
   steps:
   - task: UsePythonVersion@0
     displayName: 'Setting up Python version'
@@ -128,7 +133,9 @@ jobs:
         python.version: '3.5'
       Linux_Python36:
         python.version: '3.6'
-    maxParallel: 3
+      Linux_Python37:
+        python.version: '3.7'
+    maxParallel: 4
   steps:
   - task: UsePythonVersion@0
     displayName: 'Setting up Python version'

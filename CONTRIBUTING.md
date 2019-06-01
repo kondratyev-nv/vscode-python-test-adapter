@@ -40,11 +40,17 @@ To test the changes, launch a development version of VS Code using the `Run exte
 
 To run tests, run `Extension tests` launch option. It will execute integration tests for Python that is used by default in the environment using `python` command. Since this `pytest` module should be importable. Results of the tests are shown in Debug Console.
 
-To run your tests against multiple python versions the [Tox](https://tox.readthedocs.io/en/latest/) can be used. The following commands will install Tox module, then run tests using virtual environments `py27` and `py36`. 
+To run your tests against multiple python versions the [Tox](https://tox.readthedocs.io/en/latest/) can be used. The following commands will install Tox module, then run tests using virtual environments `py27` and `py37`.
 
 ```shell
 python -m pip install tox
 python -m tox
+```
+
+To run tests against some other python version, for example Python 36, use
+
+```shell
+python -m tox -e py36
 ```
 
 To ensure python version that is used in tests look for a similar line in the test output

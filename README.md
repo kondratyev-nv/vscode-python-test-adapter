@@ -44,7 +44,7 @@ Property                          | Description
 `python.testing.unittestArgs`     | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered)
 `python.testing.pyTestEnabled`    | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer)
 `python.testing.pyTestArgs`       | Arguments passed to the pytest. Each argument is a separate item in the array.
-`pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension properties `python.unitTest.unittestEnabled` and `python.testing.pyTestEnabled`)
+`pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension properties `python.testing.unittestEnabled` and `python.testing.pyTestEnabled`)
 
 Configuration supports placeholders for workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
 

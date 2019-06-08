@@ -26,9 +26,9 @@ function getReporter() {
     );
     console.log(`Results will be placed in ${testResultsFile}`);
     return {
-        reporter: 'mocha-junit-reporter',
+        reporter: 'xunit',
         reporterOptions: {
-            mochaFile: testResultsFile,
+            output: testResultsFile,
         },
     };
 }

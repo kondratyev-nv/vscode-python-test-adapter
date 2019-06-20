@@ -61,6 +61,7 @@
   "dependencies": {
     "argparse": "^1.0.10",
     "dotenv": "^8.0.0",
+    "dotenv-expand": "^5.1.0",
     "iconv-lite": "^0.4.24",
     "js-base64": "^2.5.1",
     "tmp": "^0.1.0",

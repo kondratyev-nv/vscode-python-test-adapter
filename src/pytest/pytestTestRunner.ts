@@ -83,7 +83,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
             this.logger.log('info', 'Pytest test discovery is disabled');
             return undefined;
         }
-        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
+        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
         const result = await runScript({
             pythonPath: config.pythonPath(),
@@ -111,7 +111,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
     public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
         this.logger.log('info', `Running tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
-        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
+        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         const { file, cleanupCallback } = await this.createTemporaryFile();
         const runArguments = [`--junitxml=${file}`].concat(
             this.getRunArguments(test, config.getPytestConfiguration().pytestArguments));

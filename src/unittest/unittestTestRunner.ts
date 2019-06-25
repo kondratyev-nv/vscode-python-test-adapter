@@ -42,7 +42,7 @@ export class UnittestTestRunner implements ITestRunner {
             return undefined;
         }
 
-        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
+        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
         this.logger.log('info', `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
             `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);
@@ -74,7 +74,7 @@ export class UnittestTestRunner implements ITestRunner {
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
         this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
             `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);
-        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), this.logger);
+        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         const testExecution = runScript({
             pythonPath: config.pythonPath(),
             script: UNITTEST_TEST_RUNNER_SCRIPT,

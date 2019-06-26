@@ -4,12 +4,14 @@ import * as path from 'path';
 
 import { ILogger } from './logging/logger';
 
-const NEWLINE = '\n'
-const ENV_FILE_LINE_REGEX = /^\s*([a-zA-Z_]\w*)\s*=\s*(.*?)?\s*$/
-const ESCAPED_NEWLINE_REGEX = /\\n/g
+const NEWLINE = '\n';
+const ENV_FILE_LINE_REGEX = /^\s*([a-zA-Z_]\w*)\s*=\s*(.*?)?\s*$/;
+const ESCAPED_NEWLINE_REGEX = /\\n/g;
 const VARIABLE_REFERENCE_REGEX = /\${([a-zA-Z_]\w*)}/g;
 
-type EnvironmentVariables = { [key: string]: string | undefined };
+interface IEnvironmentVariables {
+    [key: string]: string | undefined;
+}
 
 function isEnclosedIn(s: string, substring: string): boolean {
     return s.startsWith(substring) && s.endsWith(substring);
@@ -19,9 +21,9 @@ export class EnvironmentVariablesLoader {
 
     public static async load(
         envFilePath: string,
-        globalEnvironment: EnvironmentVariables,
+        globalEnvironment: IEnvironmentVariables,
         logger: ILogger
-    ): Promise<EnvironmentVariables> {
+    ): Promise<IEnvironmentVariables> {
         if (!envFilePath) {
             logger.log('info', 'Environment variables file is not defined');
             return {};
@@ -50,9 +52,9 @@ export class EnvironmentVariablesLoader {
         }
     }
 
-    private static parse(buffer: Buffer, globalEnvironment: EnvironmentVariables): EnvironmentVariables {
+    private static parse(buffer: Buffer, globalEnvironment: IEnvironmentVariables): IEnvironmentVariables {
 
-        const environmentVariables: EnvironmentVariables = {};
+        const environmentVariables: IEnvironmentVariables = {};
 
         buffer.toString().split(NEWLINE).forEach(line => {
 
@@ -71,7 +73,7 @@ export class EnvironmentVariablesLoader {
     }
 
     private static parseLine(line: string): [string, string] | undefined {
-        const matchedKeyValue = line.match(ENV_FILE_LINE_REGEX)
+        const matchedKeyValue = line.match(ENV_FILE_LINE_REGEX);
         if (matchedKeyValue == null) {
             return undefined;
         }
@@ -84,9 +86,9 @@ export class EnvironmentVariablesLoader {
 
     private static normalizeValue(value: string): string {
         const isDoubleQuoted = isEnclosedIn(value, '"');
-        const isSingleQuoted = isEnclosedIn(value, "'");
+        const isSingleQuoted = isEnclosedIn(value, '\'');
         if (isSingleQuoted || isDoubleQuoted) {
-            const valueWithoutQuotes = value.substring(1, value.length - 1)
+            const valueWithoutQuotes = value.substring(1, value.length - 1);
             return isDoubleQuoted ?
                 valueWithoutQuotes.replace(ESCAPED_NEWLINE_REGEX, NEWLINE) :
                 valueWithoutQuotes;
@@ -96,8 +98,8 @@ export class EnvironmentVariablesLoader {
 
     private static resolveEnvironmentVariableValue(
         value: string,
-        localEnvironment: EnvironmentVariables,
-        globalEnvironment: EnvironmentVariables
+        localEnvironment: IEnvironmentVariables,
+        globalEnvironment: IEnvironmentVariables
     ): string {
         const replacement = value.replace(VARIABLE_REFERENCE_REGEX, (match, variableReference) => {
             if (!variableReference) {

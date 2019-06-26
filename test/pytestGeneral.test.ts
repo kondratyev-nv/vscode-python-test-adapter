@@ -168,4 +168,21 @@ suite('Run pytest tests', () => {
             });
         });
     });
+
+    [
+        'test_environment_variable_from_env_file_passed',
+        'test_environment_variable_from_process_passed'
+    ].forEach(testMethod => {
+        test(`should load evironment variables for ${testMethod} test`, async () => {
+            const mainSuite = await runner.load(config);
+            expect(mainSuite).to.be.not.undefined;
+            const suite = findTestSuiteByLabel(mainSuite!, testMethod);
+            expect(suite).to.be.not.undefined;
+            const states = await runner.run(config, suite!.id);
+            expect(states).to.be.not.empty;
+            states.forEach(state => {
+                expect(state.state).to.be.eq(extractExpectedState(state.test as string));
+            });
+        });
+    });
 });

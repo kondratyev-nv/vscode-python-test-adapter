@@ -94,7 +94,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
         }
         return this.getConfigurationValueOrDefault(
             this.pythonConfiguration,
-            ['unitTest.pyTestEnabled', 'testing.pyTestEnabled'],
+            ['unitTest.pyTestEnabled', 'testing.pyTestEnabled', 'testing.pytestEnabled'],
             false
         );
     }
@@ -102,7 +102,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private getPyTestArguments(): string[] {
         return this.getConfigurationValueOrDefault(
             this.pythonConfiguration,
-            ['unitTest.pyTestArgs', 'testing.pyTestArgs'],
+            ['unitTest.pyTestArgs', 'testing.pyTestArgs', 'testing.pytestArgs'],
             []
         );
     }

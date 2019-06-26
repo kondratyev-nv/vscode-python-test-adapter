@@ -1,4 +1,4 @@
 {
    "python.pythonPath": "python",
-   "python.testing.pyTestEnabled": true
+   "python.testing.pytestEnabled": true
 }

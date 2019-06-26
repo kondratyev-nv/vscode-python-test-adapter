@@ -1,6 +1,6 @@
 {
    "python.pythonPath": "python",
    "python.envFile": "../.env",
-   "python.testing.pyTestEnabled": true,
-   "python.testing.pyTestArgs": ["--rootdir", "test/inner_tests", "--doctest-module"]
+   "python.testing.pytestEnabled": true,
+   "python.testing.pytestArgs": ["--rootdir", "test/inner_tests", "--doctest-module"]
 }

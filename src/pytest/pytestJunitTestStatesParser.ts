@@ -73,11 +73,15 @@ function parseTestResults(parserResult: any, cwd: string) {
     if (!parserResult) {
         return [];
     }
-    const testSuiteResult: ITestSuiteResult = parserResult.testsuite;
-    if (!Array.isArray(testSuiteResult.testcase)) {
-        return [];
-    }
-    return testSuiteResult.testcase.map(testcase => mapToTestState(testcase, cwd)).filter(x => x);
+    const testSuiteResults: ITestSuiteResult[] = parserResult.testsuites ?
+        parserResult.testsuites.testsuite : // from pytest 5.1.0, see https://github.com/pytest-dev/pytest/issues/5477
+        [parserResult.testsuite];           // before pytest 5.1.0
+    return testSuiteResults.map(testSuiteResult => {
+        if (!Array.isArray(testSuiteResult.testcase)) {
+            return [];
+        }
+        return testSuiteResult.testcase.map(testcase => mapToTestState(testcase, cwd)).filter(x => x);
+    }).reduce((r, x) => r.concat(x), []);
 }
 
 function mapToTestState(testcase: ITestCaseResult, cwd: string) {

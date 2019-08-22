@@ -60,7 +60,7 @@
   ],
   "dependencies": {
     "argparse": "^1.0.10",
-    "dotenv": "^8.0.0",
+    "dotenv": "^8.1.0",
     "iconv-lite": "^0.5.0",
     "js-base64": "^2.5.1",
     "tmp": "^0.1.0",
@@ -71,21 +71,21 @@
   },
   "devDependencies": {
     "@types/argparse": "^1.0.36",
-    "@types/chai": "^4.1.7",
+    "@types/chai": "^4.2.0",
     "@types/dotenv": "^6.1.1",
     "@types/js-base64": "^2.3.1",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.6.8",
+    "@types/node": "^12.7.2",
     "@types/tmp": "^0.1.0",
     "@types/xml2js": "^0.4.4",
     "chai": "^4.2.0",
     "cross-env": "^5.2.0",
     "mocha": "^6.2.0",
-    "rimraf": "^2.6.3",
-    "tslint": "^5.18.0",
+    "rimraf": "^3.0.0",
+    "tslint": "^5.19.0",
     "typescript": "^3.5.3",
-    "vsce": "^1.65.0",
-    "vscode": "^1.1.35"
+    "vsce": "^1.66.0",
+    "vscode": "^1.1.36"
   },
   "engines": {
     "vscode": "^1.23.0"

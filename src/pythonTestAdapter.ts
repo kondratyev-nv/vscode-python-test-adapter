@@ -70,13 +70,14 @@ export class PythonTestAdapter implements TestAdapter {
         try {
             this.testStatesEmitter.fire({ type: 'started', tests });
             const config = this.configurationFactory.get(this.workspaceFolder);
-            const testRuns = tests.map(test => {
-                return this.testRunner.run(config, test)
-                    .then(states => states.forEach(state => this.testStatesEmitter.fire(state)))
-                    .catch(reason => {
-                        this.logger.log('crit', `Execution of the test "${test}" failed: ${reason}`);
-                        this.setTestStatesRecursive(test, 'failed', reason);
-                    });
+            const testRuns = tests.map(async test => {
+                try {
+                    const states = await this.testRunner.run(config, test);
+                    return states.forEach(state => this.testStatesEmitter.fire(state));
+                } catch (reason) {
+                    this.logger.log('crit', `Execution of the test "${test}" failed: ${reason}`);
+                    this.setTestStatesRecursive(test, 'failed', reason);
+                }
             });
             await Promise.all(testRuns);
         } finally {

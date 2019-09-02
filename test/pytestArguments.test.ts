@@ -32,7 +32,6 @@ suite('Pytest test discovery with additional arguments', async () => {
             'generate_test.py',
             'inner_fixture_test.py',
             'string_test.py',
-            'test_minimal.tavern.yaml',
             'add_test.py',
             'add_test.py'
         ];

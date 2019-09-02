@@ -1,0 +1,21 @@
+---
+test_name: Get data from JSON placeholder API_passed
+stages:
+  - name: Make sure we have the right ID
+    request:
+      url: https://jsonplaceholder.typicode.com/posts/1
+      method: GET
+    response:
+      status_code: 200
+      body:
+        id: 1
+
+---
+test_name: Delete data from JSON placeholder API_passed
+stages:
+  - name: Make sure we have the right ID
+    request:
+      url: https://jsonplaceholder.typicode.com/posts/2
+      method: DELETE
+    response:
+      status_code: 200

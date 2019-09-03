@@ -128,28 +128,57 @@ function buildTestName(cwd: string, test: ITestCaseDescription): string | undefi
     if (!test || !test.file || !test.classname || !test.name) {
         return undefined;
     }
-    const pathParts = test.file.split(path.sep);
-    const classParts = test.classname.split('.').filter(p => p !== '()');
-    if (classParts.length < pathParts.length) {
+    const testClass = test.classname.split('.').filter(p => p).filter(p => p !== '()').join('.');
+    const { matched, position } = matchModule(testClass, test.file);
+    if (!matched) {
         return undefined;
     }
+
     const module = path.resolve(cwd, test.file);
-    if (classParts.length === pathParts.length) {
+    const testClassParts = testClass.substring(position).split('.').filter(p => p);
+    if (testClassParts.length > 0) {
+        return `${module}::${testClassParts.join('::')}::${test.name}`;
+    } else {
         return `${module}::${test.name}`;
     }
-    const index = firstNotEqualIndex(pathParts, classParts);
-    if (index === pathParts.length - 1) {
-        return `${module}::${classParts.slice(index + 1).join('::')}::${test.name}`;
-    }
-    return undefined;
 }
 
-function firstNotEqualIndex<T>(a: T[], b: T[]): number {
-    const length = Math.min(a.length, b.length);
-    for (let index = 0; index < length; ++index) {
-        if (a[index] !== b[index]) {
-            return index;
-        }
+function matchModule(testClass: string, testFile: string): { matched: boolean, position: number } {
+    const { matched, position } = matchParentPath(testClass, testFile);
+    if (!matched) {
+        return { matched: false, position: -1 };
     }
-    return a.length === b.length ? -1 : length;
+    const { name, ext } = path.parse(testFile);
+    if (testClass.startsWith(name, position)) {
+        let moduleEndPosition = position + name.length;
+        // There is a possibility that class name contains file extension, see Tavern test plugin, for example.
+        if (ext && testClass.startsWith(ext, moduleEndPosition)) {
+            moduleEndPosition += ext.length;
+        }
+        if (testClass.startsWith('.', moduleEndPosition)) {
+            moduleEndPosition += 1;
+        }
+        return { matched: true, position: moduleEndPosition };
+    }
+    return { matched: false, position: -1 };
+}
+
+function matchParentPath(testClass: string, testFile: string): { matched: boolean, position: number } {
+    const parentPathToMatch = path.parse(testFile).dir;
+    if (!parentPathToMatch) {
+        return { matched: true, position: 0 };
+    }
+    const testFileParentPath = parentPathToMatch.split(path.sep);
+    let index = 0;
+    const allClassPartsMatchesPath = testFileParentPath.every(pathPart => {
+        if (testClass.startsWith(pathPart + '.', index)) {
+            index += pathPart.length + 1;
+            return true;
+        }
+        return false;
+    });
+    return {
+        matched: allClassPartsMatchesPath,
+        position: index,
+    };
 }

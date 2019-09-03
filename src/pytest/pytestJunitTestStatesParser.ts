@@ -164,7 +164,11 @@ function matchModule(testClass: string, testFile: string): { matched: boolean, p
 }
 
 function matchParentPath(testClass: string, testFile: string): { matched: boolean, position: number } {
-    const testFileParentPath = path.parse(testFile).dir.split(path.sep);
+    const parentPathToMatch = path.parse(testFile).dir;
+    if (!parentPathToMatch) {
+        return { matched: true, position: 0 };
+    }
+    const testFileParentPath = parentPathToMatch.split(path.sep);
     let index = 0;
     const allClassPartsMatchesPath = testFileParentPath.every(pathPart => {
         if (testClass.startsWith(pathPart + '.', index)) {

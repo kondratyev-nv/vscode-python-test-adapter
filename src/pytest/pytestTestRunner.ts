@@ -1,3 +1,4 @@
+import * as os from 'os';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import {
@@ -24,6 +25,7 @@ import sys
 import json
 import py
 
+
 def get_line_number(item):
     location = getattr(item, 'location', None)
     if location is not None:
@@ -39,15 +41,39 @@ def get_line_number(item):
 
 
 class PythonTestExplorerDiscoveryOutputPlugin(object):
-    def pytest_collection_finish(self, session):
-        print('==DISCOVERED TESTS BEGIN==')
+    def __init__(self):
+        self.errors = []
+
+    def __extract_discovered_tests(self, session):
         tests = []
         for item in session.items:
             line = get_line_number(item)
             tests.append({'id': item.nodeid,
-                          'line': line})
-        print(json.dumps(tests))
+                            'line': line})
+        return tests
+
+    def __extract_discovery_errors(self):
+        errors = []
+        for error in self.errors:
+            try:
+                errors.append({'file': error.location[0] if error.location else None,
+                                'message': error.longreprtext})
+            except:
+                pass
+        return errors
+
+    def pytest_collection_finish(self, session):
+        print('==DISCOVERED TESTS BEGIN==')
+        tests = self.__extract_discovered_tests(session)
+        errors = self.__extract_discovery_errors()
+        print(json.dumps({'tests': tests,
+                            'errors': errors}))
         print('==DISCOVERED TESTS END==')
+
+    def pytest_collectreport(self, report):
+        if report.failed:
+            self.errors.append(report)
+
 
 pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
 
@@ -85,21 +111,33 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         }
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
+
+        const discoveryArguments = this.getDiscoveryArguments(config.getPytestConfiguration().pytestArguments);
+        this.logger.log('info', `Running pytest wrapper with arguments: ${discoveryArguments}`);
+
         const result = await runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
-            args: this.getDiscoveryArguments(config.getPytestConfiguration().pytestArguments),
+            args: discoveryArguments,
             cwd: config.getCwd(),
             environment: additionalEnvironment,
         }).complete();
 
-        const suites = parseTestSuites(result.output, config.getCwd());
+        const { suites, errors } = parseTestSuites(result.output, config.getCwd());
+        if (!empty(errors)) {
+            errors.forEach(error =>
+                this.logger.log(
+                    'warn',
+                    `Error while collecting tests from file ${error.file}: ${os.EOL} ${error.message}`
+                )
+            );
+        }
         if (empty(suites)) {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
         }
-        setDescriptionForEqualLabels(suites, path.sep);
 
+        setDescriptionForEqualLabels(suites, path.sep);
         return {
             type: 'suite',
             id: this.adapterId,
@@ -115,6 +153,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         const { file, cleanupCallback } = await this.createTemporaryFile();
         const runArguments = [`--junitxml=${file}`].concat(
             this.getRunArguments(test, config.getPytestConfiguration().pytestArguments));
+        this.logger.log('info', `Running pytest wrapper with arguments: ${runArguments}`);
         const testExecution = runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,

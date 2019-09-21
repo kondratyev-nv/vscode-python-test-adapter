@@ -6,17 +6,26 @@ import { empty, groupBy } from '../utilities';
 const DISCOVERED_TESTS_START_MARK = '==DISCOVERED TESTS BEGIN==';
 const DISCOVERED_TESTS_END_MARK = '==DISCOVERED TESTS END==';
 
-export function parseTestSuites(content: string, cwd: string): Array<TestSuiteInfo | TestInfo> {
+interface IDiscoveryResultJson {
+    tests: Array<{ id: string, line: number }>;
+    errors: Array<{ file: string, message: number }>;
+}
+
+export function parseTestSuites(content: string, cwd: string): {
+    suites: Array<TestSuiteInfo | TestInfo>,
+    errors: Array<{ file: string, message: number }>
+} {
     const from = content.indexOf(DISCOVERED_TESTS_START_MARK);
     const to = content.indexOf(DISCOVERED_TESTS_END_MARK);
     const discoveredTestsJson = content.substring(from + DISCOVERED_TESTS_START_MARK.length, to);
-    const allTests = (JSON.parse(discoveredTestsJson) as Array<{ id: string, line: number }>)
+    const discoveryResult = JSON.parse(discoveredTestsJson) as IDiscoveryResultJson;
+    const allTests = (discoveryResult.tests || [])
         .map(line => ({ ...line, id: line.id.replace(/::\(\)/g, '') }))
         .filter(line => line.id)
         .map(line => splitModule(line, cwd))
         .filter(line => line)
         .map(line => line!);
-    return Array.from(groupBy(allTests, t => t.modulePath).entries())
+    const suites = Array.from(groupBy(allTests, t => t.modulePath).entries())
         .map(([modulePath, tests]) => ({
             type: 'suite' as 'suite',
             id: modulePath,
@@ -32,6 +41,10 @@ export function parseTestSuites(content: string, cwd: string): Array<TestSuiteIn
                 }))
             ),
         }));
+    return {
+        suites,
+        errors: discoveryResult.errors,
+    };
 }
 
 interface ITestCaseSplit {

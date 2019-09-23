@@ -25,14 +25,16 @@ suite('Pytest test discovery', async () => {
     });
 
     test('should discover any tests', async () => {
-        const mainSuite = await runner.load(config);
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
         expect(mainSuite).to.be.not.undefined;
         expect(mainSuite!.label).to.be.eq('Pytest tests');
         expect(mainSuite!.children).to.be.not.empty;
     });
 
     test('should discover tests', async () => {
-        const mainSuite = await runner.load(config);
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
         expect(mainSuite).to.be.not.undefined;
         const expectedSuites = [
             'describe_test.py',
@@ -54,7 +56,8 @@ suite('Run pytest tests', () => {
     const runner = new PytestTestRunner('some-id', logger());
 
     test('should run all tests', async () => {
-        const mainSuite = await runner.load(config);
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
         expect(mainSuite).to.be.not.undefined;
         expect(mainSuite!.label).to.be.eq('Pytest tests');
         const states = await runner.run(config, runner.adapterId);
@@ -108,7 +111,8 @@ suite('Run pytest tests', () => {
         }
     ].forEach(({ suite, cases }) => {
         test(`should run ${suite.label} suite`, async () => {
-            const mainSuite = await runner.load(config);
+            const { suite: mainSuite, errors } = await runner.load(config);
+            expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
             const suiteToRun = findTestSuiteByLabel(mainSuite!, suite.label, suite.description);
             expect(suiteToRun).to.be.not.undefined;
@@ -136,7 +140,8 @@ suite('Run pytest tests', () => {
         'removes_item_from_list_passed'
     ].forEach(testMethod => {
         test(`should run ${testMethod} test`, async () => {
-            const mainSuite = await runner.load(config);
+            const { suite: mainSuite, errors } = await runner.load(config);
+            expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
             const suite = findTestSuiteByLabel(mainSuite!, testMethod);
             expect(suite).to.be.not.undefined;
@@ -154,7 +159,8 @@ suite('Run pytest tests', () => {
         'test_two_plus_two_is_five_failed'
     ].forEach(testMethod => {
         test(`should capture output from ${testMethod} test`, async () => {
-            const mainSuite = await runner.load(config);
+            const { suite: mainSuite, errors } = await runner.load(config);
+            expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
             const suite = findTestSuiteByLabel(mainSuite!, testMethod);
             expect(suite).to.be.not.undefined;
@@ -174,7 +180,8 @@ suite('Run pytest tests', () => {
         'test_environment_variable_from_process_passed'
     ].forEach(testMethod => {
         test(`should load evironment variables for ${testMethod} test`, async () => {
-            const mainSuite = await runner.load(config);
+            const { suite: mainSuite, errors } = await runner.load(config);
+            expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
             const suite = findTestSuiteByLabel(mainSuite!, testMethod);
             expect(suite).to.be.not.undefined;

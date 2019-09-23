@@ -1,14 +1,13 @@
 import * as path from 'path';
 import {
-    TestEvent,
-    TestSuiteInfo
+    TestEvent
 } from 'vscode-test-adapter-api';
 
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { IProcessExecution, runScript } from '../pythonRunner';
-import { IDebugConfiguration, ITestRunner } from '../testRunner';
+import { IDebugConfiguration, IDiscoveryResult, ITestRunner } from '../testRunner';
 import { empty, setDescriptionForEqualLabels } from '../utilities';
 import { UNITTEST_TEST_RUNNER_SCRIPT } from './unittestScripts';
 import { parseTestStates, parseTestSuites } from './unittestSuitParser';
@@ -36,10 +35,10 @@ export class UnittestTestRunner implements ITestRunner {
         throw new Error('Unittest debugging is not supported at the time.');
     }
 
-    public async load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined> {
+    public async load(config: IWorkspaceConfiguration): Promise<IDiscoveryResult> {
         if (!config.getUnittestConfiguration().isUnittestEnabled) {
             this.logger.log('info', 'Unittest test discovery is disabled');
-            return undefined;
+            return {};
         }
 
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
@@ -58,15 +57,17 @@ export class UnittestTestRunner implements ITestRunner {
         const suites = parseTestSuites(result.output, path.resolve(config.getCwd(), unittestArguments.startDirectory));
         if (empty(suites)) {
             this.logger.log('warn', 'No tests discovered');
-            return undefined;
+            return {};
         }
         setDescriptionForEqualLabels(suites, '.');
 
         return {
-            type: 'suite',
-            id: this.adapterId,
-            label: 'Unittest tests',
-            children: suites,
+            suite: {
+                type: 'suite',
+                id: this.adapterId,
+                label: 'Unittest tests',
+                children: suites,
+            },
         };
     }
 

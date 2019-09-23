@@ -22,7 +22,8 @@ suite('Pytest test discovery with additional arguments', async () => {
     const runner = new PytestTestRunner('some-id', logger());
 
     test('should discover tests', async () => {
-        const mainSuite = await runner.load(config);
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
         expect(mainSuite).to.be.not.undefined;
         const expectedSuites = [
             'arithmetic.py',
@@ -57,7 +58,8 @@ suite('Run pytest tests with additional arguments', () => {
     const runner = new PytestTestRunner('some-id', logger());
 
     test('should run all tests', async () => {
-        const mainSuite = await runner.load(config);
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
         expect(mainSuite).to.be.not.undefined;
         expect(mainSuite!.label).to.be.eq('Pytest tests');
         const states = await runner.run(config, runner.adapterId);
@@ -78,7 +80,8 @@ suite('Run pytest tests with additional arguments', () => {
         }
     ].forEach(({ suite, cases }) => {
         test(`should run doctest ${suite} suite`, async () => {
-            const mainSuite = await runner.load(config);
+            const { suite: mainSuite, errors } = await runner.load(config);
+            expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
             const suiteToRun = findTestSuiteByLabel(mainSuite!, suite);
             expect(suiteToRun).to.be.not.undefined;
@@ -100,7 +103,8 @@ suite('Run pytest tests with additional arguments', () => {
         'arithmetic.add_failed'
     ].forEach(testMethod => {
         test(`should run doctest ${testMethod} test`, async () => {
-            const mainSuite = await runner.load(config);
+            const { suite: mainSuite, errors } = await runner.load(config);
+            expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
             const suite = findTestSuiteByLabel(mainSuite!, testMethod);
             expect(suite).to.be.not.undefined;

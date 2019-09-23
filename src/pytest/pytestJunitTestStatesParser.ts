@@ -125,8 +125,12 @@ function extractErrorMessage(errors: Array<{ _: string, $: { message: string } }
 }
 
 function buildTestName(cwd: string, test: ITestCaseDescription): string | undefined {
-    if (!test || !test.file || !test.classname || !test.name) {
+    if (!test || !test.file || !test.name) {
         return undefined;
+    }
+    const module = path.resolve(cwd, test.file);
+    if (!test.classname) {
+        return `${module}`;
     }
     const testClass = test.classname.split('.').filter(p => p).filter(p => p !== '()').join('.');
     const { matched, position } = matchModule(testClass, test.file);
@@ -134,7 +138,6 @@ function buildTestName(cwd: string, test: ITestCaseDescription): string | undefi
         return undefined;
     }
 
-    const module = path.resolve(cwd, test.file);
     const testClassParts = testClass.substring(position).split('.').filter(p => p);
     if (testClassParts.length > 0) {
         return `${module}::${testClassParts.join('::')}::${test.name}`;

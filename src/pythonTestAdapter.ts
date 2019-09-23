@@ -14,6 +14,7 @@ import {
 import { IConfigurationFactory } from './configuration/configurationFactory';
 import { ILogger } from './logging/logger';
 import { ITestRunner } from './testRunner';
+import { empty } from './utilities';
 
 type TestRunEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent;
 
@@ -55,11 +56,19 @@ export class PythonTestAdapter implements TestAdapter {
 
             this.testsById.clear();
             const config = this.configurationFactory.get(this.workspaceFolder);
-            const tests = await this.testRunner.load(config);
-            this.saveToMap(tests);
-            this.sortTests(tests);
+            const { suite, errors } = await this.testRunner.load(config);
+            this.saveToMap(suite);
+            this.sortTests(suite);
 
-            this.testsEmitter.fire({ type: 'finished', suite: tests });
+            this.testsEmitter.fire({ type: 'finished', suite });
+            if (errors && !empty(errors)) {
+                errors.map(e => ({
+                    type: 'test' as 'test',
+                    test: e.id,
+                    state: 'errored' as 'errored',
+                    message: e.message,
+                })).forEach(state => this.testStatesEmitter.fire(state));
+            }
         } catch (error) {
             this.logger.log('crit', `Test loading failed: ${error}`);
             this.testsEmitter.fire({ type: 'finished', suite: undefined, errorMessage: error.stack });
@@ -73,7 +82,20 @@ export class PythonTestAdapter implements TestAdapter {
             const testRuns = tests.map(async test => {
                 try {
                     const states = await this.testRunner.run(config, test);
-                    return states.forEach(state => this.testStatesEmitter.fire(state));
+                    return states
+                        .map(state => ({
+                            discoveredTest: this.testsById.get(<string>state.test),
+                            state,
+                        }))
+                        .filter(testState => testState.discoveredTest)
+                        .map(({ discoveredTest, state }) => ({ discoveredTest: discoveredTest!, state }))
+                        .forEach(({ discoveredTest, state }) => {
+                            if (discoveredTest.type === 'test') {
+                                this.testStatesEmitter.fire(state);
+                            } else {
+                                this.setTestStatesRecursive(discoveredTest.id, 'failed', state.message);
+                            }
+                        });
                 } catch (reason) {
                     this.logger.log('crit', `Execution of the test "${test}" failed: ${reason}`);
                     this.setTestStatesRecursive(test, 'failed', reason);

@@ -2,8 +2,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import {
-    TestEvent,
-    TestSuiteInfo
+    TestEvent
 } from 'vscode-test-adapter-api';
 
 import { ArgumentParser } from 'argparse';
@@ -11,7 +10,7 @@ import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { IProcessExecution, runScript } from '../pythonRunner';
-import { IDebugConfiguration, ITestRunner } from '../testRunner';
+import { IDebugConfiguration, IDiscoveryResult, ITestRunner } from '../testRunner';
 import { empty, setDescriptionForEqualLabels } from '../utilities';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
@@ -104,10 +103,10 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         };
     }
 
-    public async load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined> {
+    public async load(config: IWorkspaceConfiguration): Promise<IDiscoveryResult> {
         if (!config.getPytestConfiguration().isPytestEnabled) {
             this.logger.log('info', 'Pytest test discovery is disabled');
-            return undefined;
+            return { };
         }
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
@@ -128,21 +127,24 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
             errors.forEach(error =>
                 this.logger.log(
                     'warn',
-                    `Error while collecting tests from file ${error.file}: ${os.EOL} ${error.message}`
+                    `Error while collecting tests from file ${error.id}: ${os.EOL} ${error.message}`
                 )
             );
         }
         if (empty(suites)) {
             this.logger.log('warn', 'No tests discovered');
-            return undefined;
+            return { suite: undefined, errors };
         }
 
         setDescriptionForEqualLabels(suites, path.sep);
         return {
-            type: 'suite',
-            id: this.adapterId,
-            label: 'Pytest tests',
-            children: suites,
+            suite: {
+                type: 'suite',
+                id: this.adapterId,
+                label: 'Pytest tests',
+                children: suites,
+            },
+            errors,
         };
     }
 

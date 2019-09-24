@@ -17,7 +17,8 @@ suite('Pytest test discovery with additional arguments', async () => {
             '--doctest-modules',
             '--no-print-logs',
             '--collect-only',
-            '--junitxml=sample.xml'
+            '--junitxml=sample.xml',
+            '--ignore=test/import_error_tests'
         ]);
     const runner = new PytestTestRunner('some-id', logger());
 
@@ -53,7 +54,8 @@ suite('Run pytest tests with additional arguments', () => {
             '--no-print-logs',
             '--collect-only',
             '--junitxml=sample.xml',
-            '--exitfirst'
+            '--exitfirst',
+            '--ignore=test/import_error_tests'
         ]);
     const runner = new PytestTestRunner('some-id', logger());
 

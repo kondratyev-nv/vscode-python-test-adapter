@@ -13,7 +13,7 @@ export interface IDebugConfiguration {
 
 export interface IDiscoveryResult {
     suite?: TestSuiteInfo;
-    errors?: Array<{ id: string, message: string }>;
+    errors: Array<{ id: string, message: string }>;
 }
 
 export interface ITestRunner {

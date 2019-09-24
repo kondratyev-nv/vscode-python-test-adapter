@@ -7,7 +7,11 @@ import { PytestTestRunner } from '../src/pytest/pytestTestRunner';
 import { createPytestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from './helpers';
 
 suite('Pytest test discovery', async () => {
-    const config: IWorkspaceConfiguration = createPytestConfiguration('python', 'pytest');
+    const config: IWorkspaceConfiguration = createPytestConfiguration(
+        'python',
+        'pytest',
+        ['--ignore=test/import_error_tests']
+    );
     const runner = new PytestTestRunner('some-id', logger());
 
     test('should set runner id on initialization', () => {
@@ -20,8 +24,9 @@ suite('Pytest test discovery', async () => {
             'python', 'python_extension_configured_pytest'
         );
         expect(runner).to.be.not.null;
-        const suites = await runner.load(configForEmptySuiteCollection);
-        expect(suites).to.be.undefined;
+        const { suite: mainSuite, errors } = await runner.load(configForEmptySuiteCollection);
+        expect(errors).to.be.empty;
+        expect(mainSuite).to.be.undefined;
     });
 
     test('should discover any tests', async () => {
@@ -52,7 +57,11 @@ suite('Pytest test discovery', async () => {
 });
 
 suite('Run pytest tests', () => {
-    const config: IWorkspaceConfiguration = createPytestConfiguration('python', 'pytest');
+    const config: IWorkspaceConfiguration = createPytestConfiguration(
+        'python',
+        'pytest',
+        ['--ignore=test/import_error_tests']
+    );
     const runner = new PytestTestRunner('some-id', logger());
 
     test('should run all tests', async () => {

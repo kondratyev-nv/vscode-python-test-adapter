@@ -39,7 +39,11 @@ import {
     {
         label: 'pytest',
         runner: new PytestTestRunner('second-id', logger()),
-        configuration: createPytestConfiguration('python', 'pytest'),
+        configuration: createPytestConfiguration(
+            'python',
+            'pytest',
+            ['--ignore=test/import_error_tests']
+        ),
         testsToRun: [
             'test_one_plus_two_is_three_passed',
             'test_two_plus_two_is_five_failed',

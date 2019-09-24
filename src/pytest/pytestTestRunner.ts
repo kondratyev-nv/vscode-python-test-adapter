@@ -106,7 +106,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
     public async load(config: IWorkspaceConfiguration): Promise<IDiscoveryResult> {
         if (!config.getPytestConfiguration().isPytestEnabled) {
             this.logger.log('info', 'Pytest test discovery is disabled');
-            return { };
+            return { suite: undefined, errors: [] };
         }
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);

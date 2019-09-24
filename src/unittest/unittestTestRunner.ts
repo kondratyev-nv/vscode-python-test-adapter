@@ -38,7 +38,7 @@ export class UnittestTestRunner implements ITestRunner {
     public async load(config: IWorkspaceConfiguration): Promise<IDiscoveryResult> {
         if (!config.getUnittestConfiguration().isUnittestEnabled) {
             this.logger.log('info', 'Unittest test discovery is disabled');
-            return {};
+            return { suite: undefined, errors: [] };
         }
 
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
@@ -57,7 +57,7 @@ export class UnittestTestRunner implements ITestRunner {
         const suites = parseTestSuites(result.output, path.resolve(config.getCwd(), unittestArguments.startDirectory));
         if (empty(suites)) {
             this.logger.log('warn', 'No tests discovered');
-            return {};
+            return { suite: undefined, errors: [] };
         }
         setDescriptionForEqualLabels(suites, '.');
 
@@ -68,6 +68,7 @@ export class UnittestTestRunner implements ITestRunner {
                 label: 'Unittest tests',
                 children: suites,
             },
+            errors: [],
         };
     }
 

@@ -19,8 +19,9 @@ suite('Unittest test discovery', () => {
         const configForEmptySuiteCollection: IWorkspaceConfiguration = createUnittestConfiguration(
             'python', 'python_extension_configured_unittest'
         );
-        const suites = await runner.load(configForEmptySuiteCollection);
-        expect(suites).to.be.undefined;
+        const { suite: mainSuite, errors } = await runner.load(configForEmptySuiteCollection);
+        expect(errors).to.be.empty;
+        expect(mainSuite).to.be.undefined;
     });
 
     test('should discover any tests', async () => {

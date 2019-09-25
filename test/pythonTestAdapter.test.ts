@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { TestEvent, TestLoadFinishedEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 
@@ -157,5 +158,112 @@ import {
             expect(suiteToCheck.children).to.be.not.empty;
             expect(suiteToCheck.children.map(t => t.label)).to.have.ordered.members(suiteToSort.sortedTests);
         });
+    });
+});
+
+suite('Adapter events with pytest runner and invalid files during discovery', () => {
+    const testsToRun = [
+        'invalid_syntax_test.py',
+        'non_existing_module_test.py'
+    ];
+    const workspaceFolder = findWorkspaceFolder('pytest')!;
+    const configurationFactory: IConfigurationFactory = {
+        get(_: vscode.WorkspaceFolder): IWorkspaceConfiguration {
+            return createPytestConfiguration(
+                'python',
+                'pytest'
+            );
+        },
+    };
+    const runner = new PytestTestRunner('some-id', logger());
+    const adapter = new PythonTestAdapter(
+        workspaceFolder,
+        runner,
+        configurationFactory,
+        logger()
+    );
+
+    test('discovery events should be successfully fired', async () => {
+        let startedNotifications = 0;
+        let finishedNotifications = 0;
+        let finishedEvent: TestLoadFinishedEvent | undefined;
+        adapter.tests(event => {
+            if (event.type === 'started') {
+                startedNotifications++;
+            } else {
+                finishedNotifications++;
+                finishedEvent = event;
+            }
+        });
+        const states: TestEvent[] = [];
+        adapter.testStates(event => {
+            if (event.type === 'started') {
+                startedNotifications++;
+            } else if (event.type === 'finished') {
+                finishedNotifications++;
+            } else if (event.type === 'test') {
+                states.push(event);
+            } else {
+                /* */
+            }
+        });
+        await adapter.load();
+
+        expect(startedNotifications).to.be.eq(1);
+        expect(startedNotifications).to.be.eq(finishedNotifications);
+
+        expect(finishedEvent!.errorMessage).to.be.undefined;
+        expect(finishedEvent!.suite).to.be.not.undefined;
+        expect(finishedEvent!.suite!.children).to.be.not.empty;
+        expect(states).to.have.length(2);
+        expect(states.map(s => ({ state: s.state, id: s.test }))).to.have.deep.members([
+            {
+                state: 'errored',
+                id: path.join(workspaceFolder.uri.fsPath, 'test', 'import_error_tests', 'invalid_syntax_test.py'),
+            },
+            {
+                state: 'errored',
+                id: path.join(workspaceFolder.uri.fsPath, 'test', 'import_error_tests', 'non_existing_module_test.py'),
+            }
+        ]);
+    });
+
+    test('test execution events should be successfully fired for pytest', async () => {
+        const { suite: mainSuite, errors } = await runner.load(configurationFactory.get(workspaceFolder));
+        expect(errors).to.have.length(2);
+        expect(mainSuite).to.be.not.undefined;
+        const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);
+
+        let startedNotifications = 0;
+        let finishedNotifications = 0;
+        const states: TestEvent[] = [];
+        adapter.testStates(event => {
+            if (event.type === 'started') {
+                startedNotifications++;
+            } else if (event.type === 'finished') {
+                finishedNotifications++;
+            } else if (event.type === 'test') {
+                states.push(event);
+            } else {
+                /* */
+            }
+        });
+        await adapter.run(suites.map(s => s.id));
+
+        expect(startedNotifications).to.be.eq(1);
+        expect(startedNotifications).to.be.eq(finishedNotifications);
+
+        expect(states).to.be.not.empty;
+        expect(states).to.have.length(testsToRun.length);
+        expect(states.map(s => ({ state: s.state, id: s.test }))).to.have.deep.members([
+            {
+                state: 'failed',
+                id: path.join(workspaceFolder.uri.fsPath, 'test', 'import_error_tests', 'invalid_syntax_test.py'),
+            },
+            {
+                state: 'failed',
+                id: path.join(workspaceFolder.uri.fsPath, 'test', 'import_error_tests', 'non_existing_module_test.py'),
+            }
+        ]);
     });
 });

@@ -6,6 +6,56 @@ import { IWorkspaceConfiguration } from '../src/configuration/workspaceConfigura
 import { PytestTestRunner } from '../src/pytest/pytestTestRunner';
 import { createPytestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from './helpers';
 
+suite('Pytest test discovery with errors', async () => {
+    const config: IWorkspaceConfiguration = createPytestConfiguration(
+        'python',
+        'pytest'
+    );
+    const runner = new PytestTestRunner('some-id', logger());
+
+    test('should discover tests with errors', async () => {
+        const { suite: mainSuite } = await runner.load(config);
+        expect(mainSuite).to.be.not.undefined;
+        const expectedSuites = [
+            'describe_test.py',
+            'env_variables_test.py',
+            'fixture_test.py',
+            'generate_test.py',
+            'inner_fixture_test.py',
+            'string_test.py',
+            'add_test.py',
+            'add_test.py',
+            'invalid_syntax_test.py',
+            'non_existing_module_test.py'
+        ];
+        const labels = mainSuite!.children.map(x => x.label);
+        expect(labels).to.have.members(expectedSuites);
+    });
+});
+
+suite('Run pytest tests with discovery errors', () => {
+    const config: IWorkspaceConfiguration = createPytestConfiguration(
+        'python',
+        'pytest'
+    );
+    const runner = new PytestTestRunner('some-id', logger());
+
+    [
+        'invalid_syntax_test.py',
+        'non_existing_module_test.py'
+    ].forEach(testMethod => {
+        test(`should run ${testMethod} test`, async () => {
+            const { suite: mainSuite } = await runner.load(config);
+            expect(mainSuite).to.be.not.undefined;
+            const suite = findTestSuiteByLabel(mainSuite!, testMethod);
+            expect(suite).to.be.not.undefined;
+            const states = await runner.run(config, suite!.id);
+            expect(states).to.have.length(1);
+            expect(states[0].state).to.be.eq('failed');
+        });
+    });
+});
+
 suite('Pytest test discovery', async () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
         'python',

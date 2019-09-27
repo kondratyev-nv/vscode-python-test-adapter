@@ -31,7 +31,8 @@ import {
     suite(`Test cancellation with ${label}`, () => {
 
         test('should run and cancel all tests', async () => {
-            const mainSuite = await runner.load(configuration);
+            const { suite: mainSuite, errors } = await runner.load(configuration);
+            expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
             const statesPromise = runner.run(configuration, mainSuite!.id);
             await sleep(1000);
@@ -50,7 +51,8 @@ import {
         });
 
         test('should run and cancel single test', async () => {
-            const mainSuite = await runner.load(configuration);
+            const { suite: mainSuite, errors } = await runner.load(configuration);
+            expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
             const suite = findTestSuiteByLabel(mainSuite!, 'test_sleep');
             expect(suite).to.be.not.undefined;

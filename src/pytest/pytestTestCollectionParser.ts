@@ -1,3 +1,4 @@
+import * as os from 'os';
 import * as path from 'path';
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
@@ -13,7 +14,7 @@ interface IDiscoveryResultJson {
 
 export function parseTestSuites(content: string, cwd: string): {
     suites: Array<TestSuiteInfo | TestInfo>,
-    errors: Array<{ file: string, message: number }>
+    errors: Array<{ id: string, message: string }>
 } {
     const from = content.indexOf(DISCOVERED_TESTS_START_MARK);
     const to = content.indexOf(DISCOVERED_TESTS_END_MARK);
@@ -26,7 +27,7 @@ export function parseTestSuites(content: string, cwd: string): {
         .filter(line => line)
         .map(line => line!);
     const suites = Array.from(groupBy(allTests, t => t.modulePath).entries())
-        .map(([modulePath, tests]) => ({
+        .map(([modulePath, tests]) => <TestSuiteInfo | TestInfo>({
             type: 'suite' as 'suite',
             id: modulePath,
             label: path.basename(modulePath),
@@ -41,9 +42,20 @@ export function parseTestSuites(content: string, cwd: string): {
                 }))
             ),
         }));
+    const aggregatedErrors = Array.from(groupBy(discoveryResult.errors, e => e.file).entries())
+        .map(([file, messages]) => ({
+            file: path.resolve(cwd, file),
+            message: messages.map(e => e.message).join(os.EOL),
+        }));
+    const discoveryErrorSuites = aggregatedErrors.map(({ file }) => <TestSuiteInfo | TestInfo>({
+        type: 'test' as 'test',
+        id: file,
+        file,
+        label: `${path.basename(file)}`,
+    }));
     return {
-        suites,
-        errors: discoveryResult.errors,
+        suites: suites.concat(discoveryErrorSuites),
+        errors: aggregatedErrors.map(e => ({ id: e.file, message: e.message })),
     };
 }
 

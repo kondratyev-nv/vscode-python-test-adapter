@@ -119,3 +119,48 @@ suite('Run pytest tests with additional arguments', () => {
         });
     });
 });
+
+suite('Pytest tests with additional positional arguments', () => {
+    const config: IWorkspaceConfiguration = createPytestConfiguration(
+        'python',
+        'pytest',
+        [
+            '--rootdir',
+            'test/inner_tests',
+            'test/inner_tests',
+            'test/other_tests'
+        ]);
+    const runner = new PytestTestRunner('some-id', logger());
+
+    test('should discover tests', async () => {
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
+        expect(mainSuite).to.be.not.undefined;
+        const expectedSuites = [
+            'add_test.py',
+            'add_test.py'
+        ];
+        const labels = mainSuite!.children.map(x => x.label);
+        expect(labels).to.have.members(expectedSuites);
+    });
+
+    test('should run all tests', async () => {
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
+        expect(mainSuite).to.be.not.undefined;
+        expect(mainSuite!.label).to.be.eq('Pytest tests');
+        const states = await runner.run(config, runner.adapterId);
+        expect(states).to.be.not.empty;
+        const labels = states.map(x => x.test);
+        expect(labels).to.have.members([
+            path.join(config.getCwd(), 'test', 'inner_tests', 'add_test.py') + '::test_one_plus_two_is_three_passed',
+            path.join(config.getCwd(), 'test', 'inner_tests', 'add_test.py') + '::test_two_plus_two_is_five_failed',
+            path.join(config.getCwd(), 'test', 'other_tests', 'add_test.py') + '::test_same_filename_one_plus_two_is_three_passed',
+            path.join(config.getCwd(), 'test', 'other_tests', 'add_test.py') + '::test_same_filename_two_plus_two_is_five_failed'
+        ]);
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+        });
+    });
+});

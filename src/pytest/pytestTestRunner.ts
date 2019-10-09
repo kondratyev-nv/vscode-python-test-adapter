@@ -195,8 +195,18 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         argumentParser.addArgument(
             ['--trace'],
             { dest: 'trace', action: 'storeTrue' });
-        const [, argumentsToPass] = argumentParser.parseKnownArgs(rawPytestArguments);
-        return argumentsToPass.concat(test !== this.adapterId ? [test] : []);
+
+        // Handle positional arguments (list of tests to run).
+        // We hande them only in 'Run' configuration, because they might be used as filter on discovery stage.
+        argumentParser.addArgument(
+            ['tests'],
+            { nargs: '*' });
+        const [knownArguments, argumentsToPass] = argumentParser.parseKnownArgs(rawPytestArguments);
+        return argumentsToPass.concat(
+            test !== this.adapterId ?
+                [test] :
+                (knownArguments as { tests?: string[] }).tests || []
+        );
     }
 
     private configureCommonArgumentParser() {

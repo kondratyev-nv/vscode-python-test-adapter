@@ -5,7 +5,7 @@
   "icon": "img/icon.png",
   "author": "Nikolay Kondratyev",
   "publisher": "littlefoxteam",
-  "version": "0.3.13",
+  "version": "0.3.13-bundling",
   "license": "MIT",
   "homepage": "https://github.com/kondratyev-nv/vscode-python-test-adapter",
   "repository": {
@@ -44,15 +44,18 @@
   ],
   "scripts": {
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "clean": "rimraf out *.vsix **/*.pyc **/__pycache__ **/.pytest_cache",
-    "build": "tsc",
-    "watch": "tsc -w",
+    "clean": "rimraf out dist *.vsix **/*.pyc **/__pycache__ **/.pytest_cache",
     "lint": "tslint --project tsconfig.json",
-    "pretest": "npm run build",
-    "test": "cross-env SOME_PROCESS_VARIABLE=HelloFromProcessEnv cross-env CODE_TESTS_WORKSPACE=./test/test_samples/samples-workspace.code-workspace node ./node_modules/vscode/bin/test --silent",
-    "vscode:prepublish": "npm run build",
+    
+    "prepackage": "webpack --mode production",
     "package": "vsce package",
-    "publish": "vsce publish"
+    
+    "build": "webpack --mode none",
+    "watch": "webpack --mode none --watch",
+    
+    "test-compile": "tsc",
+    "pretest": "npm run test-compile",
+    "test": "cross-env SOME_PROCESS_VARIABLE=HelloFromProcessEnv cross-env CODE_TESTS_WORKSPACE=./test/test_samples/samples-workspace.code-workspace node ./node_modules/vscode/bin/test --silent"
   },
   "extensionDependencies": [
     "ms-python.python",
@@ -75,17 +78,20 @@
     "@types/dotenv": "^6.1.1",
     "@types/js-base64": "^2.3.1",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.7.9",
+    "@types/node": "^12.7.12",
     "@types/tmp": "^0.1.0",
     "@types/xml2js": "^0.4.5",
     "chai": "^4.2.0",
     "cross-env": "^6.0.3",
     "mocha": "^6.2.1",
     "rimraf": "^3.0.0",
+    "ts-loader": "^6.2.0",
     "tslint": "^5.20.0",
-    "typescript": "^3.6.3",
+    "typescript": "^3.6.4",
     "vsce": "^1.67.1",
-    "vscode": "^1.1.36"
+    "vscode": "^1.1.36",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9"
   },
   "engines": {
     "vscode": "^1.23.0"

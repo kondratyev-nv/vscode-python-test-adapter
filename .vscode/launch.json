@@ -36,7 +36,7 @@
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"
       ],
-      "preLaunchTask": "npm: build",
+      "preLaunchTask": "npm: test-compile",
       "env": {
         "SOME_PROCESS_VARIABLE": "HelloFromProcessEnv"
       }

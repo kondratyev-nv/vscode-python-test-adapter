@@ -77,6 +77,7 @@ def get_tests(suite):
             tests.extend(get_tests(x))
         return tests
     else:
+        print(suite)
         return [suite]
 
 

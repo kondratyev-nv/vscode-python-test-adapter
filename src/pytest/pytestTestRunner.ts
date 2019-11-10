@@ -94,12 +94,13 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         });
     }
 
-    public debugConfiguration(config: IWorkspaceConfiguration, test: string): IDebugConfiguration {
+    public async debugConfiguration(config: IWorkspaceConfiguration, test: string): Promise<IDebugConfiguration> {
+        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         return {
             module: 'pytest',
             cwd: config.getCwd(),
             args: this.getRunArguments(test, config.getPytestConfiguration().pytestArguments),
-            envFile: config.envFile(),
+            env: additionalEnvironment,
         };
     }
 

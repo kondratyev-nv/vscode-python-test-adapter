@@ -1,13 +1,11 @@
 import subprocess
 
-def call_node():
-    proc = subprocess.run(
-        ['node', '-e', 'console.log(123)'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        timeout=30)
-    return proc.stdout
 
-def test_my_code():
+def call_node():
+    return subprocess.check_output(
+        ['node', '-e', 'console.log("Hello world!")'])
+
+
+def test_calling_external_process_passed():
     out = call_node()
-    assert out.decode("utf-8") == '123\n'
+    assert out.decode('utf-8') == 'Hello world!\n'

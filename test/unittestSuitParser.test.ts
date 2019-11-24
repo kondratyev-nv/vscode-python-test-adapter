@@ -38,6 +38,7 @@ suite('Unittest suite parser', () => {
             children: [{
                 type: 'test',
                 id: expectedTestId,
+                file: path.join(prefixPath, 'some_test_module.py'),
                 label: expectedTestLabel,
                 tooltip: expectedTestId,
             }],
@@ -68,6 +69,7 @@ suite('Unittest suite parser', () => {
             children: expectedTests.map(test => ({
                 type: 'test',
                 id: test.id,
+                file: path.join(prefixPath, 'some_test_module.py'),
                 label: test.label,
                 tooltip: test.id,
             })),
@@ -98,6 +100,7 @@ suite('Unittest suite parser', () => {
             children: expectedTests.map(test => ({
                 type: 'test',
                 id: test.id,
+                file: undefined,
                 label: test.label,
                 tooltip: test.id,
             })),

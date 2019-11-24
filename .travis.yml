@@ -56,7 +56,7 @@ install:
 
 before_script:
   - npm run lint
-  - travis_retry npm audit
+  - travis_retry npm audit --production
 
 script:
   - python -m tox -e $TOXENV

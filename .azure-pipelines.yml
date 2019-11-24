@@ -48,7 +48,7 @@ jobs:
     displayName: 'Install requirements'
   - script: npm run lint
     displayName: 'Linting'
-  - script: npm audit
+  - script: npm audit --production
     displayName: 'Npm security audit'
     continueOnError: 'true'
   - script: npm test
@@ -109,7 +109,7 @@ jobs:
     displayName: 'Install requirements'
   - script: npm run lint
     displayName: 'Linting'
-  - script: npm audit
+  - script: npm audit --production
     displayName: 'Npm security audit'
     continueOnError: 'true'
   - script: tox -e $(TOXENV)
@@ -170,7 +170,7 @@ jobs:
     displayName: 'Start xvfb'
   - script: npm run lint
     displayName: 'Linting'
-  - script: npm audit
+  - script: npm audit --production
     displayName: 'Npm security audit'
     continueOnError: 'true'
   - script: npm test

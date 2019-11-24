@@ -12,20 +12,24 @@ export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
         .map(line => splitTestId(line))
         .filter(line => line)
         .map(line => line!);
-    return Array.from(groupBy(allTests, t => t.suitId).entries())
-        .map(([suitId, tests]) => ({
-            type: 'suite' as 'suite',
-            id: suitId,
-            label: suitId.substring(suitId.lastIndexOf('.') + 1),
-            file: filePathBySuitId(cwd, suitId),
-            tooltip: suitId,
-            children: tests.map(test => ({
-                id: test.testId,
-                label: test.testLabel,
-                type: 'test' as 'test',
-                tooltip: test.testId,
-            })),
-        }));
+    return Array.from(groupBy(allTests, t => t.suiteId).entries())
+        .map(([suiteId, tests]) => {
+            const suiteFile = filePathBySuiteId(cwd, suiteId);
+            return {
+                type: 'suite' as 'suite',
+                id: suiteId,
+                label: suiteId.substring(suiteId.lastIndexOf('.') + 1),
+                file: suiteFile,
+                tooltip: suiteId,
+                children: tests.map(test => ({
+                    type: 'test' as 'test',
+                    id: test.testId,
+                    label: test.testLabel,
+                    file: suiteFile,
+                    tooltip: test.testId,
+                })),
+            };
+        });
 }
 
 export function parseTestStates(output: string): TestEvent[] {
@@ -82,16 +86,16 @@ function splitTestId(testId: string) {
         return null;
     }
     return {
-        suitId: testId.substring(0, separatorIndex),
+        suiteId: testId.substring(0, separatorIndex),
         testId,
         testLabel: testId.substring(separatorIndex + 1),
     };
 }
 
-function filePathBySuitId(cwd: string, suitId: string) {
-    const separatorIndex = suitId.lastIndexOf('.');
+function filePathBySuiteId(cwd: string, suiteId: string) {
+    const separatorIndex = suiteId.lastIndexOf('.');
     if (separatorIndex < 0) {
         return undefined;
     }
-    return path.resolve(cwd, suitId.substring(0, separatorIndex).split('.').join('/') + '.py');
+    return path.resolve(cwd, suiteId.substring(0, separatorIndex).split('.').join('/') + '.py');
 }

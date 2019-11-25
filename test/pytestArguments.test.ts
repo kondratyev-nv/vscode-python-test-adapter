@@ -34,6 +34,7 @@ suite('Pytest test discovery with additional arguments', async () => {
             'generate_test.py',
             'inner_fixture_test.py',
             'string_test.py',
+            'subprocess_test.py',
             'add_test.py',
             'add_test.py'
         ];

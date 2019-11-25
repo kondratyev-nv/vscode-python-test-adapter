@@ -91,9 +91,9 @@ export class PythonTestAdapter implements TestAdapter {
         }
     }
 
-    public debug(tests: string[]): Promise<void> {
+    public async debug(tests: string[]): Promise<void> {
         const config = this.configurationFactory.get(this.workspaceFolder);
-        const debugConfiguration = this.testRunner.debugConfiguration(config, tests[0]);
+        const debugConfiguration = await this.testRunner.debugConfiguration(config, tests[0]);
         return new Promise<void>(() => {
             debug.startDebugging(this.workspaceFolder, {
                 ...{

@@ -23,6 +23,7 @@ suite('Pytest test discovery with errors', async () => {
             'generate_test.py',
             'inner_fixture_test.py',
             'string_test.py',
+            'subprocess_test.py',
             'add_test.py',
             'add_test.py',
             'invalid_syntax_test.py',
@@ -98,6 +99,7 @@ suite('Pytest test discovery', async () => {
             'generate_test.py',
             'inner_fixture_test.py',
             'string_test.py',
+            'subprocess_test.py',
             'add_test.py',
             'add_test.py'
         ];

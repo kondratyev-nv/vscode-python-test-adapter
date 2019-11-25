@@ -3,12 +3,13 @@ import {
     TestSuiteInfo
 } from 'vscode-test-adapter-api';
 import { IWorkspaceConfiguration } from './configuration/workspaceConfiguration';
+import { IEnvironmentVariables } from './environmentVariablesLoader';
 
 export interface IDebugConfiguration {
     module: string;
     cwd: string;
     args: string[];
-    envFile: string;
+    env: IEnvironmentVariables;
 }
 
 export interface IDiscoveryResult {
@@ -25,5 +26,5 @@ export interface ITestRunner {
 
     cancel(): void;
 
-    debugConfiguration(config: IWorkspaceConfiguration, test: string): IDebugConfiguration;
+    debugConfiguration(config: IWorkspaceConfiguration, test: string): Promise<IDebugConfiguration>;
 }

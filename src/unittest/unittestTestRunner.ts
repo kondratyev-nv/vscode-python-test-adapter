@@ -31,7 +31,7 @@ export class UnittestTestRunner implements ITestRunner {
         });
     }
 
-    public debugConfiguration(): IDebugConfiguration {
+    public async debugConfiguration(): Promise<IDebugConfiguration> {
         throw new Error('Unittest debugging is not supported at the time.');
     }
 

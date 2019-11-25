@@ -9,12 +9,12 @@ const ENV_FILE_LINE_REGEX = /^\s*([a-zA-Z_]\w*)\s*=\s*(.*?)?\s*$/;
 const ESCAPED_NEWLINE_REGEX = /\\n/g;
 const VARIABLE_REFERENCE_REGEX = /\${([a-zA-Z_]\w*)}/g;
 
-interface IEnvironmentVariables {
-    [key: string]: string | undefined;
-}
-
 function isEnclosedIn(s: string, substring: string): boolean {
     return s.startsWith(substring) && s.endsWith(substring);
+}
+
+export interface IEnvironmentVariables {
+    [key: string]: string | undefined;
 }
 
 export class EnvironmentVariablesLoader {

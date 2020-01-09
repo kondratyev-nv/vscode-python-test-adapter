@@ -100,10 +100,13 @@ export class PythonTestAdapter implements TestAdapter {
                     name: `Debug ${tests[0]}`,
                     type: 'python',
                     request: 'launch',
-                    console: 'none',
+                    console: 'internalConsole',
                 },
                 ...debugConfiguration,
-            }).then(() => { /* intentionally omitted */ });
+            }).then(
+                () => { /* intentionally omitted */ },
+                exception => this.logger.log('crit', `Failed to start debugging tests: ${exception}`)
+            );
         });
     }
 

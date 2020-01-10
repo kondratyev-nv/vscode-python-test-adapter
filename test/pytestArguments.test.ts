@@ -121,6 +121,77 @@ suite('Run pytest tests with additional arguments', () => {
     });
 });
 
+suite('Filter pytest tests by mark arguments', () => {
+    const runner = new PytestTestRunner('some-id', logger());
+    const markedTests = [
+        { module: path.join('test', 'inner_tests', 'add_test.py'), case: '::test_one_plus_two_is_three_passed' },
+        { module: path.join('test', 'other_tests', 'add_test.py'), case: '::test_same_filename_one_plus_two_is_three_passed' }
+    ];
+
+    test('should discover only tests with specific mark', async () => {
+        const config: IWorkspaceConfiguration = createPytestConfiguration(
+            'python',
+            'pytest',
+            [
+                '--ignore=test/import_error_tests',
+                '-m',
+                'add_test_passed'
+            ]);
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
+        expect(mainSuite).to.be.not.undefined;
+        expect(mainSuite!.label).to.be.eq('Pytest tests');
+        const labels = mainSuite!.children.map(x => x.file);
+        expect(labels).to.have.members(markedTests.map(t => path.join(config.getCwd(), t.module)));
+    });
+
+    test('should run only tests with specific mark', async () => {
+        const config: IWorkspaceConfiguration = createPytestConfiguration(
+            'python',
+            'pytest',
+            [
+                '--ignore=test/import_error_tests',
+                '-m',
+                'add_test_passed'
+            ]);
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
+        expect(mainSuite).to.be.not.undefined;
+        expect(mainSuite!.label).to.be.eq('Pytest tests');
+        const states = await runner.run(config, runner.adapterId);
+        expect(states).to.be.not.empty;
+        const labels = states.map(x => x.test);
+        expect(labels).to.have.members(markedTests.map(t => path.join(config.getCwd(), t.module) + t.case));
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+        });
+    });
+
+    test('should not run tests with specific mark', async () => {
+        const config: IWorkspaceConfiguration = createPytestConfiguration(
+            'python',
+            'pytest',
+            [
+                '--ignore=test/import_error_tests',
+                '-m',
+                'not add_test_passed'
+            ]);
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
+        expect(mainSuite).to.be.not.undefined;
+        expect(mainSuite!.label).to.be.eq('Pytest tests');
+        const states = await runner.run(config, runner.adapterId);
+        expect(states).to.be.not.empty;
+        const labels = states.map(x => x.test);
+        expect(labels).not.to.have.members(markedTests.map(t => path.join(config.getCwd(), t.module) + t.case));
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+        });
+    });
+});
+
 suite('Pytest tests with additional positional arguments', () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
         'python',

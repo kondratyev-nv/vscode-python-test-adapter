@@ -48,7 +48,7 @@ class PythonTestExplorerDiscoveryOutputPlugin(object):
         for item in session.items:
             line = get_line_number(item)
             tests.append({'id': item.nodeid,
-                            'line': line})
+                          'line': line})
         return tests
 
     def __extract_discovery_errors(self):
@@ -56,7 +56,7 @@ class PythonTestExplorerDiscoveryOutputPlugin(object):
         for error in self.errors:
             try:
                 errors.append({'file': error.location[0] if error.location else None,
-                                'message': error.longreprtext})
+                               'message': error.longreprtext})
             except:
                 pass
         return errors
@@ -66,7 +66,7 @@ class PythonTestExplorerDiscoveryOutputPlugin(object):
         tests = self.__extract_discovered_tests(session)
         errors = self.__extract_discovery_errors()
         print(json.dumps({'tests': tests,
-                            'errors': errors}))
+                          'errors': errors}))
         print('==DISCOVERED TESTS END==')
 
     def pytest_collectreport(self, report):

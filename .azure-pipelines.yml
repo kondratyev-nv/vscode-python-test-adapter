@@ -89,8 +89,6 @@ jobs:
     displayName: 'Use Node 8.x'
     inputs:
       versionSpec: 8.x
-  - script: npm install npm -g
-    displayName: 'Update npm'
   - task: Npm@1
     displayName: 'Install dependencies'
     inputs:

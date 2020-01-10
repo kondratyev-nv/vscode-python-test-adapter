@@ -1,4 +1,6 @@
+import pytest
 
+@pytest.mark.add_test_passed
 def test_same_filename_one_plus_two_is_three_passed():
     assert (1 + 2) == 3
 

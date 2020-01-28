@@ -26,7 +26,7 @@ suite('Unittest test discovery', () => {
 
     test('should discover any tests', async () => {
         const { suite: mainSuite, errors } = await runner.load(config);
-        expect(errors).to.be.empty;
+        expect(errors).to.be.not.empty;
         expect(mainSuite).to.be.not.undefined;
         expect(mainSuite!.label).to.be.eq('Unittest tests');
         expect(mainSuite!.children).to.be.not.empty;
@@ -34,7 +34,7 @@ suite('Unittest test discovery', () => {
 
     test('should discover tests', async () => {
         const { suite: mainSuite, errors } = await runner.load(config);
-        expect(errors).to.be.empty;
+        expect(errors).to.be.not.empty;
         expect(mainSuite).to.be.not.undefined;
         const expectedSuites = [
             'TestWithOutputBeforeImport',
@@ -42,7 +42,8 @@ suite('Unittest test discovery', () => {
             'AddTests',
             'AddTests',
             'TestWithTearDownClassMethod',
-            'EnvironmentVariablesTests'
+            'EnvironmentVariablesTests',
+            'InvalidTestIdTests'
         ];
         const labels = mainSuite!.children.map(x => x.label);
         expect(labels).to.have.members(expectedSuites);
@@ -55,7 +56,7 @@ suite('Run unittest tests', () => {
 
     test('should run all tests', async () => {
         const { suite: mainSuite, errors } = await runner.load(config);
-        expect(errors).to.be.empty;
+        expect(errors).to.be.not.empty;
         expect(mainSuite).to.be.not.undefined;
         expect(mainSuite!.label).to.be.eq('Unittest tests');
         const states = await runner.run(config, mainSuite!.id);
@@ -73,7 +74,7 @@ suite('Run unittest tests', () => {
     ].forEach(({ testCase, description }) => {
         test(`should run ${testCase} suite`, async () => {
             const { suite: mainSuite, errors } = await runner.load(config);
-            expect(errors).to.be.empty;
+            expect(errors).to.be.not.empty;
             expect(mainSuite).to.be.not.undefined;
             const suite = findTestSuiteByLabel(mainSuite!, testCase, description);
             expect(suite).to.be.not.undefined;
@@ -95,7 +96,7 @@ suite('Run unittest tests', () => {
     ].forEach(testMethod => {
         test(`should run ${testMethod} test`, async () => {
             const { suite: mainSuite, errors } = await runner.load(config);
-            expect(errors).to.be.empty;
+            expect(errors).to.be.not.empty;
             expect(mainSuite).to.be.not.undefined;
             const suite = findTestSuiteByLabel(mainSuite!, testMethod);
             expect(suite).to.be.not.undefined;
@@ -114,7 +115,7 @@ suite('Run unittest tests', () => {
     ].forEach(testMethod => {
         test(`should capture output from ${testMethod} test`, async () => {
             const { suite: mainSuite, errors } = await runner.load(config);
-            expect(errors).to.be.empty;
+            expect(errors).to.be.not.empty;
             expect(mainSuite).to.be.not.undefined;
             const suite = findTestSuiteByLabel(mainSuite!, testMethod);
             expect(suite).to.be.not.undefined;

@@ -6,14 +6,16 @@ import { TestSuiteInfo } from 'vscode-test-adapter-api';
 import { parseTestStates, parseTestSuites } from '../src/unittest/unittestSuitParser';
 
 suite('Unittest suite parser', () => {
-    test('should return empty root suite for empty output', () => {
-        const suites = parseTestSuites('', '/some/prefix/path');
+    test('should return empty suite when input is empty', () => {
+        const { suites, errors } = parseTestSuites(
+            `some string without dots
+==DISCOVERED TESTS BEGIN==
+{ "tests": [], "errors": [] }
+==DISCOVERED TESTS END==`,
+            '/some/prefix/path'
+        );
         expect(suites).to.be.empty;
-    });
-
-    test('should return empty suite when input can not be parsed', () => {
-        const suites = parseTestSuites('some string without dots', '/some/prefix/path');
-        expect(suites).to.be.empty;
+        expect(errors).to.be.empty;
     });
 
     test('should create single test and suite for a single test', () => {
@@ -23,7 +25,11 @@ suite('Unittest suite parser', () => {
         const expectedTestLabel = 'test_function';
         const expectedTestId = expectedSuitId + '.test_function';
 
-        const suites = parseTestSuites('some_test_module.TestCase1.test_function', prefixPath);
+        const { suites, errors } = parseTestSuites(
+            '==DISCOVERED TESTS BEGIN=={ "tests": [{ "id": "some_test_module.TestCase1.test_function" }], "errors": [] }==DISCOVERED TESTS END==',
+            prefixPath
+        );
+        expect(errors).to.be.empty;
         expect(suites).to.have.length(1);
         expect(suites[0].type).to.be.eq('suite');
 
@@ -54,7 +60,11 @@ suite('Unittest suite parser', () => {
             label,
         }));
 
-        const suites = parseTestSuites(expectedTests.map(t => t.id).join('\n'), prefixPath);
+        const { suites, errors } = parseTestSuites(
+            '==DISCOVERED TESTS BEGIN=={ "tests": [' + expectedTests.map(t => (`{ "id": "${t.id}" }`)).join(',\n') + '], "errors": [] }==DISCOVERED TESTS END==',
+            prefixPath
+        );
+        expect(errors).to.be.empty;
         expect(suites).to.have.length(1);
         expect(suites[0].type).to.be.eq('suite');
 
@@ -85,7 +95,11 @@ suite('Unittest suite parser', () => {
             label,
         }));
 
-        const suites = parseTestSuites(expectedTests.map(t => t.id).join('\n'), prefixPath);
+        const { suites, errors } = parseTestSuites(
+            '==DISCOVERED TESTS BEGIN=={ "tests": [' + expectedTests.map(t => (`{ "id": "${t.id}" }`)).join(',\n') + '], "errors": [] }==DISCOVERED TESTS END==',
+            prefixPath
+        );
+        expect(errors).to.be.empty;
         expect(suites).to.have.length(1);
         expect(suites[0].type).to.be.eq('suite');
 
@@ -117,7 +131,7 @@ suite('Unittest test states parser', () => {
     test('should return events for different states', () => {
         const testOutput = [
             'TEST_EXECUTION_RESULT:failed:' +
-                'some_module.TestCase1.test_function1:c29tZSBtdWx0aWxpbmUKZXJyb3IgbWVzc2FnZQ==',
+            'some_module.TestCase1.test_function1:c29tZSBtdWx0aWxpbmUKZXJyb3IgbWVzc2FnZQ==',
             'TEST_EXECUTION_RESULT:passed:some_module.TestCase1.test_function2',
             'TEST_EXECUTION_RESULT:skipped:some_module.TestCase1.test_function3',
             'TEST_EXECUTION_RESULT:passed:some_other_module.TestCase2.test_function'

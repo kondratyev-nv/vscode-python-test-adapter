@@ -1,21 +1,52 @@
 import { Base64 } from 'js-base64';
+import * as os from 'os';
 import * as path from 'path';
-import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
-import { distinctBy, getTestOutputBySplittingString, groupBy } from '../utilities';
+import { TestEvent, TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
+import { distinctBy, groupBy } from '../utilities';
 import { TEST_RESULT_PREFIX } from './unittestScripts';
 
-export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
-    const allTests = getTestOutputBySplittingString(output, '==DISCOVERED TESTS==')
-        .split(/\r?\n/g)
-        .map(line => line.trim())
-        .filter(line => line)
-        .map(line => splitTestId(line))
-        .filter(line => line)
-        .map(line => line!);
-    return Array.from(groupBy(allTests, t => t.suiteId).entries())
+const DISCOVERED_TESTS_START_MARK = '==DISCOVERED TESTS BEGIN==';
+const DISCOVERED_TESTS_END_MARK = '==DISCOVERED TESTS END==';
+
+interface IDiscoveryResultJson {
+    tests: Array<{ id: string }>;
+    errors: Array<{ class: string, message: number }>;
+}
+
+export function parseTestSuites(content: string, cwd: string): {
+    suites: Array<TestSuiteInfo | TestInfo>,
+    errors: Array<{ id: string, message: string }>
+} {
+    const from = content.indexOf(DISCOVERED_TESTS_START_MARK);
+    const to = content.indexOf(DISCOVERED_TESTS_END_MARK);
+    const discoveredTestsJson = content.substring(from + DISCOVERED_TESTS_START_MARK.length, to);
+    const discoveryResult = JSON.parse(discoveredTestsJson) as IDiscoveryResultJson;
+    if (!discoveryResult) {
+        return { suites: [], errors: [] };
+    }
+    const allTests = (discoveryResult.tests || [])
+        .map(line => line.id.trim())
+        .filter(id => id)
+        .map(id => splitTestId(id))
+        .filter(id => id)
+        .map(id => id!);
+
+    const aggregatedErrors = Array.from(groupBy((discoveryResult.errors || []), e => e.class).entries())
+        .map(([className, messages]) => ({
+            id: splitTestId(className),
+            message: messages.map(e => e.message).join(os.EOL),
+        }))
+        .filter(e => e.id)
+        .map(e => ({ id: e.id!, message: e.message }));
+    const discoveryErrorSuites = aggregatedErrors.map(({ id }) => <TestSuiteInfo | TestInfo>({
+        type: 'test' as 'test',
+        id: id.testId,
+        label: id.testLabel,
+    }));
+    const suites = Array.from(groupBy(allTests, t => t.suiteId).entries())
         .map(([suiteId, tests]) => {
             const suiteFile = filePathBySuiteId(cwd, suiteId);
-            return {
+            return <TestSuiteInfo | TestInfo>{
                 type: 'suite' as 'suite',
                 id: suiteId,
                 label: suiteId.substring(suiteId.lastIndexOf('.') + 1),
@@ -30,6 +61,11 @@ export function parseTestSuites(output: string, cwd: string): TestSuiteInfo[] {
                 })),
             };
         });
+
+    return {
+        suites: suites.concat(discoveryErrorSuites),
+        errors: aggregatedErrors.map(e => ({ id: e.id.testId, message: e.message })),
+    };
 }
 
 export function parseTestStates(output: string): TestEvent[] {

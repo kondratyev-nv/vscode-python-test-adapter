@@ -1,3 +1,4 @@
+import * as os from 'os';
 import * as path from 'path';
 import {
     TestEvent
@@ -54,7 +55,18 @@ export class UnittestTestRunner implements ITestRunner {
             environment: additionalEnvironment,
         }).complete();
 
-        const suites = parseTestSuites(result.output, path.resolve(config.getCwd(), unittestArguments.startDirectory));
+        const { suites, errors } = parseTestSuites(
+            result.output,
+            path.resolve(config.getCwd(), unittestArguments.startDirectory)
+        );
+        if (!empty(errors)) {
+            errors.forEach(error =>
+                this.logger.log(
+                    'warn',
+                    `Error while collecting tests from file ${error.id}: ${os.EOL}${error.message}`
+                )
+            );
+        }
         if (empty(suites)) {
             this.logger.log('warn', 'No tests discovered');
             return { suite: undefined, errors: [] };
@@ -68,7 +80,7 @@ export class UnittestTestRunner implements ITestRunner {
                 label: 'Unittest tests',
                 children: suites,
             },
-            errors: [],
+            errors,
         };
     }
 

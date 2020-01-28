@@ -42,7 +42,7 @@ export function parseTestSuites(content: string, cwd: string): {
                 }))
             ),
         }));
-    const aggregatedErrors = Array.from(groupBy(discoveryResult.errors, e => e.file).entries())
+    const aggregatedErrors = Array.from(groupBy((discoveryResult.errors || []), e => e.file).entries())
         .map(([file, messages]) => ({
             file: path.resolve(cwd, file),
             message: messages.map(e => e.message).join(os.EOL),

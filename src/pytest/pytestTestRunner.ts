@@ -128,7 +128,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
             errors.forEach(error =>
                 this.logger.log(
                     'warn',
-                    `Error while collecting tests from file ${error.id}: ${os.EOL} ${error.message}`
+                    `Error while collecting tests from file ${error.id}: ${os.EOL}${error.message}`
                 )
             );
         }

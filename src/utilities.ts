@@ -3,7 +3,7 @@ export function empty<T>(x: T[]) {
     return !x || !x.length;
 }
 
-export function firstNotEmpty<T>(fns: Array<() => T | undefined>, defaultValue: T): T {
+export function firstNotEmpty<T>(fns: (() => T | undefined)[], defaultValue: T): T {
     for (const fn of fns) {
         const result = fn();
         if (result) {
@@ -38,7 +38,7 @@ export function distinctBy<T, U>(values: T[], key: (v: T) => U): T[] {
 }
 
 export function setDescriptionForEqualLabels(
-    values: Array<{ id: string, label: string, description?: string }>,
+    values: { id: string, label: string, description?: string }[],
     idSeparator: string
 ) {
     /* Assuming label is last part of id */
@@ -55,7 +55,7 @@ export function setDescriptionForEqualLabels(
 }
 
 function mapUniqueLabelsById(
-    values: Array<{ id: string, prefix: string | undefined, label: string }>,
+    values: { id: string, prefix: string | undefined, label: string }[],
     idSeparator: string
 ) {
     const uniqueLabelsById = new Map<string, { id: string, prefix: string | undefined, label: string }>();

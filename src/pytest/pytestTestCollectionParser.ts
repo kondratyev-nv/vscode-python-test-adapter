@@ -8,13 +8,13 @@ const DISCOVERED_TESTS_START_MARK = '==DISCOVERED TESTS BEGIN==';
 const DISCOVERED_TESTS_END_MARK = '==DISCOVERED TESTS END==';
 
 interface IDiscoveryResultJson {
-    tests: Array<{ id: string, line: number }>;
-    errors: Array<{ file: string, message: number }>;
+    tests: { id: string, line: number }[];
+    errors: { file: string, message: number }[];
 }
 
 export function parseTestSuites(content: string, cwd: string): {
-    suites: Array<TestSuiteInfo | TestInfo>,
-    errors: Array<{ id: string, message: string }>
+    suites: (TestSuiteInfo | TestInfo)[],
+    errors: { id: string, message: string }[]
 } {
     const from = content.indexOf(DISCOVERED_TESTS_START_MARK);
     const to = content.indexOf(DISCOVERED_TESTS_END_MARK);
@@ -66,13 +66,13 @@ interface ITestCaseSplit {
     path: string;
 }
 
-function toTestSuites(tests: ITestCaseSplit[]): Array<TestSuiteInfo | TestInfo> {
+function toTestSuites(tests: ITestCaseSplit[]): (TestSuiteInfo | TestInfo)[] {
     if (empty(tests)) {
         return [];
     }
     const testsAndSuites = groupBy(tests, t => t.idTail.includes('::'));
-    const firstLevelTests: Array<TestSuiteInfo | TestInfo> = toFirstLevelTests(testsAndSuites.get(false));
-    const suites: Array<TestSuiteInfo | TestInfo> = toSuites(testsAndSuites.get(true));
+    const firstLevelTests: (TestSuiteInfo | TestInfo)[] = toFirstLevelTests(testsAndSuites.get(false));
+    const suites: (TestSuiteInfo | TestInfo)[] = toSuites(testsAndSuites.get(true));
     return firstLevelTests.concat(suites);
 }
 

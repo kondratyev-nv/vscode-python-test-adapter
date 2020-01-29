@@ -29,7 +29,7 @@ export class PythonTestAdapter implements TestAdapter {
         return this.autorunEmitter.event;
     }
 
-    private disposables: Array<{ dispose(): void }> = [];
+    private disposables: { dispose(): void }[] = [];
     private readonly testsEmitter = new EventEmitter<TestLoadStartedEvent | TestLoadFinishedEvent>();
     private readonly testStatesEmitter = new EventEmitter<TestRunEvent>();
     private readonly autorunEmitter = new EventEmitter<void>();

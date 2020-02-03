@@ -28,18 +28,18 @@ interface ITestCaseDescription {
 
 interface ITestCaseResult {
     $: ITestCaseDescription;
-    failure: Array<{
+    failure: {
         _: string;
         $: { message: string; type: string };
-    }>;
-    error: Array<{
+    }[];
+    error: {
         _: string;
         $: { message: string; type: string };
-    }>;
-    skipped: Array<{
+    }[];
+    skipped: {
         _: string;
         $: { message: string; type: string };
-    }>;
+    }[];
     'system-out': string[];
 }
 
@@ -117,7 +117,7 @@ function getTestState(testcase: ITestCaseResult): ['passed' | 'failed' | 'skippe
     return ['passed', output];
 }
 
-function extractErrorMessage(errors: Array<{ _: string, $: { message: string } }>): string {
+function extractErrorMessage(errors: { _: string, $: { message: string } }[]): string {
     if (!errors || !errors.length) {
         return '';
     }

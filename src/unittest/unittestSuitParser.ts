@@ -9,13 +9,13 @@ const DISCOVERED_TESTS_START_MARK = '==DISCOVERED TESTS BEGIN==';
 const DISCOVERED_TESTS_END_MARK = '==DISCOVERED TESTS END==';
 
 interface IDiscoveryResultJson {
-    tests: Array<{ id: string }>;
-    errors: Array<{ class: string, message: number }>;
+    tests: { id: string }[];
+    errors: { class: string, message: number }[];
 }
 
 export function parseTestSuites(content: string, cwd: string): {
-    suites: Array<TestSuiteInfo | TestInfo>,
-    errors: Array<{ id: string, message: string }>
+    suites: (TestSuiteInfo | TestInfo)[],
+    errors: { id: string, message: string }[]
 } {
     const from = content.indexOf(DISCOVERED_TESTS_START_MARK);
     const to = content.indexOf(DISCOVERED_TESTS_END_MARK);

@@ -51,7 +51,7 @@ export function parseTestSuites(content: string, cwd: string): {
         type: 'test' as 'test',
         id: file,
         file,
-        label: `${path.basename(file)}`,
+        label: `Discovery error in ${path.basename(file)}`,
     }));
     return {
         suites: suites.concat(discoveryErrorSuites),

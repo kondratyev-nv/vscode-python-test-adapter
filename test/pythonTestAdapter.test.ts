@@ -163,8 +163,8 @@ import {
 
 suite('Adapter events with pytest runner and invalid files during discovery', () => {
     const testsToRun = [
-        'invalid_syntax_test.py',
-        'non_existing_module_test.py'
+        'Discovery error in invalid_syntax_test.py',
+        'Discovery error in non_existing_module_test.py'
     ];
     const workspaceFolder = findWorkspaceFolder('pytest')!;
     const configurationFactory: IConfigurationFactory = {

@@ -86,13 +86,22 @@
     "vsce": "^1.73.0",
     "vscode": "^1.1.36"
   },
+  "main": "out/src/main.js",
   "engines": {
     "vscode": "^1.23.0"
   },
   "activationEvents": [
-    "onView:test-explorer"
+    "onLanguage:python",
+    "onView:test-explorer",
+    "onCommand:test-explorer.reload",
+    "onCommand:test-explorer.run-all",
+    "onCommand:test-explorer.run-file",
+    "onCommand:test-explorer.run-test-at-cursor",
+    "onCommand:test-explorer.rerun",
+    "onCommand:test-explorer.debug-test-at-cursor",
+    "onCommand:test-explorer.redebug",
+    "onCommand:test-explorer.cancel"
   ],
-  "main": "out/src/main.js",
   "contributes": {
     "configuration": {
       "properties": {

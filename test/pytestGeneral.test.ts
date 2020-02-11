@@ -26,8 +26,8 @@ suite('Pytest test discovery with errors', async () => {
             'subprocess_test.py',
             'add_test.py',
             'add_test.py',
-            'invalid_syntax_test.py',
-            'non_existing_module_test.py'
+            'Discovery error in invalid_syntax_test.py',
+            'Discovery error in non_existing_module_test.py'
         ];
         const labels = mainSuite!.children.map(x => x.label);
         expect(labels).to.have.members(expectedSuites);
@@ -42,8 +42,8 @@ suite('Run pytest tests with discovery errors', () => {
     const runner = new PytestTestRunner('some-id', logger());
 
     [
-        'invalid_syntax_test.py',
-        'non_existing_module_test.py'
+        'Discovery error in invalid_syntax_test.py',
+        'Discovery error in non_existing_module_test.py'
     ].forEach(testMethod => {
         test(`should run ${testMethod} test`, async () => {
             const { suite: mainSuite } = await runner.load(config);

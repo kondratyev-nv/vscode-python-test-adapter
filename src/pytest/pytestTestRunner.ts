@@ -211,7 +211,9 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
     }
 
     private configureCommonArgumentParser() {
-        const argumentParser = new ArgumentParser();
+        const argumentParser = new ArgumentParser({
+            debug: true, // Argument errors throw exception in debug mode and process.exit in normal.
+        });
         argumentParser.addArgument(
             ['--rootdir'],
             { action: 'store', dest: 'rootdir' });

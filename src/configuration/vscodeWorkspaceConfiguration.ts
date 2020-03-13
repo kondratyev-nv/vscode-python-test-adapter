@@ -82,7 +82,6 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
                 ['unitTest.unittestArgs', 'testing.unittestArgs'],
                 []
             )
-
         );
         return known;
     }
@@ -108,7 +107,9 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     }
 
     private configureUnittestArgumentParser() {
-        const argumentParser = new ArgumentParser();
+        const argumentParser = new ArgumentParser({
+            debug: true, // Argument errors throw exception in debug mode and process.exit in normal.
+        });
         argumentParser.addArgument(['-p', '--pattern'], {
             dest: 'pattern',
             defaultValue: 'test*.py',

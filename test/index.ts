@@ -10,36 +10,18 @@
 // to report the results back to the caller. When the tests are finished, return
 // a possible error to the callback or null if none.
 
-import * as path from 'path';
 import * as testRunner from 'vscode/lib/testrunner';
-
+import { getReporter, getPythonExecutable } from './testConfiguration';
 import { runScript } from '../src/pythonRunner';
-
-function getReporter() {
-    if (!process.env.JUNIT_REPORTER_ENABLED) {
-        console.log('JUNIT_REPORTER_ENABLED variable is not defined, using default reporter');
-        return {};
-    }
-
-    const testResultsFile = path.resolve(
-        path.join(process.env.JUNIT_REPORTER_RESULT_DIRECTORY || './', 'test-results.xml')
-    );
-    console.log(`Results will be placed in ${testResultsFile}`);
-    return {
-        reporter: 'xunit',
-        reporterOptions: {
-            output: testResultsFile,
-        },
-    };
-}
 
 runScript({
     script: 'from __future__ import print_function; import sys; print(sys.executable, sys.version)',
-    pythonPath: 'python',
+    pythonPath: getPythonExecutable(),
     environment: {},
 }).complete().then(({ output }) => console.log(`Using python ${output}`));
 
 const reporter = getReporter();
+console.log(`Using ${reporter.reporter || 'default'} reporter`);
 testRunner.configure({
     ...{
         ui: 'tdd',       // the TDD UI is being used in extension.test.ts (suite, test, etc.)

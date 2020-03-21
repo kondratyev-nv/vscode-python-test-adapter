@@ -8,7 +8,6 @@ import { createPytestConfiguration, extractExpectedState, findTestSuiteByLabel, 
 
 suite('Pytest test discovery with additional arguments', async () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
-        'python',
         'pytest',
         [
             '--rootdir=test/inner_tests',
@@ -45,7 +44,6 @@ suite('Pytest test discovery with additional arguments', async () => {
 
 suite('Run pytest tests with additional arguments', () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
-        'python',
         'pytest',
         [
             '--rootdir',
@@ -130,7 +128,6 @@ suite('Filter pytest tests by mark arguments', () => {
 
     test('should discover only tests with specific mark', async () => {
         const config: IWorkspaceConfiguration = createPytestConfiguration(
-            'python',
             'pytest',
             [
                 '--ignore=test/import_error_tests',
@@ -147,7 +144,6 @@ suite('Filter pytest tests by mark arguments', () => {
 
     test('should run only tests with specific mark', async () => {
         const config: IWorkspaceConfiguration = createPytestConfiguration(
-            'python',
             'pytest',
             [
                 '--ignore=test/import_error_tests',
@@ -170,7 +166,6 @@ suite('Filter pytest tests by mark arguments', () => {
 
     test('should not run tests with specific mark', async () => {
         const config: IWorkspaceConfiguration = createPytestConfiguration(
-            'python',
             'pytest',
             [
                 '--ignore=test/import_error_tests',
@@ -194,7 +189,6 @@ suite('Filter pytest tests by mark arguments', () => {
 
 suite('Pytest tests with additional positional arguments', () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
-        'python',
         'pytest',
         [
             '--rootdir',

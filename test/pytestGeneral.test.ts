@@ -8,7 +8,6 @@ import { createPytestConfiguration, extractExpectedState, findTestSuiteByLabel, 
 
 suite('Pytest test discovery with errors', async () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
-        'python',
         'pytest'
     );
     const runner = new PytestTestRunner('some-id', logger());
@@ -36,7 +35,6 @@ suite('Pytest test discovery with errors', async () => {
 
 suite('Run pytest tests with discovery errors', () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
-        'python',
         'pytest'
     );
     const runner = new PytestTestRunner('some-id', logger());
@@ -59,7 +57,6 @@ suite('Run pytest tests with discovery errors', () => {
 
 suite('Pytest test discovery', async () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
-        'python',
         'pytest',
         ['--ignore=test/import_error_tests']
     );
@@ -72,7 +69,7 @@ suite('Pytest test discovery', async () => {
 
     test('should not return root suite when there is no tests', async () => {
         const configForEmptySuiteCollection: IWorkspaceConfiguration = createPytestConfiguration(
-            'python', 'python_extension_configured_pytest'
+            'python_extension_configured_pytest'
         );
         expect(runner).to.be.not.null;
         const { suite: mainSuite, errors } = await runner.load(configForEmptySuiteCollection);
@@ -110,7 +107,6 @@ suite('Pytest test discovery', async () => {
 
 suite('Run pytest tests', () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
-        'python',
         'pytest',
         ['--ignore=test/import_error_tests']
     );

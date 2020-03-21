@@ -7,7 +7,7 @@ import { UnittestTestRunner } from '../src/unittest/unittestTestRunner';
 import { createUnittestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from './helpers';
 
 suite('Unittest test discovery', () => {
-    const config: IWorkspaceConfiguration = createUnittestConfiguration('python', 'unittest');
+    const config: IWorkspaceConfiguration = createUnittestConfiguration('unittest');
     const runner = new UnittestTestRunner('some-id', logger());
 
     test('should set runner id on initialization', () => {
@@ -17,7 +17,7 @@ suite('Unittest test discovery', () => {
 
     test('should not return root suite when there is no tests', async () => {
         const configForEmptySuiteCollection: IWorkspaceConfiguration = createUnittestConfiguration(
-            'python', 'python_extension_configured_unittest'
+            'python_extension_configured_unittest'
         );
         const { suite: mainSuite, errors } = await runner.load(configForEmptySuiteCollection);
         expect(errors).to.be.empty;
@@ -51,7 +51,7 @@ suite('Unittest test discovery', () => {
 });
 
 suite('Run unittest tests', () => {
-    const config: IWorkspaceConfiguration = createUnittestConfiguration('python', 'unittest');
+    const config: IWorkspaceConfiguration = createUnittestConfiguration('unittest');
     const runner = new UnittestTestRunner('some-id', logger());
 
     test('should run all tests', async () => {

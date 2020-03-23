@@ -227,7 +227,7 @@ suite('Run pytest tests', () => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
                 expect(state.message).to.be.not.empty;
-                expect(state.message!.startsWith(`Hello from ${testMethod}`)).to.be.true;
+                expect(state.message).startsWith(`Hello from ${testMethod}`);
             });
         });
     });

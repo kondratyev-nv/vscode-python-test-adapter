@@ -13,6 +13,10 @@
 import * as testRunner from 'vscode/lib/testrunner';
 import { getReporter, getPythonExecutable } from './testConfiguration';
 import { runScript } from '../src/pythonRunner';
+import * as chai from 'chai';
+import * as chaiString from 'chai-string';
+
+chai.use(chaiString.default);
 
 runScript({
     script: 'from __future__ import print_function; import sys; print(sys.executable, sys.version)',

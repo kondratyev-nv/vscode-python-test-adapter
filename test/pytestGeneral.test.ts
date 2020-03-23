@@ -219,7 +219,7 @@ suite('Run pytest tests', () => {
         'test_one_plus_two_is_three_passed',
         'test_two_plus_two_is_five_failed'
     ].forEach(testMethod => {
-        test(`should capture output from ${testMethod} test`, async () => {
+        test.skip(`should capture output from ${testMethod} test`, async () => {
             const { suite: mainSuite, errors } = await runner.load(config);
             expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;

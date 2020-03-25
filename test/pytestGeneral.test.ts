@@ -211,24 +211,19 @@ suite('Run pytest tests', () => {
         });
     });
 
-    [
-        'test_one_plus_two_is_three_passed',
-        'test_two_plus_two_is_five_failed'
-    ].forEach(testMethod => {
-        test.skip(`should capture output from ${testMethod} test`, async () => {
-            const { suite: mainSuite, errors } = await runner.load(config);
-            expect(errors).to.be.empty;
-            expect(mainSuite).to.be.not.undefined;
-            const suite = findTestSuiteByLabel(mainSuite!, testMethod);
-            expect(suite).to.be.not.undefined;
-            const states = await runner.run(config, suite!.id);
-            expect(states).to.be.not.empty;
-            states.forEach(state => {
-                const expectedState = extractExpectedState(state.test as string);
-                expect(state.state).to.be.eq(expectedState);
-                expect(state.message).to.be.not.empty;
-                expect(state.message).startsWith(`Hello from ${testMethod}`);
-            });
+    test('should capture output from failing test', async () => {
+        const { suite: mainSuite, errors } = await runner.load(config);
+        expect(errors).to.be.empty;
+        expect(mainSuite).to.be.not.undefined;
+        const suite = findTestSuiteByLabel(mainSuite!, 'test_two_plus_two_is_five_failed');
+        expect(suite).to.be.not.undefined;
+        const states = await runner.run(config, suite!.id);
+        expect(states).to.be.not.empty;
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+            expect(state.message).to.be.not.empty;
+            expect(state.message).contains('Hello from test_two_plus_two_is_five_failed');
         });
     });
 

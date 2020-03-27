@@ -22,7 +22,7 @@ import {
     {
         label: 'unittest',
         runner: new UnittestTestRunner('first-id', logger()),
-        configuration: createUnittestConfiguration('python', 'unittest'),
+        configuration: createUnittestConfiguration('unittest'),
         testsToRun: [
             'test_basic_two_plus_one_is_three_passed',
             'test_basic_two_plus_two_is_five_failed',
@@ -41,7 +41,6 @@ import {
         label: 'pytest',
         runner: new PytestTestRunner('second-id', logger()),
         configuration: createPytestConfiguration(
-            'python',
             'pytest',
             ['--ignore=test/import_error_tests']
         ),
@@ -170,7 +169,6 @@ suite('Adapter events with pytest runner and invalid files during discovery', ()
     const configurationFactory: IConfigurationFactory = {
         get(_: vscode.WorkspaceFolder): IWorkspaceConfiguration {
             return createPytestConfiguration(
-                'python',
                 'pytest'
             );
         },

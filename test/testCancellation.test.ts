@@ -18,13 +18,13 @@ import {
     {
         label: 'unittest',
         runner: new UnittestTestRunner('first-id', logger()),
-        configuration: createUnittestConfiguration('python', 'unittest_test_cancellation'),
+        configuration: createUnittestConfiguration('unittest_test_cancellation'),
         allowNoTestCompleted: false,
     },
     {
         label: 'pytest',
         runner: new PytestTestRunner('second-id', logger()),
-        configuration: createPytestConfiguration('python', 'pytest_test_cancellation'),
+        configuration: createPytestConfiguration('pytest_test_cancellation'),
         allowNoTestCompleted: os.platform() === 'win32',
     }
 ].forEach(({ label, runner, configuration, allowNoTestCompleted }) => {

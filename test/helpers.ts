@@ -9,6 +9,7 @@ import {
     IWorkspaceConfiguration
 } from '../src/configuration/workspaceConfiguration';
 import { ILogger } from '../src/logging/logger';
+import { getPythonExecutable } from './testConfiguration';
 
 export function logger(): ILogger {
     return {
@@ -60,7 +61,8 @@ export function findWorkspaceFolder(folder: string): vscode.WorkspaceFolder | un
     return vscode.workspace.workspaceFolders!.find(f => f.name === folder);
 }
 
-export function createPytestConfiguration(python: string, folder: string, args?: string[]): IWorkspaceConfiguration {
+export function createPytestConfiguration(folder: string, args?: string[]): IWorkspaceConfiguration {
+    const python = getPythonExecutable();
     const wf = findWorkspaceFolder(folder)!;
     return new PlaceholderAwareWorkspaceConfiguration({
         pythonPath(): string {
@@ -84,7 +86,8 @@ export function createPytestConfiguration(python: string, folder: string, args?:
     }, wf, logger());
 }
 
-export function createUnittestConfiguration(python: string, folder: string): IWorkspaceConfiguration {
+export function createUnittestConfiguration(folder: string): IWorkspaceConfiguration {
+    const python = getPythonExecutable();
     const wf = findWorkspaceFolder(folder)!;
     return new PlaceholderAwareWorkspaceConfiguration({
         pythonPath(): string {

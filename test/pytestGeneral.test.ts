@@ -218,13 +218,25 @@ suite('Run pytest tests', () => {
         const suite = findTestSuiteByLabel(mainSuite!, 'test_two_plus_two_is_five_failed');
         expect(suite).to.be.not.undefined;
         const states = await runner.run(config, suite!.id);
-        expect(states).to.be.not.empty;
-        states.forEach(state => {
-            const expectedState = extractExpectedState(state.test as string);
-            expect(state.state).to.be.eq(expectedState);
-            expect(state.message).to.be.not.empty;
-            expect(state.message).contains('Hello from test_two_plus_two_is_five_failed');
-        });
+        expect(states).to.be.have.length(1);
+        const state = states[0];
+        const expectedState = extractExpectedState(state.test as string);
+        expect(state.state).to.be.eq(expectedState);
+        expect(state.message).to.be.not.empty;
+        expect(state.message).contains('Hello from test_two_plus_two_is_five_failed');
+        expect(state.decorations).to.be.not.empty;
+        expect(state.decorations).to.be.deep.equal([
+            {
+                line: 9,
+                message: `assert (2 + 2) == 5
+def test_two_plus_two_is_five_failed():
+        print('Hello from test_two_plus_two_is_five_failed')
+>       assert (2 + 2) == 5
+E       assert (2 + 2) == 5
+
+test/inner_tests/add_test.py:12: AssertionError`,
+            }
+        ]);
     });
 
     [

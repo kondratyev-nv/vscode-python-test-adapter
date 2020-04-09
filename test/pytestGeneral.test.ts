@@ -224,19 +224,13 @@ suite('Run pytest tests', () => {
         expect(state.state).to.be.eq(expectedState);
         expect(state.message).to.be.not.empty;
         expect(state.message).contains('Hello from test_two_plus_two_is_five_failed');
-        expect(state.decorations).to.be.not.empty;
-        expect(state.decorations).to.be.deep.equal([
-            {
-                line: 9,
-                message: `assert (2 + 2) == 5
+        expect(state.decorations).to.be.have.length(1);
+        expect(state.decorations![0].line).to.be.equal(9);
+        expect(state.decorations![0].message).to.startWith(`assert (2 + 2) == 5
 def test_two_plus_two_is_five_failed():
         print('Hello from test_two_plus_two_is_five_failed')
 >       assert (2 + 2) == 5
-E       assert (2 + 2) == 5
-
-test/inner_tests/add_test.py:12: AssertionError`,
-            }
-        ]);
+E       assert (2 + 2) == 5`);
     });
 
     [

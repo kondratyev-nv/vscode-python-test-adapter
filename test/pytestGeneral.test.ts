@@ -226,11 +226,11 @@ suite('Run pytest tests', () => {
         expect(state.message).contains('Hello from test_two_plus_two_is_five_failed');
         expect(state.decorations).to.be.have.length(1);
         expect(state.decorations![0].line).to.be.equal(9);
-        expect(state.decorations![0].message).to.startWith(`assert (2 + 2) == 5
+        expect(state.decorations![0].message).to.satisfy((m: string) => m.startsWith(`assert (2 + 2) == 5
 def test_two_plus_two_is_five_failed():
         print('Hello from test_two_plus_two_is_five_failed')
 >       assert (2 + 2) == 5
-E       assert (2 + 2) == 5`);
+E       assert (2 + 2) == 5`));
     });
 
     [

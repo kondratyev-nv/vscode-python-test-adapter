@@ -43,6 +43,8 @@ interface ITestCaseResult {
     'system-out': string[];
 }
 
+type TestState = 'passed' | 'failed' | 'skipped';
+
 export async function parseTestStates(
     outputXmlFile: string,
     cwd: string
@@ -89,32 +91,43 @@ function mapToTestState(testcase: ITestCaseResult, cwd: string) {
     if (!testId) {
         return undefined;
     }
-    const [state, message] = getTestState(testcase);
-    const decorations = state !== 'passed' ? [{
-        line: testcase.$.line,
-        message,
-    }] : null;
+    const [state, output, message] = getTestState(testcase);
+    const decorations = getDecorations(state, testcase.$.line, message);
     return {
         state,
         test: testId,
         type: 'test',
-        message,
+        message: output + message,
         decorations,
     };
 }
 
-function getTestState(testcase: ITestCaseResult): ['passed' | 'failed' | 'skipped', string] {
+function getDecorations(state: TestState, line: string, message: string): { line: number, message: string }[] {
+    if (state === 'passed') {
+        return [];
+    }
+    if (!line) {
+        return [];
+    }
+    const lineNumber = parseInt(line, 10);
+    return [{
+        line: lineNumber,
+        message,
+    }];
+}
+
+function getTestState(testcase: ITestCaseResult): [TestState, string, string] {
     const output = empty(testcase['system-out']) ? '' : testcase['system-out'].join(EOL) + EOL;
     if (testcase.error) {
-        return ['failed', output + extractErrorMessage(testcase.error)];
+        return ['failed', output, extractErrorMessage(testcase.error)];
     }
     if (testcase.failure) {
-        return ['failed', output + extractErrorMessage(testcase.failure)];
+        return ['failed', output, extractErrorMessage(testcase.failure)];
     }
     if (testcase.skipped) {
-        return ['skipped', output + extractErrorMessage(testcase.skipped)];
+        return ['skipped', output, extractErrorMessage(testcase.skipped)];
     }
-    return ['passed', output];
+    return ['passed', '', output];
 }
 
 function extractErrorMessage(errors: { _: string, $: { message: string } }[]): string {

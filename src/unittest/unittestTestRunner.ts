@@ -32,8 +32,14 @@ export class UnittestTestRunner implements ITestRunner {
         });
     }
 
-    public async debugConfiguration(): Promise<IDebugConfiguration> {
-        throw new Error('Unittest debugging is not supported at the time.');
+    public async debugConfiguration(config: IWorkspaceConfiguration, test: string): Promise<IDebugConfiguration> {
+        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
+        return {
+            module: 'unittest',
+            cwd: config.getCwd(),
+            args: [test],
+            env: additionalEnvironment,
+        }
     }
 
     public async load(config: IWorkspaceConfiguration): Promise<IDiscoveryResult> {

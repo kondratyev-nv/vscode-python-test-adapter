@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import { Base64 } from 'js-base64';
 import * as os from 'os';
 import * as path from 'path';
@@ -37,10 +38,15 @@ export function parseTestSuites(content: string, cwd: string): {
             message: messages.map(e => e.message).join(os.EOL),
         }))
         .filter(e => e.id)
-        .map(e => ({ id: e.id!, message: e.message }));
-    const discoveryErrorSuites = aggregatedErrors.map(({ id }) => <TestSuiteInfo | TestInfo>({
+        .map(e => ({
+            id: e.id!,
+            file: errorSuiteFilePathBySuiteId(cwd, e.id!.testId),
+            message: e.message,
+        }));
+    const discoveryErrorSuites = aggregatedErrors.map(({ id, file }) => <TestSuiteInfo | TestInfo>({
         type: 'test' as 'test',
         id: id.testId,
+        file,
         label: id.testLabel,
     }));
     const suites = Array.from(groupBy(allTests, t => t.suiteId).entries())
@@ -119,13 +125,27 @@ function toState(value: string): 'running' | 'passed' | 'failed' | 'skipped' | u
 function splitTestId(testId: string) {
     const separatorIndex = testId.lastIndexOf('.');
     if (separatorIndex < 0) {
-        return null;
+        return {
+            suiteId: testId,
+            testId,
+            testLabel: testId,
+        };
     }
     return {
         suiteId: testId.substring(0, separatorIndex),
         testId,
         testLabel: testId.substring(separatorIndex + 1),
     };
+}
+
+function errorSuiteFilePathBySuiteId(cwd: string, suiteId: string) {
+    // <path>.<path>.<file>
+    const relativePath = suiteId.split('.').join('/');
+    const filePathCandidate = path.resolve(cwd, relativePath + '.py');
+    if (fs.existsSync(filePathCandidate) && fs.lstatSync(filePathCandidate).isFile()) {
+        return filePathCandidate;
+    }
+    return undefined;
 }
 
 function filePathBySuiteId(cwd: string, suiteId: string) {

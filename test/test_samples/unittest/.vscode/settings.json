@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "python",
+    "python.pythonPath": "python3",
     "python.testing.unittestEnabled": true
 }

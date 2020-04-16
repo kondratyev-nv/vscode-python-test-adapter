@@ -6,6 +6,7 @@ export const UNITTEST_TEST_RUNNER_SCRIPT = `
 from __future__ import print_function
 from unittest import TextTestRunner, TextTestResult, TestLoader, TestSuite, defaultTestLoader, util
 import sys
+import os
 import base64
 import json
 import traceback
@@ -16,11 +17,17 @@ STDOUT_LINE = '\\nStdout:\\n%s'
 STDERR_LINE = '\\nStderr:\\n%s'
 
 
+def writeln(stream, value=None):
+    if value:
+        stream.write(value)
+    stream.write(os.linesep)
+
+
 def write_test_state(stream, state, result):
     message = base64.b64encode(result[1].encode('utf8')).decode('ascii')
-    stream.writeln()
-    stream.writeln("{}:{}:{}:{}".format(TEST_RESULT_PREFIX,
-                                        state, result[0].id(), message))
+    writeln(stream)
+    writeln(stream, "{}:{}:{}:{}".format(TEST_RESULT_PREFIX,
+                                         state, result[0].id(), message))
 
 
 def full_class_name(o):
@@ -95,6 +102,9 @@ class InvalidTest:
         self.test = test
         self.exception = exception
 
+    def id(self):
+        return self.test
+
 
 def get_invalid_test_name(test):
     if hasattr(test, '_testMethodName'):
@@ -159,8 +169,9 @@ def run_tests(start_directory, pattern, test_ids):
     runner = TextTestRunner(
         buffer=True, resultclass=TextTestResultWithSuccesses, stream=sys.stdout)
     available_tests, invalid_tests = discover_tests(start_directory, pattern)
-    tests = filter_by_test_ids(available_tests, test_ids)
-    result = runner.run(TestSuite(tests))
+    result = runner.run(TestSuite(filter_by_test_ids(available_tests, test_ids)))
+    for invalid_test in filter_by_test_ids(invalid_tests, test_ids):
+        write_test_state(sys.stdout, "failed", (invalid_test, str(invalid_test.exception)))
 
 
 def extract_errors(tests):

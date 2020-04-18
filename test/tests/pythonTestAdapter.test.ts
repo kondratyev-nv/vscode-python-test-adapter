@@ -4,11 +4,11 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { TestEvent, TestLoadFinishedEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 
-import { IConfigurationFactory } from '../src/configuration/configurationFactory';
-import { IWorkspaceConfiguration } from '../src/configuration/workspaceConfiguration';
-import { PytestTestRunner } from '../src/pytest/pytestTestRunner';
-import { PythonTestAdapter } from '../src/pythonTestAdapter';
-import { UnittestTestRunner } from '../src/unittest/unittestTestRunner';
+import { IConfigurationFactory } from '../../src/configuration/configurationFactory';
+import { IWorkspaceConfiguration } from '../../src/configuration/workspaceConfiguration';
+import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
+import { PythonTestAdapter } from '../../src/pythonTestAdapter';
+import { UnittestTestRunner } from '../../src/unittest/unittestTestRunner';
 import {
     createPytestConfiguration,
     createUnittestConfiguration,
@@ -16,7 +16,7 @@ import {
     findTestSuiteByLabel,
     findWorkspaceFolder,
     logger
-} from './helpers';
+} from '../utils/helpers';
 
 [
     {

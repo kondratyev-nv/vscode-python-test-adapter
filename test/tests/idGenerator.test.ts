@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { nextId } from '../src/idGenerator';
+import { nextId } from '../../src/idGenerator';
 
 function hasDuplicates<T>(values: T[]) {
     return (new Set<T>(values)).size !== values.length;

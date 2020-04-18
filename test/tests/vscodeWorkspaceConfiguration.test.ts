@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
 import * as vscode from 'vscode';
-import { VscodeWorkspaceConfiguration } from '../src/configuration/vscodeWorkspaceConfiguration';
-import { findWorkspaceFolder } from './helpers';
+import { VscodeWorkspaceConfiguration } from '../../src/configuration/vscodeWorkspaceConfiguration';
+import { findWorkspaceFolder } from '../utils/helpers';
 
 function createWorkspaceConfiguration(name: string) {
     const ws = findWorkspaceFolder(name)!;

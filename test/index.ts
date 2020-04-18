@@ -11,7 +11,7 @@
 // a possible error to the callback or null if none.
 
 import * as testRunner from 'vscode/lib/testrunner';
-import { getReporter, getPythonExecutable } from './testConfiguration';
+import { getReporter, getPythonExecutable } from './utils/testConfiguration';
 import { runScript } from '../src/pythonRunner';
 
 runScript({
@@ -33,4 +33,3 @@ testRunner.configure({
 });
 
 module.exports = testRunner;
-

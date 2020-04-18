@@ -3,8 +3,8 @@ import 'mocha';
 
 import * as os from 'os';
 
-import { PytestTestRunner } from '../src/pytest/pytestTestRunner';
-import { UnittestTestRunner } from '../src/unittest/unittestTestRunner';
+import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
+import { UnittestTestRunner } from '../../src/unittest/unittestTestRunner';
 import {
     createPytestConfiguration,
     createUnittestConfiguration,
@@ -12,7 +12,7 @@ import {
     findTestSuiteByLabel,
     logger,
     sleep
-} from './helpers';
+} from '../utils/helpers';
 
 [
     {

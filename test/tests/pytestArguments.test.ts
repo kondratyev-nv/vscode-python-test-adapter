@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 
-import { IWorkspaceConfiguration } from '../src/configuration/workspaceConfiguration';
-import { PytestTestRunner } from '../src/pytest/pytestTestRunner';
-import { createPytestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from './helpers';
+import { IWorkspaceConfiguration } from '../../src/configuration/workspaceConfiguration';
+import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
+import { createPytestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from '../utils/helpers';
 
 suite('Pytest test discovery with additional arguments', async () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(

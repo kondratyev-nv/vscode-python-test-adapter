@@ -2,13 +2,13 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
-import { PlaceholderAwareWorkspaceConfiguration } from '../src/configuration/placeholderAwareWorkspaceConfiguration';
+import { PlaceholderAwareWorkspaceConfiguration } from '../../src/configuration/placeholderAwareWorkspaceConfiguration';
 import {
     IPytestConfiguration,
     IUnittestConfiguration,
     IWorkspaceConfiguration
-} from '../src/configuration/workspaceConfiguration';
-import { ILogger } from '../src/logging/logger';
+} from '../../src/configuration/workspaceConfiguration';
+import { ILogger } from '../../src/logging/logger';
 import { getPythonExecutable } from './testConfiguration';
 
 export function logger(): ILogger {

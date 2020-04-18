@@ -1,7 +1,7 @@
 import unittest
 
 
-class InvalidTestIdTests(unittest.TestCase):
+class InvalidTestIdTests_failed(unittest.TestCase):
     def __init__(self, methodName):
         unittest.TestCase.__init__(self, methodName)
         self.id = 123

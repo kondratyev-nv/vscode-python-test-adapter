@@ -3,13 +3,13 @@ import 'mocha';
 import * as os from 'os';
 import * as path from 'path';
 
-import { PlaceholderAwareWorkspaceConfiguration } from '../src/configuration/placeholderAwareWorkspaceConfiguration';
+import { PlaceholderAwareWorkspaceConfiguration } from '../../src/configuration/placeholderAwareWorkspaceConfiguration';
 import {
     IPytestConfiguration,
     IUnittestConfiguration,
     IWorkspaceConfiguration
-} from '../src/configuration/workspaceConfiguration';
-import { findWorkspaceFolder, logger } from './helpers';
+} from '../../src/configuration/workspaceConfiguration';
+import { findWorkspaceFolder, logger } from '../utils/helpers';
 
 function getWorkspaceFolder() {
     return findWorkspaceFolder('empty_configuration')!;

@@ -4,8 +4,9 @@ export const TEST_RESULT_PREFIX = 'TEST_EXECUTION_RESULT';
 
 export const UNITTEST_TEST_RUNNER_SCRIPT = `
 from __future__ import print_function
-from unittest import TextTestRunner, TextTestResult, TestLoader, TestSuite, defaultTestLoader as loader, util
+from unittest import TextTestRunner, TextTestResult, TestLoader, TestSuite, defaultTestLoader, util
 import sys
+import os
 import base64
 import json
 import traceback
@@ -16,11 +17,25 @@ STDOUT_LINE = '\\nStdout:\\n%s'
 STDERR_LINE = '\\nStderr:\\n%s'
 
 
+def writeln(stream, value=None):
+    if value:
+        stream.write(value)
+    stream.write(os.linesep)
+
+
 def write_test_state(stream, state, result):
     message = base64.b64encode(result[1].encode('utf8')).decode('ascii')
-    stream.writeln()
-    stream.writeln("{}:{}:{}:{}".format(TEST_RESULT_PREFIX,
-                                        state, result[0].id(), message))
+    writeln(stream)
+    writeln(stream, "{}:{}:{}:{}".format(TEST_RESULT_PREFIX,
+                                         state, result[0].id(), message))
+
+
+def full_class_name(o):
+  module = o.__class__.__module__
+  if module is None or module == str.__class__.__module__:
+    return o.__class__.__name__
+  else:
+    return module + '.' + o.__class__.__name__
 
 
 class TextTestResultWithSuccesses(TextTestResult):
@@ -87,17 +102,47 @@ class InvalidTest:
         self.test = test
         self.exception = exception
 
+    def id(self):
+        return self.test
+
+
+def get_invalid_test_name(test):
+    if hasattr(test, '_testMethodName'):
+        return test._testMethodName
+    return util.strclass(test.__class__)
+
+
+def get_python3_invalid_test(test):
+    if hasattr(test, '_exception'):
+        return InvalidTest(get_invalid_test_name(test), test._exception)
+    return None
+
+
+def get_python2_invalid_test(test):
+    test_class_name = full_class_name(test)
+    if test_class_name == 'unittest.loader.ModuleImportFailure' or test_class_name == 'unittest.loader.LoadTestsFailure':
+        result = TextTestResult(sys.stderr, True, 1)
+        test.run(result)
+        if not result.errors:
+            return InvalidTest(get_invalid_test_name(test), "Failed to load test: " + test_class_name)
+        return InvalidTest(get_invalid_test_name(test), "\\n".join(list(map(lambda e: e[1], result.errors))))
+    return None
+
 
 def check_test_ids(tests):
     valid_tests = []
     invalid_tests = []
     for test in tests:
-        if hasattr(test, '_exception'):
-            if hasattr(test, '_testMethodName'):
-                invalid_tests.append(InvalidTest(test._testMethodName, test._exception))
-            else:
-                invalid_tests.append(InvalidTest(util.strclass(test.__class__), test._exception))
+        p3error = get_python3_invalid_test(test)
+        if p3error is not None:
+            invalid_tests.append(p3error)
             continue
+
+        p2error = get_python2_invalid_test(test)
+        if p2error is not None:
+            invalid_tests.append(p2error)
+            continue
+
         try:
             test.id()  # check if test id is valid
             valid_tests.append(test)
@@ -110,7 +155,7 @@ def check_test_ids(tests):
 
 
 def discover_tests(start_directory, pattern):
-    tests = get_tests(loader.discover(start_directory, pattern=pattern))
+    tests = get_tests(defaultTestLoader.discover(start_directory, pattern=pattern))
     return check_test_ids(tests)
 
 
@@ -124,8 +169,9 @@ def run_tests(start_directory, pattern, test_ids):
     runner = TextTestRunner(
         buffer=True, resultclass=TextTestResultWithSuccesses, stream=sys.stdout)
     available_tests, invalid_tests = discover_tests(start_directory, pattern)
-    tests = filter_by_test_ids(available_tests, test_ids)
-    result = runner.run(TestSuite(tests))
+    result = runner.run(TestSuite(filter_by_test_ids(available_tests, test_ids)))
+    for invalid_test in filter_by_test_ids(invalid_tests, test_ids):
+        write_test_state(sys.stdout, "failed", (invalid_test, str(invalid_test.exception)))
 
 
 def extract_errors(tests):

@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import 'mocha';
 import * as vscode from 'vscode';
 
-import { IWorkspaceConfiguration } from '../src/configuration/workspaceConfiguration';
-import { UnittestTestRunner } from '../src/unittest/unittestTestRunner';
-import { createUnittestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from './helpers';
+import { IWorkspaceConfiguration } from '../../src/configuration/workspaceConfiguration';
+import { UnittestTestRunner } from '../../src/unittest/unittestTestRunner';
+import { createUnittestConfiguration, extractExpectedState, findTestSuiteByLabel, logger } from '../utils/helpers';
 
 suite('Unittest test discovery', () => {
     const config: IWorkspaceConfiguration = createUnittestConfiguration('unittest');
@@ -43,10 +43,36 @@ suite('Unittest test discovery', () => {
             'AddTests',
             'TestWithTearDownClassMethod',
             'EnvironmentVariablesTests',
-            'InvalidTestIdTests'
+            'InvalidTestIdTests_failed',
+            'test_invalid_import_failed',
+            'test_invalid_syntax_failed'
         ];
         const labels = mainSuite!.children.map(x => x.label);
         expect(labels).to.have.members(expectedSuites);
+    });
+
+    [
+        {
+            testId: 'test_invalid_import_failed',
+            error: /(ModuleNotFoundError|ImportError): No module named \'?some_non_existing_module\'?/,
+        },
+        {
+            testId: 'invalid_tests.test_invalid_syntax_failed',
+            error: /IndentationError: expected an indented block/,
+        },
+        {
+            testId: 'invalid_tests.test_invalid_test_id.InvalidTestIdTests_failed',
+            error: /Failed to get test id: invalid_tests.test_invalid_test_id.InvalidTestIdTests_failed/,
+        }
+    ].forEach(({ testId, error }) => {
+        test(`should show errors for invalid test ${testId}`, async () => {
+            const { suite: mainSuite, errors } = await runner.load(config);
+            expect(errors).to.be.not.empty;
+            expect(mainSuite).to.be.not.undefined;
+            expect(errors.map(x => x.id)).to.contain(testId);
+            const invalidTest = errors.filter(x => x.id === testId)[0];
+            expect(invalidTest.message).to.match(error);
+        });
     });
 });
 

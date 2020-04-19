@@ -34,10 +34,13 @@ export class UnittestTestRunner implements ITestRunner {
 
     public async debugConfiguration(config: IWorkspaceConfiguration, test: string): Promise<IDebugConfiguration> {
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
+        const unittestArguments = config.getUnittestConfiguration().unittestArguments;
+        const testId = this.normalizeDebugTestId(unittestArguments.startDirectory, config.getCwd(), test);
+        this.logger.log('info', `Debugging test "${testId}" using python path "${config.pythonPath()}" in ${config.getCwd()}`);
         return {
             module: 'unittest',
             cwd: config.getCwd(),
-            args: [test],
+            args: [testId],
             env: additionalEnvironment,
         }
     }
@@ -108,5 +111,22 @@ export class UnittestTestRunner implements ITestRunner {
         const result = await testExecution.complete();
         this.testExecutions.delete(test);
         return parseTestStates(result.output);
+    }
+
+    private normalizeDebugTestId(startDirectory: string, cwd: string, relativeTestId: string): string {
+        const relativeStartDirectory = path.isAbsolute(startDirectory) ?
+            path.relative(cwd, startDirectory) :
+            startDirectory;
+        if (relativeStartDirectory === '.') {
+            return relativeTestId;
+        }
+        const testPath = relativeStartDirectory.split(path.sep).join('.').replace(/\.+/, '.');
+        if (testPath.endsWith('.')) {
+            return testPath + relativeTestId;
+        } else if (!testPath) {
+            return relativeTestId;
+        } else {
+            return testPath + '.' + relativeTestId;
+        }
     }
 }

@@ -11,14 +11,14 @@ import {
 import { firstNotEmpty } from '../utilities';
 
 export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
-    private readonly argumentParser: ArgumentParser;
+    private readonly unittestArgumentParser: ArgumentParser;
     private readonly pythonConfiguration: WorkspaceConfiguration;
     private readonly testExplorerConfiguration: WorkspaceConfiguration;
 
     constructor(
         public readonly workspaceFolder: WorkspaceFolder
     ) {
-        this.argumentParser = this.configureUnittestArgumentParser();
+        this.unittestArgumentParser = this.configureUnittestArgumentParser();
         this.pythonConfiguration = this.getPythonConfiguration(workspaceFolder);
         this.testExplorerConfiguration = this.getTestExplorerConfiguration(workspaceFolder);
     }
@@ -76,7 +76,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     }
 
     private getUnitTestArguments(): IUnittestArguments {
-        const [known] = this.argumentParser.parseKnownArgs(
+        const [known] = this.unittestArgumentParser.parseKnownArgs(
             this.getConfigurationValueOrDefault(
                 this.pythonConfiguration,
                 ['unitTest.unittestArgs', 'testing.unittestArgs'],

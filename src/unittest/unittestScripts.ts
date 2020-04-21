@@ -162,7 +162,21 @@ def discover_tests(start_directory, pattern):
 def filter_by_test_ids(tests, test_ids):
     if not test_ids:
         return tests
-    return filter(lambda test: any(test.id().startswith(name) for name in test_ids), tests)
+    tests_by_id = {}
+    for test_id in test_ids:
+        tests_by_id[test_id] = []
+    for test in tests:
+        if test.id() in tests_by_id:
+            tests_by_id[test.id()].append(test)
+        else:
+            matching_ids = [test_id for test_id in test_ids if test.id().startswith(test_id + '.')]
+            for test_id in matching_ids:
+                tests_by_id[test_id].append(test)
+    unique_tests = {}
+    for test_id, matching_tests in tests_by_id.items():
+        for matching_test in matching_tests:
+            unique_tests[matching_test.id()] = matching_test
+    return unique_tests.values()
 
 
 def run_tests(start_directory, pattern, test_ids):

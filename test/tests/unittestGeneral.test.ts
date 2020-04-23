@@ -45,7 +45,8 @@ suite('Unittest test discovery', () => {
             'EnvironmentVariablesTests',
             'InvalidTestIdTests_failed',
             'test_invalid_import_failed',
-            'test_invalid_syntax_failed'
+            'test_invalid_syntax_failed',
+            'StringTestWithSimilarNames'
         ];
         const labels = mainSuite!.children.map(x => x.label);
         expect(labels).to.have.members(expectedSuites);
@@ -158,6 +159,21 @@ suite('Run unittest tests', () => {
                 expect(firstOutput).to.be.eq(lastOutput);
             });
         });
+    });
+
+    test('should run single test even when test name if the prefix for the other', async () => {
+        const { suite: mainSuite } = await runner.load(config);
+        const testToRun = findTestSuiteByLabel(mainSuite!, 'test_string_passed');
+        expect(testToRun).to.be.not.undefined;
+        const testToSkip = findTestSuiteByLabel(mainSuite!, 'test_string_passed_capitalize_passed');
+        expect(testToSkip).to.be.not.undefined;
+
+        const states = await runner.run(config, testToRun!.id);
+        expect(states).to.have.length(1);
+        const executionResult = states[0];
+
+        const expectedState = extractExpectedState(executionResult.test as string);
+        expect(executionResult.state).to.be.eq(expectedState);
     });
 });
 

@@ -154,8 +154,12 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
 
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         const { file, cleanupCallback } = await this.createTemporaryFile();
-        const runArguments = [`--junitxml=${file}`].concat(
-            this.getRunArguments(test, config.getPytestConfiguration().pytestArguments));
+        const runArguments = this.getRunArguments(test, config.getPytestConfiguration().pytestArguments)
+            .concat([
+                `--junitxml=${file}`,
+                '--override-ini', 'junit_logging=all',
+                '--override-ini', 'junit_family=xunit1'
+            ]);
         this.logger.log('info', `Running pytest wrapper with arguments: ${runArguments}`);
         const testExecution = runScript({
             pythonPath: config.pythonPath(),

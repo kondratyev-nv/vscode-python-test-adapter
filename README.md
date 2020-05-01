@@ -10,20 +10,34 @@ tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?ite
 
 ![Screenshot](img/screenshot.png)
 
-## Features
-* Shows a Test Explorer in the Test view in VS Code's sidebar with all detected tests and suites and their state
-* Shows a failed test's log when the test is selected in the explorer
-* Supports multi-root workspaces
-* Supports Unittest and Pytest test frameworks
-
 ## Getting started
-* Install the extension
-* Configure Python extension for Visual Studio Code to discover your tests 
+
+ * Install the extension
+ * Configure Visual Studio Code to discover your tests 
   (see [Configuration section](#configuration) and documentation of a test framework of your choice
   ([Unittest documentation](https://docs.python.org/3/library/unittest.html#module-unittest), 
    [Pytest](https://docs.pytest.org/en/latest/getting-started.html))
-* Reload VS Code and open the Test view
-* Run your tests using the ![Run](img/run-button.png) icon in the Test Explorer
+ * Open Test View sidebar
+ * Run your tests using the ![Run](img/run-button.png) icon in the Test Explorer
+
+## Features
+
+ * Shows a Test Explorer in the Test view in VS Code's sidebar with all detected tests and suites and their state
+ * Convenient error reporting during test discovery
+ * Unittest and Pytest debugging
+ * Shows a failed test's log when the test is selected in the explorer
+ * Supports multi-root workspaces
+ * Supports Unittest and Pytest test frameworks and their plugins
+
+## Comparison to Python extension's Test View
+
+ * Better error reporting during the discovery stage. In case of errors, you will see such tests in an errored state, and by clicking on them, a complete error message would be shown in the Output panel. Python Extension, at best, won't show your tests that contain errors (syntax errors and invalid imports, for example).
+ * Works better with pytest plugins - Tavern, for example. Python Extension won't discover these tests.
+ * Based on [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer). This fact may be useful if you have a workspace with projects in different languages/frameworks. Test Explorer UI has a lot of plugins, and you can conveniently discover and run tests at the same View.
+ * Shows you errors and a complete output of your tests just by clicking on a failed test.
+ * Shows only relevant folders from your workspace. Showing all workspace folders, as the Python Extension is doing, can be an issue when you have multiple workspace folders, but only a couple of them have any tests.
+ * There might be some configurations when this extension will discover and run your tests, but Python Extension - won't.
+ * User experience with both extensions is highly subjective. However, you might like the user interface of this extension better. Also, each discovery, test execution, and test cancellation won't require you to select a folder when you have multiple in your workspace.
 
 ## Configuration
 
@@ -54,5 +68,6 @@ Whether no tests were discovered in the Test Explorer view or anything else does
 
 ## Questions, issues, feature requests, and contributions
 
-* If you have any question or a problem with the extension, please [file an issue](https://github.com/kondratyev-nv/vscode-python-test-adapter/issues).
-* Contributions are always welcome! Please see [contributing guide](CONTRIBUTING.md) for more details.
+ * If you're happy using this extension - star [GitHub repo](https://github.com/kondratyev-nv/vscode-python-test-adapter) and [share your positive feedback in VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=LittleFoxTeam.vscode-python-test-adapter&ssr=false#review-details).
+ * If you have any question or a problem with the extension, please [file an issue](https://github.com/kondratyev-nv/vscode-python-test-adapter/issues).
+ * Contributions are always welcome! Please see [contributing guide](CONTRIBUTING.md) for more details.

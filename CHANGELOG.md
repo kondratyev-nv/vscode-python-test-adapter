@@ -1,3 +1,8 @@
+## 0.4.2
+
+ * Upadate dependencies, add CHANGELOG (Issues #147 and #145)
+ * Force pytest to use xunit1 report (Issue #141)
+
 ## 0.4.1
 
  * Fix multiple test execution with a similar name for unittest

@@ -1,8 +1,7 @@
-import * as os from 'os';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import {
-    TestEvent
+    TestEvent, TestSuiteInfo
 } from 'vscode-test-adapter-api';
 
 import { ArgumentParser } from 'argparse';
@@ -10,7 +9,7 @@ import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { IProcessExecution, runScript } from '../pythonRunner';
-import { IDebugConfiguration, IDiscoveryResult, ITestRunner } from '../testRunner';
+import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty, setDescriptionForEqualLabels } from '../utilities';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
@@ -104,10 +103,10 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         };
     }
 
-    public async load(config: IWorkspaceConfiguration): Promise<IDiscoveryResult> {
+    public async load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined> {
         if (!config.getPytestConfiguration().isPytestEnabled) {
             this.logger.log('info', 'Pytest test discovery is disabled');
-            return { suite: undefined, errors: [] };
+            return undefined;
         }
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
@@ -123,29 +122,18 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
             environment: additionalEnvironment,
         }).complete();
 
-        const { suites, errors } = parseTestSuites(result.output, config.getCwd());
-        if (!empty(errors)) {
-            errors.forEach(error =>
-                this.logger.log(
-                    'warn',
-                    `Error while collecting tests from file ${error.id}: ${os.EOL}${error.message}`
-                )
-            );
-        }
-        if (empty(suites)) {
+        const tests = parseTestSuites(result.output, config.getCwd());
+        if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');
-            return { suite: undefined, errors };
+            return undefined;
         }
 
-        setDescriptionForEqualLabels(suites, path.sep);
+        setDescriptionForEqualLabels(tests, path.sep);
         return {
-            suite: {
-                type: 'suite',
-                id: this.adapterId,
-                label: 'Pytest tests',
-                children: suites,
-            },
-            errors,
+            type: 'suite',
+            id: this.adapterId,
+            label: 'Pytest tests',
+            children: tests,
         };
     }
 

@@ -13,6 +13,7 @@ import {
     createPytestConfiguration,
     createUnittestConfiguration,
     extractExpectedState,
+    extractErroredTests,
     findTestSuiteByLabel,
     findWorkspaceFolder,
     logger
@@ -95,7 +96,7 @@ import {
 
         test(`test execution events should be successfully fired for ${label}`, async () => {
             const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
-            const { suite: mainSuite } = await runner.load(configurationFactory.get(workspaceFolder));
+            const mainSuite = await runner.load(configurationFactory.get(workspaceFolder));
             // expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
             const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);
@@ -193,18 +194,6 @@ suite('Adapter events with pytest runner and invalid files during discovery', ()
                 finishedEvent = event;
             }
         });
-        const states: TestEvent[] = [];
-        adapter.testStates(event => {
-            if (event.type === 'started') {
-                startedNotifications++;
-            } else if (event.type === 'finished') {
-                finishedNotifications++;
-            } else if (event.type === 'test') {
-                states.push(event);
-            } else {
-                /* */
-            }
-        });
         await adapter.load();
 
         expect(startedNotifications).to.be.eq(1);
@@ -213,23 +202,12 @@ suite('Adapter events with pytest runner and invalid files during discovery', ()
         expect(finishedEvent!.errorMessage).to.be.undefined;
         expect(finishedEvent!.suite).to.be.not.undefined;
         expect(finishedEvent!.suite!.children).to.be.not.empty;
-        expect(states).to.have.length(2);
-        expect(states.map(s => ({ state: s.state, id: s.test }))).to.have.deep.members([
-            {
-                state: 'errored',
-                id: path.join(workspaceFolder.uri.fsPath, 'test', 'import_error_tests', 'invalid_syntax_test.py'),
-            },
-            {
-                state: 'errored',
-                id: path.join(workspaceFolder.uri.fsPath, 'test', 'import_error_tests', 'non_existing_module_test.py'),
-            }
-        ]);
     });
 
     test('test execution events should be successfully fired for pytest', async () => {
-        const { suite: mainSuite, errors } = await runner.load(configurationFactory.get(workspaceFolder));
-        expect(errors).to.have.length(2);
+        const mainSuite = await runner.load(configurationFactory.get(workspaceFolder));
         expect(mainSuite).to.be.not.undefined;
+        expect(extractErroredTests(mainSuite!)).to.have.length(2);
         const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);
 
         let startedNotifications = 0;
@@ -300,18 +278,6 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
                 finishedEvent = event;
             }
         });
-        const states: TestEvent[] = [];
-        adapter.testStates(event => {
-            if (event.type === 'started') {
-                startedNotifications++;
-            } else if (event.type === 'finished') {
-                finishedNotifications++;
-            } else if (event.type === 'test') {
-                states.push(event);
-            } else {
-                /* */
-            }
-        });
         await adapter.load();
 
         expect(startedNotifications).to.be.eq(1);
@@ -320,27 +286,12 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
         expect(finishedEvent!.errorMessage).to.be.undefined;
         expect(finishedEvent!.suite).to.be.not.undefined;
         expect(finishedEvent!.suite!.children).to.be.not.empty;
-        expect(states).to.have.length(3);
-        expect(states.map(s => ({ state: s.state, id: s.test }))).to.have.deep.members([
-            {
-                state: 'errored',
-                id: 'invalid_tests.test_invalid_syntax_failed',
-            },
-            {
-                state: 'errored',
-                id: 'invalid_tests.test_invalid_test_id.InvalidTestIdTests_failed',
-            },
-            {
-                state: 'errored',
-                id: 'test_invalid_import_failed',
-            }
-        ]);
     });
 
     test('test execution events should be successfully fired for unittest', async () => {
-        const { suite: mainSuite, errors } = await runner.load(configurationFactory.get(workspaceFolder));
-        expect(errors).to.have.length(3);
+        const mainSuite = await runner.load(configurationFactory.get(workspaceFolder));
         expect(mainSuite).to.be.not.undefined;
+        expect(extractErroredTests(mainSuite!)).to.have.length(3);
         const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);
 
         let startedNotifications = 0;

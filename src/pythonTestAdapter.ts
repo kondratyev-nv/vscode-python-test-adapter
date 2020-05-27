@@ -55,17 +55,11 @@ export class PythonTestAdapter implements TestAdapter {
 
             this.testsById.clear();
             const config = this.configurationFactory.get(this.workspaceFolder);
-            const { suite, errors } = await this.testRunner.load(config);
+            const suite = await this.testRunner.load(config);
             this.saveToMap(suite);
             this.sortTests(suite);
 
             this.testsEmitter.fire({ type: 'finished', suite });
-            errors.map(e => ({
-                type: 'test' as 'test',
-                test: e.id,
-                state: 'errored' as 'errored',
-                message: e.message,
-            })).forEach(state => this.testStatesEmitter.fire(state));
         } catch (error) {
             this.logger.log('crit', `Test loading failed: ${error}`);
             this.testsEmitter.fire({ type: 'finished', suite: undefined, errorMessage: error.stack });

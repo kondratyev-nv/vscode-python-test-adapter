@@ -14,16 +14,13 @@ interface IDiscoveryResultJson {
     errors: { class: string, message: number }[];
 }
 
-export function parseTestSuites(content: string, cwd: string): {
-    suites: (TestSuiteInfo | TestInfo)[],
-    errors: { id: string, message: string }[]
-} {
+export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | TestInfo)[] {
     const from = content.indexOf(DISCOVERED_TESTS_START_MARK);
     const to = content.indexOf(DISCOVERED_TESTS_END_MARK);
     const discoveredTestsJson = content.substring(from + DISCOVERED_TESTS_START_MARK.length, to);
     const discoveryResult = JSON.parse(discoveredTestsJson) as IDiscoveryResultJson;
     if (!discoveryResult) {
-        return { suites: [], errors: [] };
+        return [];
     }
     const allTests = (discoveryResult.tests || [])
         .map(line => line.id.trim())
@@ -43,11 +40,13 @@ export function parseTestSuites(content: string, cwd: string): {
             file: errorSuiteFilePathBySuiteId(cwd, e.id!.testId),
             message: e.message,
         }));
-    const discoveryErrorSuites = aggregatedErrors.map(({ id, file }) => <TestSuiteInfo | TestInfo>({
+    const discoveryErrorSuites = aggregatedErrors.map(({ id, file, message }) => <TestSuiteInfo | TestInfo>({
         type: 'test' as 'test',
         id: id.testId,
         file,
         label: id.testLabel,
+        errored: true,
+        message,
     }));
     const suites = Array.from(groupBy(allTests, t => t.suiteId).entries())
         .map(([suiteId, tests]) => {
@@ -68,10 +67,7 @@ export function parseTestSuites(content: string, cwd: string): {
             };
         });
 
-    return {
-        suites: suites.concat(discoveryErrorSuites),
-        errors: aggregatedErrors.map(e => ({ id: e.id.testId, message: e.message })),
-    };
+    return suites.concat(discoveryErrorSuites);
 }
 
 export function parseTestStates(output: string): TestEvent[] {

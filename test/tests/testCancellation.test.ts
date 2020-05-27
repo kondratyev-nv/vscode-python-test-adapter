@@ -9,6 +9,7 @@ import {
     createPytestConfiguration,
     createUnittestConfiguration,
     extractExpectedState,
+    extractErroredTests,
     findTestSuiteByLabel,
     logger,
     sleep
@@ -31,9 +32,9 @@ import {
     suite(`Test cancellation with ${label}`, () => {
 
         test('should run and cancel all tests', async () => {
-            const { suite: mainSuite, errors } = await runner.load(configuration);
-            expect(errors).to.be.empty;
+            const mainSuite = await runner.load(configuration);
             expect(mainSuite).to.be.not.undefined;
+            expect(extractErroredTests(mainSuite!)).to.be.empty;
             const statesPromise = runner.run(configuration, mainSuite!.id);
             await sleep(1000);
             runner.cancel();
@@ -51,9 +52,9 @@ import {
         });
 
         test('should run and cancel single test', async () => {
-            const { suite: mainSuite, errors } = await runner.load(configuration);
-            expect(errors).to.be.empty;
+            const mainSuite = await runner.load(configuration);
             expect(mainSuite).to.be.not.undefined;
+            expect(extractErroredTests(mainSuite!)).to.be.empty;
             const suite = findTestSuiteByLabel(mainSuite!, 'test_sleep');
             expect(suite).to.be.not.undefined;
             const statesPromise = runner.run(configuration, suite!.id);

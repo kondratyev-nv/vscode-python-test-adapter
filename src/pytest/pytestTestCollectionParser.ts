@@ -12,10 +12,7 @@ interface IDiscoveryResultJson {
     errors: { file: string, message: number }[];
 }
 
-export function parseTestSuites(content: string, cwd: string): {
-    suites: (TestSuiteInfo | TestInfo)[],
-    errors: { id: string, message: string }[]
-} {
+export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | TestInfo)[] {
     const from = content.indexOf(DISCOVERED_TESTS_START_MARK);
     const to = content.indexOf(DISCOVERED_TESTS_END_MARK);
     const discoveredTestsJson = content.substring(from + DISCOVERED_TESTS_START_MARK.length, to);
@@ -47,16 +44,15 @@ export function parseTestSuites(content: string, cwd: string): {
             file: path.resolve(cwd, file),
             message: messages.map(e => e.message).join(os.EOL),
         }));
-    const discoveryErrorSuites = aggregatedErrors.map(({ file }) => <TestSuiteInfo | TestInfo>({
+    const discoveryErrorSuites = aggregatedErrors.map(({ file, message }) => <TestSuiteInfo | TestInfo>({
         type: 'test' as 'test',
         id: file,
         file,
         label: `Discovery error in ${path.basename(file)}`,
+        errored: true,
+        message,
     }));
-    return {
-        suites: suites.concat(discoveryErrorSuites),
-        errors: aggregatedErrors.map(e => ({ id: e.file, message: e.message })),
-    };
+    return suites.concat(discoveryErrorSuites);
 }
 
 interface ITestCaseSplit {

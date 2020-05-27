@@ -4,10 +4,11 @@ import * as path from 'path';
 import { TestSuiteInfo } from 'vscode-test-adapter-api';
 
 import { parseTestStates, parseTestSuites } from '../../src/unittest/unittestSuitParser';
+import { extractErroredTestsFromArray } from '../utils/helpers';
 
 suite('Unittest suite parser', () => {
     test('should return empty suite when input is empty', () => {
-        const { suites, errors } = parseTestSuites(
+        const suites = parseTestSuites(
             `some string without dots
 ==DISCOVERED TESTS BEGIN==
 { "tests": [], "errors": [] }
@@ -15,7 +16,7 @@ suite('Unittest suite parser', () => {
             '/some/prefix/path'
         );
         expect(suites).to.be.empty;
-        expect(errors).to.be.empty;
+        expect(extractErroredTestsFromArray(suites)).to.be.empty;
     });
 
     test('should create single test and suite for a single test', () => {
@@ -25,11 +26,11 @@ suite('Unittest suite parser', () => {
         const expectedTestLabel = 'test_function';
         const expectedTestId = expectedSuitId + '.test_function';
 
-        const { suites, errors } = parseTestSuites(
+        const suites = parseTestSuites(
             '==DISCOVERED TESTS BEGIN=={ "tests": [{ "id": "some_test_module.TestCase1.test_function" }], "errors": [] }==DISCOVERED TESTS END==',
             prefixPath
         );
-        expect(errors).to.be.empty;
+        expect(extractErroredTestsFromArray(suites)).to.be.empty;
         expect(suites).to.have.length(1);
         expect(suites[0].type).to.be.eq('suite');
 
@@ -60,12 +61,12 @@ suite('Unittest suite parser', () => {
             label,
         }));
 
-        const { suites, errors } = parseTestSuites(
+        const suites = parseTestSuites(
             '==DISCOVERED TESTS BEGIN=={ "tests": [' + expectedTests.map(t => (`{ "id": "${t.id}" }`)).join(',\n') + '], "errors": [] }==DISCOVERED TESTS END==',
             prefixPath
         );
-        expect(errors).to.be.empty;
         expect(suites).to.have.length(1);
+        expect(extractErroredTestsFromArray(suites)).to.be.empty;
         expect(suites[0].type).to.be.eq('suite');
 
         const singleSuit: TestSuiteInfo = suites[0] as TestSuiteInfo;
@@ -95,11 +96,11 @@ suite('Unittest suite parser', () => {
             label,
         }));
 
-        const { suites, errors } = parseTestSuites(
+        const suites = parseTestSuites(
             '==DISCOVERED TESTS BEGIN=={ "tests": [' + expectedTests.map(t => (`{ "id": "${t.id}" }`)).join(',\n') + '], "errors": [] }==DISCOVERED TESTS END==',
             prefixPath
         );
-        expect(errors).to.be.empty;
+        expect(extractErroredTestsFromArray(suites)).to.be.empty;
         expect(suites).to.have.length(1);
         expect(suites[0].type).to.be.eq('suite');
 

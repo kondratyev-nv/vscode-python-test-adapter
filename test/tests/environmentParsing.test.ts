@@ -47,8 +47,7 @@ import { findWorkspaceFolder, logger } from '../utils/helpers';
                 },
             };
             const suites = await runner.load(config);
-            expect(suites.suite).to.be.undefined;
-            expect(suites.errors).to.be.empty;
+            expect(suites).to.be.undefined;
         });
 
         test('should not fail on not existent .env file', async () => {
@@ -80,8 +79,7 @@ import { findWorkspaceFolder, logger } from '../utils/helpers';
                 },
             };
             const suites = await runner.load(config);
-            expect(suites.suite).to.be.undefined;
-            expect(suites.errors).to.be.empty;
+            expect(suites).to.be.undefined;
         });
     });
 });

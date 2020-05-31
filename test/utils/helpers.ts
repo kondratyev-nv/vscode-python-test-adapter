@@ -20,6 +20,24 @@ export function logger(): ILogger {
         },
     };
 }
+export function extractErroredTestsFromArray(tests: (TestSuiteInfo | TestInfo)[]): (TestSuiteInfo | TestInfo)[] {
+    let errors: (TestSuiteInfo | TestInfo)[] = [];
+    for (const test of tests) {
+        errors = errors.concat(extractErroredTests(test));
+    }
+    return errors;
+}
+
+export function extractErroredTests(suite: TestSuiteInfo | TestInfo): (TestSuiteInfo | TestInfo)[] {
+    let errors = [];
+    if (suite.errored) {
+        errors.push(suite);
+    }
+    if (suite.type === 'suite') {
+        errors = errors.concat(extractErroredTestsFromArray(suite.children));
+    }
+    return errors;
+}
 
 export function extractExpectedState(name: string) {
     if (name.includes('[')) {

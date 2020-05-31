@@ -12,15 +12,10 @@ export interface IDebugConfiguration {
     env: IEnvironmentVariables;
 }
 
-export interface IDiscoveryResult {
-    suite?: TestSuiteInfo;
-    errors: { id: string, message: string }[];
-}
-
 export interface ITestRunner {
     readonly adapterId: string;
 
-    load(config: IWorkspaceConfiguration): Promise<IDiscoveryResult>;
+    load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined>;
 
     run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]>;
 

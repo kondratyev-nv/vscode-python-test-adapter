@@ -17,7 +17,7 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
     ) { }
 
     public pythonPath(): string {
-        return this.resolvePath(this.configuration.pythonPath());
+        return this.resolveExecutablePath(this.configuration.pythonPath());
     }
 
     public getCwd(): string {
@@ -71,11 +71,19 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         });
     }
 
+    private resolveExecutablePath(rawValue: string): string {
+        return this.normalizeExecutablePath(this.resolvePlaceholders(rawValue));
+    }
+
     private resolvePath(rawValue: string): string {
         return this.normalizePath(this.resolvePlaceholders(rawValue));
     }
 
-    private normalizePath(originalValue: string): string {
+    // Executable can be in multiple formats:
+    //  1. 'command' - globally available executable (path to the file in is in PATH)
+    //  2. './command' - relative path to the workspace folder
+    //  3. '/bin/command' - absolute path
+    private normalizeExecutablePath(originalValue: string): string {
         const value = untildify(originalValue);
         if (value.includes(path.posix.sep) || value.includes(path.win32.sep)) {
             const absolutePath = path.isAbsolute(value) ?
@@ -84,5 +92,19 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
             return path.normalize(absolutePath);
         }
         return value;
+    }
+
+    // Path to a file can be in multiple formats:
+    //  1. './file' - relative path to the workspace folder
+    //  2. '/some/path/file' - absolute path
+    // We do not consider 'file' as a valid path.
+    // For example, path in format as 'path' can not be used as a cwd in spawn,
+    // see https://github.com/kondratyev-nv/vscode-python-test-adapter/issues/158
+    private normalizePath(originalValue: string): string {
+        const value = untildify(originalValue);
+        const absolutePath = path.isAbsolute(value) ?
+            path.resolve(value) :
+            path.resolve(this.workspaceFolder.uri.fsPath, value);
+        return path.normalize(absolutePath);
     }
 }

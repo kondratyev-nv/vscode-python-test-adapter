@@ -141,6 +141,42 @@ suite('Placeholder aware workspace configuration', () => {
         expect(configuration.getCwd()).to.be.eq(path.normalize(path.resolve(wfPath, 'some', 'cwd', 'suffix')));
     });
 
+    test('should resolve relative path from configuration', () => {
+        const configuration = getConfiguration({
+            pythonPath(): string {
+                return 'python';
+            },
+            getCwd(): string {
+                return 'some_cwd';
+            },
+            envFile(): string {
+                return '~/.env';
+            },
+            getUnittestConfiguration(): IUnittestConfiguration {
+                return {
+                    isUnittestEnabled: true,
+                    unittestArguments: {
+                        startDirectory: 'test',
+                        pattern: 'test_*.py',
+                    },
+                };
+            },
+            getPytestConfiguration(): IPytestConfiguration {
+                return {
+                    isPytestEnabled: true,
+                    pytestArguments: [],
+                };
+            },
+        });
+
+        const wfPath = getWorkspaceFolder().uri.fsPath;
+        expect(configuration.pythonPath()).to.be.eq('python');
+        expect(configuration.getCwd()).to.be.eq(path.normalize(path.resolve(wfPath, 'some_cwd')));
+        expect(
+            configuration.getUnittestConfiguration().unittestArguments.startDirectory
+        ).to.be.eq(path.normalize(path.resolve(wfPath, 'test')));
+    });
+
     test('should resolve home path from configuration', () => {
         process.env.SOME_RELATIVE_PATH_USED_IN_CWD = '../suffix';
         expect(Object.keys(process.env)).to.include('SOME_RELATIVE_PATH_USED_IN_CWD');

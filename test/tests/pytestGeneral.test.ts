@@ -104,6 +104,34 @@ suite('Pytest test discovery', async () => {
     });
 });
 
+suite('Pytest test discovery with relative cwd folder', async () => {
+    const config: IWorkspaceConfiguration = createPytestConfiguration(
+        'pytest',
+        ['--ignore=import_error_tests', '--doctest-modules'],
+        'test'
+    );
+    const runner = new PytestTestRunner('some-id', logger());
+
+   test('should discover tests', async () => {
+        const mainSuite = await runner.load(config);
+        expect(mainSuite).to.be.not.undefined;
+        expect(extractErroredTests(mainSuite!)).to.be.empty;
+        const expectedSuites = [
+            'describe_test.py',
+            'env_variables_test.py',
+            'fixture_test.py',
+            'generate_test.py',
+            'inner_fixture_test.py',
+            'string_test.py',
+            'subprocess_test.py',
+            'add_test.py',
+            'add_test.py'
+        ];
+        const labels = mainSuite!.children.map(x => x.label);
+        expect(labels).to.have.members(expectedSuites);
+    });
+});
+
 suite('Run pytest tests', () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
         'pytest',

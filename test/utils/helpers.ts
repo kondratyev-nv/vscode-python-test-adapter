@@ -79,7 +79,7 @@ export function findWorkspaceFolder(folder: string): vscode.WorkspaceFolder | un
     return vscode.workspace.workspaceFolders!.find(f => f.name === folder);
 }
 
-export function createPytestConfiguration(folder: string, args?: string[]): IWorkspaceConfiguration {
+export function createPytestConfiguration(folder: string, args?: string[], cwd?: string): IWorkspaceConfiguration {
     const python = getPythonExecutable();
     const wf = findWorkspaceFolder(folder)!;
     return new PlaceholderAwareWorkspaceConfiguration({
@@ -87,7 +87,7 @@ export function createPytestConfiguration(folder: string, args?: string[]): IWor
             return python;
         },
         getCwd(): string {
-            return wf.uri.fsPath;
+            return cwd || wf.uri.fsPath;
         },
         envFile(): string {
             return path.join(wf.uri.fsPath, '..', '.env');

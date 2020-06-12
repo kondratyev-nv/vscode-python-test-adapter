@@ -1,3 +1,9 @@
+## 0.4.3
+
+ * Fix cwd resolution (Issue #158)
+ * Update dependencies
+ * Refactor errored suites reporting to new Test Explorer UI API
+ 
 ## 0.4.2
 
  * Upadate dependencies, add CHANGELOG (Issues #147 and #145)

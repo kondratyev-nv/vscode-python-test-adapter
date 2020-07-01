@@ -7,6 +7,7 @@ from __future__ import print_function
 from unittest import TextTestRunner, TextTestResult, TestLoader, TestSuite, defaultTestLoader, util
 import sys
 import os
+import re
 import base64
 import json
 import traceback
@@ -23,11 +24,10 @@ def writeln(stream, value=None):
     stream.write(os.linesep)
 
 
-def write_test_state(stream, state, result):
-    message = base64.b64encode(result[1].encode('utf8')).decode('ascii')
+def write_test_state(stream, state, test_id, output):
+    message = base64.b64encode(output.encode('utf8')).decode('ascii')
     writeln(stream)
-    writeln(stream, "{}:{}:{}:{}".format(TEST_RESULT_PREFIX,
-                                         state, result[0].id(), message))
+    writeln(stream, "{}:{}:{}:{}".format(TEST_RESULT_PREFIX, state, test_id, message))
 
 
 def full_class_name(o):
@@ -49,27 +49,32 @@ class TextTestResultWithSuccesses(TextTestResult):
         super(TextTestResultWithSuccesses, self).addSuccess(test)
         self.successes.append((test, self._execution_info_to_string(test)))
         self._mirrorOutput = True
-        write_test_state(self.stream, "passed", self.successes[-1])
+        write_test_state(self.stream, "passed", self.successes[-1][0].id(), self.successes[-1][1])
 
     def addError(self, test, err):
         super(TextTestResultWithSuccesses, self).addError(test, err)
-        write_test_state(self.stream, "failed", self.errors[-1])
+        if full_class_name(self.errors[-1][0]) == 'unittest.suite._ErrorHolder':
+            match = re.match(".*[(](.+)[)]", self.errors[-1][0].id())
+            actual_test_id = match.group(1) if match is not None else self.errors[-1][0].id()
+            write_test_state(self.stream, "failed", actual_test_id, self.errors[-1][1])
+        else:
+            write_test_state(self.stream, "failed", self.errors[-1][0].id(), self.errors[-1][1])
 
     def addFailure(self, test, err):
         super(TextTestResultWithSuccesses, self).addFailure(test, err)
-        write_test_state(self.stream, "failed", self.failures[-1])
+        write_test_state(self.stream, "failed", self.failures[-1][0].id(), self.failures[-1][1])
 
     def addSkip(self, test, reason):
         super(TextTestResultWithSuccesses, self).addSkip(test, reason)
-        write_test_state(self.stream, "skipped", self.skipped[-1])
+        write_test_state(self.stream, "skipped", self.skipped[-1][0].id(), self.skipped[-1][1])
 
     def addExpectedFailure(self, test, err):
         super(TextTestResultWithSuccesses, self).addExpectedFailure(test, err)
-        write_test_state(self.stream, "passed", self.expectedFailures[-1])
+        write_test_state(self.stream, "passed", self.expectedFailures[-1][0].id(), self.expectedFailures[-1][1])
 
     def addUnexpectedSuccess(self, test):
         super(TextTestResultWithSuccesses, self).addUnexpectedSuccess(test)
-        write_test_state(self.stream, "failed", self.unexpectedSuccesses[-1])
+        write_test_state(self.stream, "failed", self.unexpectedSuccesses[-1][0].id(), self.unexpectedSuccesses[-1][1])
 
     def _execution_info_to_string(self, test):
         msgLines = []
@@ -185,7 +190,7 @@ def run_tests(start_directory, pattern, test_ids):
     available_tests, invalid_tests = discover_tests(start_directory, pattern)
     result = runner.run(TestSuite(filter_by_test_ids(available_tests, test_ids)))
     for invalid_test in filter_by_test_ids(invalid_tests, test_ids):
-        write_test_state(sys.stdout, "failed", (invalid_test, str(invalid_test.exception)))
+        write_test_state(sys.stdout, "failed", invalid_test.id(), str(invalid_test.exception))
 
 
 def extract_errors(tests):

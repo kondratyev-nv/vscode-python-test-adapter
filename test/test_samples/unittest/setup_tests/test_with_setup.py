@@ -38,3 +38,11 @@ class TestWithTearDownClassMethod(unittest.TestCase):
 
     def test_tear_down_class_was_not_called2_passed(self):
         self.assertFalse(hasattr(self, 'tearDown_was_called'))
+
+class TestWithSetUpClassError(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raise ValueError('A very specific bad thing happened')
+
+    def test_set_up_class_raises_error_failed(self):
+        assert True

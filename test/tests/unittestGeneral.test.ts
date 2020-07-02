@@ -38,9 +38,11 @@ suite('Unittest test discovery', () => {
         const expectedSuites = [
             'TestWithOutputBeforeImport',
             'TestWithSetUpClassMethod',
-            'AddTests',
-            'AddTests',
             'TestWithTearDownClassMethod',
+            'TestWithSetUpClassError_failed',
+            'TestWithSetUpError_failed',
+            'AddTests',
+            'AddTests',
             'EnvironmentVariablesTests',
             'InvalidTestIdTests_failed',
             'test_invalid_import_failed',

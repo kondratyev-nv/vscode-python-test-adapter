@@ -73,7 +73,14 @@ export class PythonTestAdapter implements TestAdapter {
             const testRuns = tests.map(async test => {
                 try {
                     const states = await this.testRunner.run(config, test);
-                    return states.forEach(state => this.testStatesEmitter.fire(state));
+                    return states.forEach(state => {
+                        const testId = state.test as string;
+                        if (this.testsById.has(testId) && this.testsById.get(testId)?.type === 'suite') {
+                            this.setTestStatesRecursive(testId, state.state, state.message);
+                        } else {
+                            this.testStatesEmitter.fire(state);
+                        }
+                    });
                 } catch (reason) {
                     this.logger.log('crit', `Execution of the test "${test}" failed: ${reason}`);
                     this.setTestStatesRecursive(test, 'failed', reason);
@@ -138,7 +145,7 @@ export class PythonTestAdapter implements TestAdapter {
 
     private setTestStatesRecursive(
         test: string,
-        state: 'running' | 'passed' | 'failed' | 'skipped',
+        state: 'running' | 'passed' | 'failed' | 'skipped' | 'errored',
         message?: string | undefined
     ) {
         const info = this.testsById.get(test);

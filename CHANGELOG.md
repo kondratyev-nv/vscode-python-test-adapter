@@ -1,3 +1,8 @@
+## 0.4.4
+
+ * Handle errors during setup for unittest
+ * Add section on Test Explorer UI configuration to README
+
 ## 0.4.3
 
  * Fix cwd resolution (Issue #158)

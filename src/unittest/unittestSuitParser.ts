@@ -3,7 +3,7 @@ import { Base64 } from 'js-base64';
 import * as os from 'os';
 import * as path from 'path';
 import { TestEvent, TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
-import { distinctBy, groupBy } from '../utilities';
+import { distinctBy, groupBy } from '../utilities/collections';
 import { TEST_RESULT_PREFIX } from './unittestScripts';
 
 const DISCOVERED_TESTS_START_MARK = '==DISCOVERED TESTS BEGIN==';

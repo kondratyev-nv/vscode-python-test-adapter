@@ -1,0 +1,33 @@
+
+export function empty<T>(x: T[]) {
+    return !x || !x.length;
+}
+
+export function firstNotEmpty<T>(fns: (() => T | undefined)[], defaultValue: T): T {
+    for (const fn of fns) {
+        const result = fn();
+        if (result) {
+            return result;
+        }
+    }
+    return defaultValue;
+}
+
+export function groupBy<T, U>(values: T[], key: (v: T) => U) {
+    return values.reduce((accumulator, x) => {
+        if (accumulator.has(key(x))) {
+            accumulator.get(key(x))!.push(x);
+        } else {
+            accumulator.set(key(x), [x]);
+        }
+        return accumulator;
+    }, new Map<U, T[]>());
+}
+
+export function distinctBy<T, U>(values: T[], key: (v: T) => U): T[] {
+    const byKey = new Map<U, T>();
+    values.forEach(x => {
+        byKey.set(key(x), x);
+    });
+    return Array.from(byKey.values());
+}

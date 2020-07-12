@@ -1,10 +1,11 @@
-import * as fs from 'fs';
+
 import { EOL } from 'os';
 import * as path from 'path';
 import { TestEvent } from 'vscode-test-adapter-api';
 import * as xml2js from 'xml2js';
 
-import { empty } from '../utilities';
+import { empty } from '../utilities/collections';
+import { readFile } from '../utilities/fs';
 
 interface ITestSuiteResult {
     $: {
@@ -49,24 +50,19 @@ export async function parseTestStates(
     outputXmlFile: string,
     cwd: string
 ): Promise<TestEvent[]> {
+    const content = await readFile(outputXmlFile);
+    const parseResult = await parseXml(content);
+    return parseTestResults(parseResult, cwd);
+}
+
+function parseXml(content: string): Promise<any> {
     return new Promise<any>((resolve, reject) => {
-        fs.readFile(outputXmlFile, 'utf8', (readError, data) => {
-            if (readError) {
-                return reject(`Can not read test results: ${readError}`);
+        xml2js.parseString(content, (parseError, parserResult) => {
+            if (parseError) {
+                return reject(parseError);
             }
 
-            xml2js.parseString(data, (parseError, parserResult) => {
-                if (parseError) {
-                    return reject(parseError);
-                }
-
-                try {
-                    const results = parseTestResults(parserResult, cwd);
-                    resolve(results);
-                } catch (exception) {
-                    reject(`Can not parse test results: ${exception}`);
-                }
-            });
+            resolve(parserResult);
         });
     });
 }
@@ -82,7 +78,7 @@ function parseTestResults(parserResult: any, cwd: string) {
         if (!Array.isArray(testSuiteResult.testcase)) {
             return [];
         }
-        return testSuiteResult.testcase.map(testcase => mapToTestState(testcase, cwd)).filter(x => x);
+        return testSuiteResult.testcase.map(testcase => mapToTestState(testcase, cwd)).filter(x => x).map(x => x!);
     }).reduce((r, x) => r.concat(x), []);
 }
 
@@ -96,7 +92,7 @@ function mapToTestState(testcase: ITestCaseResult, cwd: string) {
     return {
         state,
         test: testId,
-        type: 'test',
+        type: 'test' as 'test',
         message: output + message,
         decorations,
     };

@@ -67,7 +67,8 @@
     "tslib": "^2.0.0",
     "untildify": "^4.0.0",
     "vscode-test-adapter-api": "^1.9.0",
-    "xml2js": "^0.4.23"
+    "xml2js": "^0.4.23",
+    "jsonc-parser": "2.3.0"
   },
   "devDependencies": {
     "@types/argparse": "^1.0.38",

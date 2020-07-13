@@ -1,4 +1,4 @@
-import { debug, Event, EventEmitter, WorkspaceFolder } from 'vscode';
+import { debug, Event, EventEmitter, WorkspaceFolder, DebugConfiguration } from 'vscode';
 import {
     TestAdapter,
     TestEvent,
@@ -14,8 +14,24 @@ import {
 import { IConfigurationFactory } from './configuration/configurationFactory';
 import { ILogger } from './logging/logger';
 import { ITestRunner } from './testRunner';
+import * as path from 'path';
+import { parse } from 'jsonc-parser';
+import { isFileExists, readFile } from './utilities/fs';
+import { empty, firstOrDefault } from './utilities/collections';
+import { IEnvironmentVariables, EnvironmentVariablesLoader } from './environmentVariablesLoader';
 
 type TestRunEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent;
+
+interface IPythonTestDebugConfig {
+    env?: IEnvironmentVariables;
+
+    stopOnEntry?: boolean;
+    showReturnValue?: boolean;
+    redirectOutput?: boolean;
+    debugStdLib?: boolean;
+    justMyCode?: boolean;
+    subProcess?: boolean;
+}
 
 export class PythonTestAdapter implements TestAdapter {
 
@@ -95,6 +111,7 @@ export class PythonTestAdapter implements TestAdapter {
     public async debug(tests: string[]): Promise<void> {
         const config = this.configurationFactory.get(this.workspaceFolder);
         const debugConfiguration = await this.testRunner.debugConfiguration(config, tests[0]);
+        const launchJsonConfiguration = await this.detectDebugConfiguration(debugConfiguration.env);
         return new Promise<void>(() => {
             debug.startDebugging(this.workspaceFolder, {
                 ...{
@@ -103,7 +120,8 @@ export class PythonTestAdapter implements TestAdapter {
                     request: 'launch',
                     console: 'internalConsole',
                 },
-                ...debugConfiguration,
+                ...debugConfiguration, // module, cwd, args, env,
+                ...launchJsonConfiguration,
             }).then(
                 () => { /* intentionally omitted */ },
                 exception => this.logger.log('crit', `Failed to start debugging tests: ${exception}`)
@@ -164,6 +182,42 @@ export class PythonTestAdapter implements TestAdapter {
                 state,
                 message,
             });
+        }
+    }
+
+    private async detectDebugConfiguration(globalEnvironment: IEnvironmentVariables) {
+        const filename = path.join(this.workspaceFolder.uri.fsPath, '.vscode', 'launch.json');
+        const launchJsonFileExists = await isFileExists(filename)
+        if (!launchJsonFileExists) {
+            return {};
+        }
+        try {
+            const content = await readFile(filename);
+            const launchJsonConfiguration = parse(content, [], { allowTrailingComma: true, disallowComments: false });
+            if (!launchJsonConfiguration.version || empty(launchJsonConfiguration.configurations)) {
+                this.logger.log('warn', `No debug configurations in ${filename}`);
+            }
+            return firstOrDefault(
+                (launchJsonConfiguration.configurations as DebugConfiguration[])
+                    .filter(cfg => cfg.name)
+                    .filter(cfg => cfg.type === 'python')
+                    .filter(cfg => cfg.request === 'test')
+                    .map(cfg => cfg as IPythonTestDebugConfig)
+                    .map(cfg => <IPythonTestDebugConfig>({
+                        env: EnvironmentVariablesLoader.merge(cfg.env || {}, globalEnvironment),
+
+                        stopOnEntry: cfg.stopOnEntry,
+                        showReturnValue: cfg.showReturnValue,
+                        redirectOutput: cfg.redirectOutput,
+                        debugStdLib: cfg.debugStdLib,
+                        justMyCode: cfg.justMyCode,
+                        subProcess: cfg.subProcess,
+                    })),
+                {}
+            );
+        } catch (error) {
+            this.logger.log('crit', `Could not load debug configuration: ${error}`);
+            return {};
         }
     }
 }

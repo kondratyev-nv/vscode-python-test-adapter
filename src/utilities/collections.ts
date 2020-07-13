@@ -13,6 +13,13 @@ export function firstNotEmpty<T>(fns: (() => T | undefined)[], defaultValue: T):
     return defaultValue;
 }
 
+export function firstOrDefault<T>(values: T[], defaultValue: T): T {
+    if (empty(values)) {
+        return defaultValue;
+    }
+    return values[0];
+}
+
 export function groupBy<T, U>(values: T[], key: (v: T) => U) {
     return values.reduce((accumulator, x) => {
         if (accumulator.has(key(x))) {

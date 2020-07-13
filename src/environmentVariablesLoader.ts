@@ -45,8 +45,19 @@ export class EnvironmentVariablesLoader {
         }
     }
 
-    private static parse(content: string, globalEnvironment: IEnvironmentVariables): IEnvironmentVariables {
+    public static merge(localEnvironment: IEnvironmentVariables, globalEnvironment: IEnvironmentVariables) {
+        const environmentVariables: IEnvironmentVariables = {};
 
+        for (const [key, value] of Object.entries(localEnvironment)) {
+            environmentVariables[key] = EnvironmentVariablesLoader.resolveEnvironmentVariableValue(
+                value || '', environmentVariables, globalEnvironment
+            );
+        }
+
+        return environmentVariables;
+    }
+
+    private static parse(content: string, globalEnvironment: IEnvironmentVariables): IEnvironmentVariables {
         const environmentVariables: IEnvironmentVariables = {};
 
         content.split(NEWLINE).forEach(line => {

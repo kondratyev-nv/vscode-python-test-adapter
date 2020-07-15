@@ -10,7 +10,8 @@ import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { IProcessExecution, runScript } from '../pythonRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
-import { empty, setDescriptionForEqualLabels } from '../utilities';
+import { empty } from '../utilities/collections';
+import { setDescriptionForEqualLabels } from '../utilities/tests';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
 

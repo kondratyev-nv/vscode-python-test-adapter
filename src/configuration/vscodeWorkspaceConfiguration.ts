@@ -8,7 +8,7 @@ import {
     IWorkspaceConfiguration
 } from './workspaceConfiguration';
 
-import { firstNotEmpty } from '../utilities';
+import { firstNotEmpty } from '../utilities/collections';
 
 export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private readonly unittestArgumentParser: ArgumentParser;

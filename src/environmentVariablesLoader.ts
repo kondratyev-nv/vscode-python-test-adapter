@@ -1,8 +1,8 @@
 
-import * as fs from 'fs';
 import * as path from 'path';
 
 import { ILogger } from './logging/logger';
+import { isFileExists, readFile } from './utilities/fs';
 
 const NEWLINE = '\n';
 const ENV_FILE_LINE_REGEX = /^\s*([a-zA-Z_]\w*)\s*=\s*(.*?)?\s*$/;
@@ -29,34 +29,38 @@ export class EnvironmentVariablesLoader {
             return {};
         }
         const envPath = path.resolve(envFilePath);
-        const envFileExists = await new Promise<boolean>((resolve, _) => {
-            fs.exists(envPath, exist => {
-                resolve(exist);
-            });
-        });
+        const envFileExists = await isFileExists(envPath);
         if (envFileExists) {
             logger.log('info', `Loading environment variables file ${envPath}`);
-            return await new Promise<{ [key: string]: string | undefined }>((resolve, _) => {
-                fs.readFile(envPath, (error, content) => {
-                    if (error) {
-                        logger.log('warn', `Could not read environment variables file ${envPath}`);
-                        resolve({});
-                    }
-
-                    resolve(EnvironmentVariablesLoader.parse(content, globalEnvironment));
-                });
-            });
+            try {
+                const content = await readFile(envPath);
+                return EnvironmentVariablesLoader.parse(content, globalEnvironment);
+            } catch {
+                logger.log('warn', `Could not read environment variables file ${envPath}`);
+                return {};
+            }
         } else {
             logger.log('info', `Environment variables file ${envPath} does not exist`);
             return {};
         }
     }
 
-    private static parse(buffer: Buffer, globalEnvironment: IEnvironmentVariables): IEnvironmentVariables {
-
+    public static merge(localEnvironment: IEnvironmentVariables, globalEnvironment: IEnvironmentVariables) {
         const environmentVariables: IEnvironmentVariables = {};
 
-        buffer.toString().split(NEWLINE).forEach(line => {
+        for (const [key, value] of Object.entries(localEnvironment)) {
+            environmentVariables[key] = EnvironmentVariablesLoader.resolveEnvironmentVariableValue(
+                value || '', environmentVariables, globalEnvironment
+            );
+        }
+
+        return environmentVariables;
+    }
+
+    private static parse(content: string, globalEnvironment: IEnvironmentVariables): IEnvironmentVariables {
+        const environmentVariables: IEnvironmentVariables = {};
+
+        content.split(NEWLINE).forEach(line => {
 
             const parsedKeyValue = EnvironmentVariablesLoader.parseLine(line);
             if (!parsedKeyValue) {

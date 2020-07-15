@@ -2,7 +2,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
-import { empty, groupBy } from '../utilities';
+import { empty, groupBy } from '../utilities/collections';
 
 const DISCOVERED_TESTS_START_MARK = '==DISCOVERED TESTS BEGIN==';
 const DISCOVERED_TESTS_END_MARK = '==DISCOVERED TESTS END==';

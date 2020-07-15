@@ -1,3 +1,7 @@
+## 0.4.5
+
+ * Load debug configuration from launch.json (Issues #139 and #167)
+
 ## 0.4.4
 
  * Handle errors during setup for unittest

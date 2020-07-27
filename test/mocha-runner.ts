@@ -38,8 +38,9 @@ export function run(): Promise<void> {
                         resolve();
                     }
                 });
-            } catch (err) {
-                reject(err);
+            } catch (error) {
+                console.error(error);
+                reject(error);
             }
         });
     });

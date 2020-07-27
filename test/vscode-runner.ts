@@ -7,9 +7,9 @@ import * as path from 'path';
 async function main() {
   try {
     await runScript({
-        script: 'from __future__ import print_function; import sys; print(sys.executable, sys.version)',
-        pythonPath: getPythonExecutable(),
-        environment: {},
+      script: 'from __future__ import print_function; import sys; print(sys.executable, sys.version)',
+      pythonPath: getPythonExecutable(),
+      environment: {},
     }).complete().then(({ output }) => console.log(`Using python ${output}`));
 
     // The folder containing the Extension Manifest package.json
@@ -21,9 +21,15 @@ async function main() {
     const extensionTestsPath = path.resolve(__dirname, './mocha-runner');
 
     // Download VS Code, unzip it and run the integration test
-    await runTests({ extensionDevelopmentPath, extensionTestsPath });
-  } catch (err) {
-    console.error(err);
+    await runTests({
+      extensionDevelopmentPath,
+      extensionTestsPath,
+      launchArgs: [
+        path.resolve(extensionDevelopmentPath, 'test/test_samples/samples-workspace.code-workspace')
+      ],
+    });
+  } catch (error) {
+    console.error(error);
     console.error('Failed to run tests');
     process.exit(1);
   }

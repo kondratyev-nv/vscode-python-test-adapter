@@ -32,7 +32,7 @@
       "args": [
         "${workspaceFolder}/test/test_samples/samples-workspace.code-workspace",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test"
+        "--extensionTestsPath=${workspaceFolder}/out/test/mocha-runner"
       ],
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"

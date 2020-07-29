@@ -6,9 +6,11 @@ import * as path from 'path';
 
 async function main() {
   try {
+    const python = getPythonExecutable();
+    console.log(`Python executable is ${python}`);
     await runScript({
       script: 'from __future__ import print_function; import sys; print(sys.executable, sys.version)',
-      pythonPath: getPythonExecutable(),
+      pythonPath: python,
       environment: {},
     }).complete().then(({ output }) => console.log(`Using python ${output}`));
 

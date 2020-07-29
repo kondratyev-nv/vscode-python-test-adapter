@@ -14,8 +14,7 @@
       ],
       "preLaunchTask": "npm: build",
       "env": {
-        "SOME_PROCESS_VARIABLE": "HelloFromProcessEnv",
-        "VSCODE_PYTHON": "python3"
+        "SOME_PROCESS_VARIABLE": "HelloFromProcessEnv"
       }
     },
     {

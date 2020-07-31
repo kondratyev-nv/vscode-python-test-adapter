@@ -14,7 +14,6 @@ suite('Pytest test discovery with additional arguments', async () => {
             '--trace',
             '--cache-show',
             '--doctest-modules',
-            '--no-print-logs',
             '--collect-only',
             '--junitxml=sample.xml',
             '--ignore=test/import_error_tests'
@@ -50,7 +49,6 @@ suite('Run pytest tests with additional arguments', () => {
             'test/inner_tests',
             '--trace',
             '--doctest-modules',
-            '--no-print-logs',
             '--collect-only',
             '--junitxml=sample.xml',
             '--exitfirst',

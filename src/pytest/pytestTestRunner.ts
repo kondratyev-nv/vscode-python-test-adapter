@@ -17,8 +17,7 @@ import { parseTestSuites } from './pytestTestCollectionParser';
 
 interface IRunArguments {
     junitReportPath?: string;
-    testsToRun: string[];
-    unknownArgumentsToPass: string[];
+    argumentsToPass: string[];
 }
 
 export class PytestTestRunner implements ITestRunner {
@@ -106,7 +105,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         return {
             module: 'pytest',
             cwd: config.getCwd(),
-            args: runArguments.unknownArgumentsToPass.concat(runArguments.testsToRun),
+            args: runArguments.argumentsToPass,
             env: additionalEnvironment,
         };
     }
@@ -151,11 +150,11 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         const runArguments = this.getRunArguments(test, config.getPytestConfiguration().pytestArguments);
         const { file, cleanupCallback } = await this.getJunitReportPath(config.getCwd(), runArguments);
-        const scriptArguments = runArguments.unknownArgumentsToPass.concat([
+        const scriptArguments = [
             `--junitxml=${file}`,
             '--override-ini', 'junit_logging=all',
             '--override-ini', 'junit_family=xunit1'
-        ]).concat(runArguments.testsToRun);
+        ].concat(runArguments.argumentsToPass);
 
         this.logger.log('info', `Running pytest wrapper with arguments: ${scriptArguments}`);
         const testExecution = runScript({
@@ -221,10 +220,11 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         const [knownArguments, argumentsToPass] = argumentParser.parseKnownArgs(rawPytestArguments);
         return {
             junitReportPath: (knownArguments as { xmlpath?: string }).xmlpath,
-            unknownArgumentsToPass: argumentsToPass,
-            testsToRun: test !== this.adapterId ?
-                [test] :
-                (knownArguments as { tests?: string[] }).tests || [],
+            argumentsToPass: argumentsToPass.concat(
+                test !== this.adapterId ?
+                    [test] :
+                    (knownArguments as { tests?: string[] }).tests || []
+            ),
         };
     }
 

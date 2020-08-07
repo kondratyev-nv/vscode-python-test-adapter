@@ -112,3 +112,6 @@ ENV/
 # PyCharm
 .idea/
 *.iml
+
+# Project test files (junit xml reports)
+test/test_samples/**/*.xml

@@ -1,7 +1,9 @@
 import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
+import * as fs from 'fs';
 
+import { isFileExists } from '../../src/utilities/fs';
 import { IWorkspaceConfiguration } from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
 import { createPytestConfiguration, extractExpectedState, extractErroredTests, findTestSuiteByLabel, logger } from '../utils/helpers';
@@ -226,5 +228,37 @@ suite('Pytest tests with additional positional arguments', () => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
+    });
+});
+
+suite('Use junit-xml argument for pytest tests', () => {
+    const runner = new PytestTestRunner('some-id', logger());
+
+    test('should create junit-xml report by custom path', async () => {
+        const now = new Date().getTime();
+        const config: IWorkspaceConfiguration = createPytestConfiguration(
+            'pytest',
+            [
+                '--ignore=test/import_error_tests',
+                `--junitxml=example_${now}.xml`
+            ]);
+        const mainSuite = await runner.load(config);
+        expect(mainSuite).to.be.not.undefined;
+        expect(extractErroredTests(mainSuite!)).to.be.empty;
+
+        const states = await runner.run(config, runner.adapterId);
+        expect(states).to.be.not.empty;
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+        });
+
+        const reportFilePath = path.resolve(config.getCwd(), `example_${now}.xml`);
+        expect(await isFileExists(reportFilePath)).to.be.true;
+        try {
+            fs.unlinkSync(reportFilePath);
+        } catch {
+            /* intentionally ignored */
+        }
     });
 });

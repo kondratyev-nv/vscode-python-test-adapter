@@ -15,6 +15,11 @@ import { setDescriptionForEqualLabels } from '../utilities/tests';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
 
+interface IRunArguments {
+    junitReportPath?: string;
+    argumentsToPass: string[];
+}
+
 export class PytestTestRunner implements ITestRunner {
     private static readonly PYTEST_WRAPPER_SCRIPT = `
 from __future__ import print_function
@@ -96,10 +101,11 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
 
     public async debugConfiguration(config: IWorkspaceConfiguration, test: string): Promise<IDebugConfiguration> {
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
+        const runArguments = this.getRunArguments(test, config.getPytestConfiguration().pytestArguments);
         return {
             module: 'pytest',
             cwd: config.getCwd(),
-            args: this.getRunArguments(test, config.getPytestConfiguration().pytestArguments),
+            args: runArguments.argumentsToPass,
             env: additionalEnvironment,
         };
     }
@@ -142,19 +148,20 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         this.logger.log('info', `Running tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
-        const { file, cleanupCallback } = await this.createTemporaryFile();
-        const runArguments = this.getRunArguments(test, config.getPytestConfiguration().pytestArguments)
-            .concat([
-                `--junitxml=${file}`,
-                '--override-ini', 'junit_logging=all',
-                '--override-ini', 'junit_family=xunit1'
-            ]);
-        this.logger.log('info', `Running pytest wrapper with arguments: ${runArguments}`);
+        const runArguments = this.getRunArguments(test, config.getPytestConfiguration().pytestArguments);
+        const { file, cleanupCallback } = await this.getJunitReportPath(config.getCwd(), runArguments);
+        const scriptArguments = [
+            `--junitxml=${file}`,
+            '--override-ini', 'junit_logging=all',
+            '--override-ini', 'junit_family=xunit1'
+        ].concat(runArguments.argumentsToPass);
+
+        this.logger.log('info', `Running pytest wrapper with arguments: ${scriptArguments}`);
         const testExecution = runScript({
             pythonPath: config.pythonPath(),
             script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
             cwd: config.getCwd(),
-            args: runArguments,
+            args: scriptArguments,
             environment: additionalEnvironment,
         });
         this.testExecutions.set(test, testExecution);
@@ -162,8 +169,22 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         this.testExecutions.delete(test);
         this.logger.log('info', 'Test execution completed');
         const states = await parseTestStates(file, config.getCwd());
+
         cleanupCallback();
         return states;
+    }
+
+    private async getJunitReportPath(
+        cwd: string,
+        runArguments: IRunArguments
+    ): Promise<{ file: string, cleanupCallback: () => void }> {
+        if (runArguments.junitReportPath) {
+            return Promise.resolve({
+                file: path.resolve(cwd, runArguments.junitReportPath),
+                cleanupCallback: () => { /* intentionally empty */ },
+            });
+        }
+        return await this.createTemporaryFile();
     }
 
     private getDiscoveryArguments(rawPytestArguments: string[]): string[] {
@@ -172,7 +193,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         return ['--collect-only'].concat(argumentsToPass);
     }
 
-    private getRunArguments(test: string, rawPytestArguments: string[]): string[] {
+    private getRunArguments(test: string, rawPytestArguments: string[]): IRunArguments {
         const argumentParser = this.configureCommonArgumentParser();
         argumentParser.addArgument(
             ['--setuponly', '--setup-only'],
@@ -195,12 +216,16 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
         argumentParser.addArgument(
             ['tests'],
             { nargs: '*' });
+
         const [knownArguments, argumentsToPass] = argumentParser.parseKnownArgs(rawPytestArguments);
-        return argumentsToPass.concat(
-            test !== this.adapterId ?
-                [test] :
-                (knownArguments as { tests?: string[] }).tests || []
-        );
+        return {
+            junitReportPath: (knownArguments as { xmlpath?: string }).xmlpath,
+            argumentsToPass: argumentsToPass.concat(
+                test !== this.adapterId ?
+                    [test] :
+                    (knownArguments as { tests?: string[] }).tests || []
+            ),
+        };
     }
 
     private configureCommonArgumentParser() {

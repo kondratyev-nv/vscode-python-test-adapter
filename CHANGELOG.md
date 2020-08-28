@@ -1,4 +1,9 @@
-## 0.4.5
+## 0.4.6
+
+ * Update dependencies, migrate to vscode-test
+ * Support for custom junitxml argument (Issue #172)
+ 
+ ## 0.4.5
 
  * Load debug configuration from launch.json (Issues #139 and #167)
 

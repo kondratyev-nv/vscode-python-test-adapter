@@ -47,9 +47,13 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     }
 
     public getPytestConfiguration(): IPytestConfiguration {
-        const thisInstance = this;
+        const getPytestPath = () => this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['unitTest.pyTestPath', 'testing.pyTestPath', 'testing.pytestPath'],
+            'pytest'
+        );
         return {
-            pytestPath: thisInstance.getPytestPath,
+            pytestPath: getPytestPath,
             isPytestEnabled: this.isPytestTestEnabled(),
             pytestArguments: this.getPyTestArguments(),
         };
@@ -105,14 +109,6 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
             this.pythonConfiguration,
             ['unitTest.pyTestArgs', 'testing.pyTestArgs', 'testing.pytestArgs'],
             []
-        );
-    }
-
-    private getPytestPath(): string {
-        return this.getConfigurationValueOrDefault(
-            this.pythonConfiguration,
-            ['unitTest.pyTestPath', 'testing.pyTestPath', 'testing.pytestPath'],
-            'pytest'
         );
     }
 

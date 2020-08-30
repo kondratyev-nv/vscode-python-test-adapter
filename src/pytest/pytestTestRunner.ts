@@ -21,9 +21,9 @@ interface IRunArguments {
 }
 
 export class PytestTestRunner implements ITestRunner {
-    private static readonly PLUGIN_ENVIRONMENT = {
-        PYTHONPATH: `${__dirname}/../python_scripts`,
-        PYTEST_PLUGINS: 'vscode_python_test_adapter.pytest.discovery_output_plugin'
+    private static readonly DISCOVERY_OUTPUT_PLUGIN = {
+        PACKAGE_PATH: `${__dirname}/../../python_resources`,
+        MODULE_NAME: 'vscode_python_test_adapter.pytest.discovery_output_plugin'
     };
    
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
@@ -125,12 +125,12 @@ export class PytestTestRunner implements ITestRunner {
             ...environment,
 
             PYTHONPATH: environment.PYTHONPATH
-                ? [environment.PYTHONPATH, PytestTestRunner.PLUGIN_ENVIRONMENT.PYTHONPATH].join(path.delimiter)
-                : PytestTestRunner.PLUGIN_ENVIRONMENT.PYTHONPATH,
+                ? [environment.PYTHONPATH, PytestTestRunner.DISCOVERY_OUTPUT_PLUGIN.PACKAGE_PATH].join(path.delimiter)
+                : PytestTestRunner.DISCOVERY_OUTPUT_PLUGIN.PACKAGE_PATH,
 
             PYTEST_PLUGINS: environment.PYTEST_PLUGINS
-                ? [environment.PYTEST_PLUGINS, PytestTestRunner.PLUGIN_ENVIRONMENT.PYTEST_PLUGINS].join(',')
-                : PytestTestRunner.PLUGIN_ENVIRONMENT.PYTEST_PLUGINS,
+                ? [environment.PYTEST_PLUGINS, PytestTestRunner.DISCOVERY_OUTPUT_PLUGIN.MODULE_NAME].join(',')
+                : PytestTestRunner.DISCOVERY_OUTPUT_PLUGIN.MODULE_NAME
         };
     }
 

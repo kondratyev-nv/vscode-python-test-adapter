@@ -6,7 +6,8 @@ import {
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
-import { IProcessExecution, runScript } from '../pythonRunner';
+import { IProcessExecution } from '../processRunner';
+import { runScript } from '../pythonRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities/collections';
 import { setDescriptionForEqualLabels } from '../utilities/tests';

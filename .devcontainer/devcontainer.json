@@ -1,0 +1,10 @@
+{
+	"name": "VSCode Python Test Adapter",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"remoteUser": "developer",
+	"settings": { "terminal.integrated.shell.linux": "/bin/bash" },
+	"extensions": [ "ms-python.python" ]
+}

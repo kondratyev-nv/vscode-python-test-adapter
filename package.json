@@ -45,6 +45,7 @@
   "scripts": {
     "clean": "rimraf out *.vsix **/*.pyc **/__pycache__ **/.pytest_cache",
     "build": "tsc",
+    "postbuild": "copyfiles \"src/python_scripts/**/*.py\" out",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json",
     "pretest": "npm run build",
@@ -78,6 +79,7 @@
     "@types/vscode": "^1.23.0",
     "@types/xml2js": "^0.4.5",
     "chai": "^4.2.0",
+    "copyfiles": "2.3.0",
     "cross-env": "^7.0.2",
     "glob": "^7.1.6",
     "mocha": "^8.0.1",

@@ -2,6 +2,12 @@ variables:
   JUNIT_REPORTER_ENABLED: 1
   JUNIT_REPORTER_RESULT_DIRECTORY: $(Build.SourcesDirectory)
 
+trigger:
+- master
+
+pr:
+- master
+
 jobs:
 
 - job: Windows

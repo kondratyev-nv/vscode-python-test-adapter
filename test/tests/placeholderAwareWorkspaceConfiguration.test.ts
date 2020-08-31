@@ -46,9 +46,7 @@ suite('Placeholder aware workspace configuration', () => {
             },
             getPytestConfiguration(): IPytestConfiguration {
                 return {
-                    pytestPath(): string {
-                        return 'pytest';
-                    },
+                    pytestPath: () => 'pytest',
                     isPytestEnabled: true,
                     pytestArguments: [],
                 };
@@ -89,9 +87,7 @@ suite('Placeholder aware workspace configuration', () => {
             },
             getPytestConfiguration(): IPytestConfiguration {
                 return {
-                    pytestPath(): string {
-                        return 'pytest';
-                    },
+                    pytestPath: () => 'pytest',
                     isPytestEnabled: true,
                     pytestArguments: [
                         '--result-log=${workspaceFolder}/${env:RELATIVE_PYTEST_LOG_PATH}'
@@ -136,9 +132,7 @@ suite('Placeholder aware workspace configuration', () => {
             },
             getPytestConfiguration(): IPytestConfiguration {
                 return {
-                    pytestPath(): string {
-                        return 'pytest';
-                    },
+                    pytestPath: () => 'pytest',
                     isPytestEnabled: true,
                     pytestArguments: [],
                 };
@@ -172,9 +166,7 @@ suite('Placeholder aware workspace configuration', () => {
             },
             getPytestConfiguration(): IPytestConfiguration {
                 return {
-                    pytestPath(): string {
-                        return 'pytest';
-                    },
+                    pytestPath: () => 'pytest',
                     isPytestEnabled: true,
                     pytestArguments: [],
                 };
@@ -214,9 +206,7 @@ suite('Placeholder aware workspace configuration', () => {
             },
             getPytestConfiguration(): IPytestConfiguration {
                 return {
-                    pytestPath(): string {
-                        return 'pytest';
-                    },
+                    pytestPath: () => 'pytest',
                     isPytestEnabled: true,
                     pytestArguments: [],
                 };
@@ -255,9 +245,7 @@ suite('Placeholder aware workspace configuration', () => {
                 },
                 getPytestConfiguration(): IPytestConfiguration {
                     return {
-                        pytestPath(): string {
-                            return 'pytest';
-                        },
+                        pytestPath: () => 'pytest',
                         isPytestEnabled: true,
                         pytestArguments: [],
                     };
@@ -294,9 +282,7 @@ suite('Placeholder aware workspace configuration', () => {
                 },
                 getPytestConfiguration(): IPytestConfiguration {
                     return {
-                        pytestPath(): string {
-                            return 'pytest';
-                        },
+                        pytestPath: () => 'pytest',
                         isPytestEnabled: true,
                         pytestArguments: [],
                     };

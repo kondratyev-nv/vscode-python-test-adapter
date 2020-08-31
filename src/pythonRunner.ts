@@ -25,9 +25,9 @@ class PythonProcessExecution implements IProcessExecution {
         configuration: IPythonModuleRunConfiguration | IPythonScriptRunConfiguration
     ) {
         this.pythonProcess = runProcess(
+            configuration.pythonPath,
             args,
             {
-                executable: configuration.pythonPath,
                 cwd: configuration.cwd,
                 environment: {
                     ...process.env,

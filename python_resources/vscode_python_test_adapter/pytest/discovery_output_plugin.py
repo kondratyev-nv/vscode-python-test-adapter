@@ -7,7 +7,7 @@ import json
 import py
 
 
-errors = []
+collected_errors = []
 
 def get_line_number(item):
     location = getattr(item, 'location', None)
@@ -32,7 +32,7 @@ def extract_discovered_tests(session):
 
 def extract_discovery_errors():
     errors = []
-    for error in errors:
+    for error in collected_errors:
         try:
             errors.append({'file': error.location[0] if error.location else None,
                             'message': error.longreprtext})
@@ -50,4 +50,4 @@ def pytest_collection_finish(session):
 
 def pytest_collectreport(report):
     if report.failed:
-        errors.append(report)
+        collected_errors.append(report)

@@ -41,9 +41,7 @@ import { findWorkspaceFolder, logger } from '../utils/helpers';
                 },
                 getPytestConfiguration(): IPytestConfiguration {
                     return {
-                        pytestPath(): string {
-                            return 'pytest';
-                        },
+                        pytestPath: () => 'pytest',
                         isPytestEnabled: true,
                         pytestArguments: [],
                     };
@@ -76,9 +74,7 @@ import { findWorkspaceFolder, logger } from '../utils/helpers';
                 },
                 getPytestConfiguration(): IPytestConfiguration {
                     return {
-                        pytestPath(): string {
-                            return 'pytest';
-                        },
+                        pytestPath: () => 'pytest',
                         isPytestEnabled: true,
                         pytestArguments: [],
                     };

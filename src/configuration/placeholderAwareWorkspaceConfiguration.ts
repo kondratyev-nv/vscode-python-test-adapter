@@ -39,20 +39,17 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         };
     }
 
-    private getPytestPath(): string {
-        return this.resolveExecutablePath(this.configuration.getPytestConfiguration().pytestPath());
-    }
-
     public getPytestConfiguration(): IPytestConfiguration {
         const original = this.configuration.getPytestConfiguration();
-        const thisInstance = this;
         return {
-            pytestPath(): string {
-                return thisInstance.getPytestPath();
-            },
+            pytestPath: () => this.getPytestPath(),
             isPytestEnabled: original.isPytestEnabled,
             pytestArguments: original.pytestArguments.map(argument => this.resolvePlaceholders(argument)),
         };
+    }
+
+    private getPytestPath(): string {
+        return this.resolveExecutablePath(this.configuration.getPytestConfiguration().pytestPath());
     }
 
     private resolvePlaceholders(rawValue: string): string {

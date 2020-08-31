@@ -3,9 +3,9 @@ import * as iconv from 'iconv-lite';
 import { EOL } from 'os';
 
 export interface IProcessRunConfiguration {
-    executable: string;
-    environment: { [key: string]: string | undefined };
     cwd?: string;
+    environment?: { [key: string]: string | undefined };
+    acceptedExitCodes?: readonly number[];
 }
 
 export interface IProcessExecution {
@@ -20,22 +20,25 @@ class CommandProcessExecution implements IProcessExecution {
     public readonly pid: number;
 
     private readonly commandProcess: ChildProcess;
+    private readonly acceptedExitCodes: readonly number[];
 
     constructor(
-        args: string[],
-        configuration: IProcessRunConfiguration
+        command: string,
+        args?: string[],
+        configuration?: IProcessRunConfiguration
     ) {
         this.commandProcess = spawn(
-            configuration.executable,
+            command,
             args,
             {
-                cwd: configuration.cwd,
+                cwd: configuration?.cwd,
                 env: {
                     ...process.env,
-                    ...configuration.environment
+                    ...configuration?.environment,
                 },
             });
         this.pid = this.commandProcess.pid;
+        this.acceptedExitCodes = configuration?.acceptedExitCodes || [0];
     }
     public async complete(): Promise<{ exitCode: number; output: string; }> {
         return new Promise<{ exitCode: number, output: string }>((resolve, reject) => {
@@ -45,8 +48,9 @@ class CommandProcessExecution implements IProcessExecution {
             this.commandProcess.stderr!.on('data', chunk => stderrBuffer.push(chunk));
 
             this.commandProcess.once('close', exitCode => {
-                if (exitCode !== 0 && !this.commandProcess.killed) {
+                if (this.acceptedExitCodes.indexOf(exitCode) < 0 && !this.commandProcess.killed) {
                     reject(`Process exited with code ${exitCode}: ${decode(stderrBuffer)}`);
+                    return;
                 }
 
                 const output = decode(stdoutBuffer);
@@ -71,10 +75,11 @@ class CommandProcessExecution implements IProcessExecution {
 }
 
 export function runProcess(
-    args: string[],
-    configuration: IProcessRunConfiguration
+    command: string,
+    args?: string[],
+    configuration?: IProcessRunConfiguration
 ): IProcessExecution {
-    return new CommandProcessExecution(args, configuration);
+    return new CommandProcessExecution(command, args, configuration);
 }
 
 function decode(buffers: Buffer[]) {

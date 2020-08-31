@@ -23,7 +23,7 @@ import { parseTestSuites } from './pytestTestCollectionParser';
 // 4: pytest command line usage error
 // 5: No tests were collected
 // See https://docs.pytest.org/en/stable/usage.html#possible-exit-codes
-const PYTEST_PROCESS_OK_EXIT_CODES = [0, 1, 2, 5];
+const PYTEST_NON_ERROR_EXIT_CODES = [0, 1, 2, 5];
 
 const DISCOVERY_OUTPUT_PLUGIN_INFO = {
     PACKAGE_PATH: path.resolve(__dirname, '../../python_resources'),
@@ -83,7 +83,7 @@ export class PytestTestRunner implements ITestRunner {
             {
                 cwd: config.getCwd(),
                 environment: additionalEnvironment,
-                acceptedExitCodes: PYTEST_PROCESS_OK_EXIT_CODES,
+                acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
             }).complete();
 
         const tests = parseTestSuites(result.output, config.getCwd());
@@ -107,20 +107,20 @@ export class PytestTestRunner implements ITestRunner {
         const additionalEnvironment = await this.loadEnvironmentVariables(config);
         const runArguments = this.getRunArguments(test, config.getPytestConfiguration().pytestArguments);
         const { file, cleanupCallback } = await this.getJunitReportPath(config.getCwd(), runArguments);
-        const scriptArguments = [
+        const testRunArguments = [
             `--junitxml=${file}`,
             '--override-ini', 'junit_logging=all',
             '--override-ini', 'junit_family=xunit1'
         ].concat(runArguments.argumentsToPass);
 
-        this.logger.log('info', `Running pytest wrapper with arguments: ${scriptArguments}`);
+        this.logger.log('info', `Running pytest with arguments: ${testRunArguments}`);
         const testExecution = runProcess(
             config.getPytestConfiguration().pytestPath(),
-            scriptArguments,
+            testRunArguments,
             {
                 cwd: config.getCwd(),
                 environment: additionalEnvironment,
-                acceptedExitCodes: PYTEST_PROCESS_OK_EXIT_CODES,
+                acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
             });
         this.testExecutions.set(test, testExecution);
         await testExecution.complete();
@@ -141,7 +141,7 @@ export class PytestTestRunner implements ITestRunner {
             DISCOVERY_OUTPUT_PLUGIN_INFO.PACKAGE_PATH
         ].filter(item => item).join(path.delimiter);
 
-        const updatedPytestPluginList = [
+        const updatedPytestPlugins = [
             environment.PYTEST_PLUGINS,
             DISCOVERY_OUTPUT_PLUGIN_INFO.MODULE_NAME
         ].filter(item => item).join(',');
@@ -149,7 +149,7 @@ export class PytestTestRunner implements ITestRunner {
         return {
             ...environment,
             PYTHONPATH: updatedPythonPath,
-            PYTEST_PLUGINS: updatedPytestPluginList,
+            PYTEST_PLUGINS: updatedPytestPlugins,
         };
     }
 

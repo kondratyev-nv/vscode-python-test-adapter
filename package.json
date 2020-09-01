@@ -45,7 +45,7 @@
   "scripts": {
     "clean": "rimraf out *.vsix **/*.pyc **/__pycache__ **/.pytest_cache",
     "build": "tsc",
-    "postbuild": "copyfiles \"python_resources/**/*.py\" out",
+    "postbuild": "copyfiles \"resources/python/**/*.py\" out",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json",
     "pretest": "npm run build",

@@ -26,7 +26,7 @@ import { parseTestSuites } from './pytestTestCollectionParser';
 const PYTEST_NON_ERROR_EXIT_CODES = [0, 1, 2, 5];
 
 const DISCOVERY_OUTPUT_PLUGIN_INFO = {
-    PACKAGE_PATH: path.resolve(__dirname, '../../python_resources'),
+    PACKAGE_PATH: path.resolve(__dirname, '../../resources/python'),
     MODULE_NAME: 'vscode_python_test_adapter.pytest.discovery_output_plugin',
 };
 

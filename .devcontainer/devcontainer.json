@@ -1,0 +1,15 @@
+{
+	"name": "VSCode Python Test Adapter",
+	"remoteUser": "developer",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"settings": {
+		"terminal.integrated.shell.linux": "/bin/bash"
+	},
+	"extensions": [
+		"ms-vscode.vscode-typescript-tslint-plugin",
+		"ms-python.python"
+	]
+}

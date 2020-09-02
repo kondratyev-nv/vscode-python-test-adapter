@@ -9,6 +9,7 @@ export interface IUnittestConfiguration {
 }
 
 export interface IPytestConfiguration {
+    pytestPath(): string,
     pytestArguments: string[];
     isPytestEnabled: boolean;
 }

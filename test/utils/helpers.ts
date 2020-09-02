@@ -97,6 +97,7 @@ export function createPytestConfiguration(folder: string, args?: string[], cwd?:
         },
         getPytestConfiguration(): IPytestConfiguration {
             return {
+                pytestPath: () => 'pytest',
                 isPytestEnabled: true,
                 pytestArguments: args || [],
             };

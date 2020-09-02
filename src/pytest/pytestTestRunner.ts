@@ -6,14 +6,29 @@ import {
 
 import { ArgumentParser } from 'argparse';
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
-import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
+import { IEnvironmentVariables, EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
-import { IProcessExecution, runScript } from '../pythonRunner';
+import { IProcessExecution, runProcess } from '../processRunner'
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities/collections';
 import { setDescriptionForEqualLabels } from '../utilities/tests';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
+
+// --- Pytest Exit Codes ---
+// 0: All tests were collected and passed successfully
+// 1: Tests were collected and run but some of the tests failed
+// 2: Test execution was interrupted by the user
+// 3: Internal error happened while executing tests
+// 4: pytest command line usage error
+// 5: No tests were collected
+// See https://docs.pytest.org/en/stable/usage.html#possible-exit-codes
+const PYTEST_NON_ERROR_EXIT_CODES = [0, 1, 2, 5];
+
+const DISCOVERY_OUTPUT_PLUGIN_INFO = {
+    PACKAGE_PATH: path.resolve(__dirname, '../../resources/python'),
+    MODULE_NAME: 'vscode_python_test_adapter.pytest.discovery_output_plugin',
+};
 
 interface IRunArguments {
     junitReportPath?: string;
@@ -21,65 +36,6 @@ interface IRunArguments {
 }
 
 export class PytestTestRunner implements ITestRunner {
-    private static readonly PYTEST_WRAPPER_SCRIPT = `
-from __future__ import print_function
-
-import pytest
-import sys
-import json
-import py
-
-
-def get_line_number(item):
-    location = getattr(item, 'location', None)
-    if location is not None:
-        return location[1]
-    obj = getattr(item, 'obj', None)
-    if obj is not None:
-        try:
-            from _pytest.compat import getfslineno
-            return getfslineno(obj)[1]
-        except:
-            pass
-    return None
-
-
-class PythonTestExplorerDiscoveryOutputPlugin(object):
-    def __init__(self):
-        self.errors = []
-
-    def __extract_discovered_tests(self, session):
-        tests = []
-        for item in session.items:
-            line = get_line_number(item)
-            tests.append({'id': item.nodeid,
-                          'line': line})
-        return tests
-
-    def __extract_discovery_errors(self):
-        errors = []
-        for error in self.errors:
-            try:
-                errors.append({'file': error.location[0] if error.location else None,
-                               'message': error.longreprtext})
-            except:
-                pass
-        return errors
-
-    def pytest_collection_finish(self, session):
-        print('==DISCOVERED TESTS BEGIN==')
-        tests = self.__extract_discovered_tests(session)
-        errors = self.__extract_discovery_errors()
-        print(json.dumps({'tests': tests,
-                          'errors': errors}))
-        print('==DISCOVERED TESTS END==')
-
-    def pytest_collectreport(self, report):
-        if report.failed:
-            self.errors.append(report)
-
-
-pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
 
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
 
@@ -100,7 +56,7 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
     }
 
     public async debugConfiguration(config: IWorkspaceConfiguration, test: string): Promise<IDebugConfiguration> {
-        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
+        const additionalEnvironment = await this.loadEnvironmentVariables(config);
         const runArguments = this.getRunArguments(test, config.getPytestConfiguration().pytestArguments);
         return {
             module: 'pytest',
@@ -115,19 +71,20 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
             this.logger.log('info', 'Pytest test discovery is disabled');
             return undefined;
         }
-        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
+        const additionalEnvironment = await this.loadEnvironmentVariables(config);
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
         const discoveryArguments = this.getDiscoveryArguments(config.getPytestConfiguration().pytestArguments);
         this.logger.log('info', `Running pytest wrapper with arguments: ${discoveryArguments}`);
 
-        const result = await runScript({
-            pythonPath: config.pythonPath(),
-            script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
-            args: discoveryArguments,
-            cwd: config.getCwd(),
-            environment: additionalEnvironment,
-        }).complete();
+        const result = await runProcess(
+            config.getPytestConfiguration().pytestPath(),
+            discoveryArguments,
+            {
+                cwd: config.getCwd(),
+                environment: additionalEnvironment,
+                acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
+            }).complete();
 
         const tests = parseTestSuites(result.output, config.getCwd());
         if (empty(tests)) {
@@ -147,23 +104,24 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
     public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
         this.logger.log('info', `Running tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
-        const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
+        const additionalEnvironment = await this.loadEnvironmentVariables(config);
         const runArguments = this.getRunArguments(test, config.getPytestConfiguration().pytestArguments);
         const { file, cleanupCallback } = await this.getJunitReportPath(config.getCwd(), runArguments);
-        const scriptArguments = [
+        const testRunArguments = [
             `--junitxml=${file}`,
             '--override-ini', 'junit_logging=all',
             '--override-ini', 'junit_family=xunit1'
         ].concat(runArguments.argumentsToPass);
 
-        this.logger.log('info', `Running pytest wrapper with arguments: ${scriptArguments}`);
-        const testExecution = runScript({
-            pythonPath: config.pythonPath(),
-            script: PytestTestRunner.PYTEST_WRAPPER_SCRIPT,
-            cwd: config.getCwd(),
-            args: scriptArguments,
-            environment: additionalEnvironment,
-        });
+        this.logger.log('info', `Running pytest with arguments: ${testRunArguments}`);
+        const testExecution = runProcess(
+            config.getPytestConfiguration().pytestPath(),
+            testRunArguments,
+            {
+                cwd: config.getCwd(),
+                environment: additionalEnvironment,
+                acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
+            });
         this.testExecutions.set(test, testExecution);
         await testExecution.complete();
         this.testExecutions.delete(test);
@@ -172,6 +130,27 @@ pytest.main(sys.argv[1:], plugins=[PythonTestExplorerDiscoveryOutputPlugin()])`;
 
         cleanupCallback();
         return states;
+    }
+
+    private async loadEnvironmentVariables(config: IWorkspaceConfiguration): Promise<IEnvironmentVariables> {
+        const environment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
+
+        const updatedPythonPath = [
+            config.getCwd(),
+            environment.PYTHONPATH,
+            DISCOVERY_OUTPUT_PLUGIN_INFO.PACKAGE_PATH
+        ].filter(item => item).join(path.delimiter);
+
+        const updatedPytestPlugins = [
+            environment.PYTEST_PLUGINS,
+            DISCOVERY_OUTPUT_PLUGIN_INFO.MODULE_NAME
+        ].filter(item => item).join(',');
+
+        return {
+            ...environment,
+            PYTHONPATH: updatedPythonPath,
+            PYTEST_PLUGINS: updatedPytestPlugins,
+        };
     }
 
     private async getJunitReportPath(

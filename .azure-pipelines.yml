@@ -24,6 +24,8 @@ jobs:
         python.version: '3.6'
       Windows_Python37:
         python.version: '3.7'
+      Windows_Python38:
+        python.version: '3.8'
     maxParallel: 4
   steps:
   - task: UsePythonVersion@0
@@ -84,6 +86,9 @@ jobs:
       macOS_Python37:
         python.version: '3.7'
         TOXENV: 'py37'
+      macOS_Python38:
+        python.version: '3.8'
+        TOXENV: 'py38'
     maxParallel: 4
   steps:
   - task: UsePythonVersion@0
@@ -139,6 +144,8 @@ jobs:
         python.version: '3.6'
       Linux_Python37:
         python.version: '3.7'
+      Linux_Python38:
+        python.version: '3.8'
     maxParallel: 4
   steps:
   - task: UsePythonVersion@0

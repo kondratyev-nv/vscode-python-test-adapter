@@ -1,5 +1,9 @@
 language: python
 
+branches:
+  only: 
+    - master
+
 env:
   global:
     - ENABLE_TEST_LOGGING=1
@@ -18,6 +22,10 @@ matrix:
       dist: xenial
       python: "3.7"
       env: TOXENV=py37
+    - os: linux
+      dist: xenial
+      python: "3.8"
+      env: TOXENV=py38
     - os: osx
       language: generic
       env: PYTHON=2.7.16 TOXENV=py27
@@ -26,7 +34,10 @@ matrix:
       env: PYTHON=3.6.8 TOXENV=py36
     - os: osx
       language: generic
-      env: PYTHON=3.7.3 TOXENV=py37
+      env: PYTHON=3.7.8 TOXENV=py37
+    - os: osx
+      language: generic
+      env: PYTHON=3.8.5 TOXENV=py38
 services:
   - xvfb
 before_install:

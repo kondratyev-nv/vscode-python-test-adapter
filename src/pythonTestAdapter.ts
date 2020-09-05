@@ -70,7 +70,7 @@ export class PythonTestAdapter implements TestAdapter {
             this.testsEmitter.fire({ type: 'started' });
 
             this.testsById.clear();
-            const config = this.configurationFactory.get(this.workspaceFolder);
+            const config = await this.configurationFactory.get(this.workspaceFolder);
             const suite = await this.testRunner.load(config);
             this.saveToMap(suite);
             this.sortTests(suite);
@@ -85,7 +85,7 @@ export class PythonTestAdapter implements TestAdapter {
     public async run(tests: string[]): Promise<void> {
         try {
             this.testStatesEmitter.fire({ type: 'started', tests });
-            const config = this.configurationFactory.get(this.workspaceFolder);
+            const config = await this.configurationFactory.get(this.workspaceFolder);
             const testRuns = tests.map(async test => {
                 try {
                     const states = await this.testRunner.run(config, test);
@@ -109,7 +109,7 @@ export class PythonTestAdapter implements TestAdapter {
     }
 
     public async debug(tests: string[]): Promise<void> {
-        const config = this.configurationFactory.get(this.workspaceFolder);
+        const config = await this.configurationFactory.get(this.workspaceFolder);
         const debugConfiguration = await this.testRunner.debugConfiguration(config, tests[0]);
         const launchJsonConfiguration = await this.detectDebugConfiguration(debugConfiguration.env);
         return new Promise<void>(() => {

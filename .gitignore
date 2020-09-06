@@ -95,6 +95,8 @@ celerybeat-schedule
 env/
 venv/
 ENV/
+# Environment for testing
+.some_venv
 
 # Spyder project settings
 .spyderproject

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
+import * as os from 'os';
 
 import {
     IPytestConfiguration,
@@ -28,7 +29,9 @@ function createPytestConfiguration(args?: string[]): IWorkspaceConfiguration {
         },
         getPytestConfiguration(): IPytestConfiguration {
             return {
-                pytestPath: () => '${workspaceFolder}/pytest.sh',
+                pytestPath: () => os.platform() === 'win32' ?
+                    '${workspaceFolder}/pytest_runner.bat' :
+                    '${workspaceFolder}/pytest_runner.sh',
                 isPytestEnabled: true,
                 pytestArguments: args || [],
             };

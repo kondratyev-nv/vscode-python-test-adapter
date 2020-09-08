@@ -61,7 +61,7 @@ suite('Pytest test discovery with a script', async () => {
         ];
         const labels = mainSuite!.children.map(x => x.label);
         expect(labels).to.have.members(expectedSuites);
-    }).timeout(30000);
+    }).timeout(60000);
 });
 
 suite('Pytest test execution with a script', () => {
@@ -81,7 +81,7 @@ suite('Pytest test execution with a script', () => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
-    }).timeout(30000);
+    }).timeout(60000);
 
     [
         {
@@ -141,7 +141,7 @@ suite('Pytest test execution with a script', () => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
             });
-        }).timeout(30000);
+        }).timeout(60000);
     });
 
     [
@@ -166,7 +166,7 @@ suite('Pytest test execution with a script', () => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
             });
-        }).timeout(30000);
+        }).timeout(60000);
     });
 
     test('should capture output from failing test', async () => {
@@ -185,7 +185,7 @@ suite('Pytest test execution with a script', () => {
         expect(state.decorations).to.be.have.length(1);
         expect(state.decorations![0].line).to.be.equal(9);
         expect(state.decorations![0].message).to.satisfy((m: string) => m.startsWith('assert (2 + 2) == 5'));
-    }).timeout(30000);
+    }).timeout(60000);
 
     [
         'test_environment_variable_from_env_file_passed',
@@ -202,6 +202,6 @@ suite('Pytest test execution with a script', () => {
             states.forEach(state => {
                 expect(state.state).to.be.eq(extractExpectedState(state.test as string));
             });
-        }).timeout(30000);
+        }).timeout(60000);
     });
 });

@@ -15,6 +15,9 @@ interface IDiscoveryResultJson {
 export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | TestInfo)[] {
     const from = content.indexOf(DISCOVERED_TESTS_START_MARK);
     const to = content.indexOf(DISCOVERED_TESTS_END_MARK);
+    if (from < 0 || to < 0) {
+        throw new Error(`Invalid test discovery output!${os.EOL}${content}`);
+    }
     const discoveredTestsJson = content.substring(from + DISCOVERED_TESTS_START_MARK.length, to);
     const discoveryResult = JSON.parse(discoveredTestsJson) as IDiscoveryResultJson;
     const allTests = (discoveryResult.tests || [])

@@ -2,17 +2,11 @@ import { IProcessExecution, runProcess } from './processRunner'
 
 interface ICommonPythonRunConfiguration {
     pythonPath: string;
+    args?: string[];
+
     environment: { [key: string]: string | undefined };
     cwd?: string;
-    args?: string[];
-}
-
-export interface IPythonScriptRunConfiguration extends ICommonPythonRunConfiguration {
-    script: string;
-}
-
-export interface IPythonModuleRunConfiguration extends ICommonPythonRunConfiguration {
-    module: string;
+    acceptedExitCodes?: readonly number[];
 }
 
 class PythonProcessExecution implements IProcessExecution {
@@ -22,7 +16,7 @@ class PythonProcessExecution implements IProcessExecution {
 
     constructor(
         args: string[],
-        configuration: IPythonModuleRunConfiguration | IPythonScriptRunConfiguration
+        configuration: ICommonPythonRunConfiguration
     ) {
         this.pythonProcess = runProcess(
             configuration.pythonPath,
@@ -34,6 +28,7 @@ class PythonProcessExecution implements IProcessExecution {
                     ...configuration.environment,
                     PYTHONUNBUFFERED: '1',
                 },
+                acceptedExitCodes: configuration.acceptedExitCodes,
             });
         this.pid = this.pythonProcess.pid;
     }
@@ -45,11 +40,20 @@ class PythonProcessExecution implements IProcessExecution {
     }
 }
 
-function run(
-    args: string[],
-    configuration: IPythonModuleRunConfiguration | IPythonScriptRunConfiguration
-): IProcessExecution {
+function run(args: string[], configuration: ICommonPythonRunConfiguration): IProcessExecution {
     return new PythonProcessExecution(args, configuration);
+}
+
+export interface IPythonScriptRunConfiguration extends ICommonPythonRunConfiguration {
+    script: string;
+}
+
+export interface IPythonModuleRunConfiguration extends ICommonPythonRunConfiguration {
+    module: string;
+}
+
+export function runModule(configuration: IPythonModuleRunConfiguration): IProcessExecution {
+    return run(['-m', configuration.module].concat(configuration.args || []), configuration);
 }
 
 export function runScript(configuration: IPythonScriptRunConfiguration): IProcessExecution {

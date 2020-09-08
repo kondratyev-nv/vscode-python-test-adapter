@@ -14,6 +14,7 @@ import { empty } from '../utilities/collections';
 import { setDescriptionForEqualLabels } from '../utilities/tests';
 import { parseTestStates } from './pytestJunitTestStatesParser';
 import { parseTestSuites } from './pytestTestCollectionParser';
+import { runModule } from '../pythonRunner';
 
 // --- Pytest Exit Codes ---
 // 0: All tests were collected and passed successfully
@@ -77,15 +78,7 @@ export class PytestTestRunner implements ITestRunner {
         const discoveryArguments = this.getDiscoveryArguments(config.getPytestConfiguration().pytestArguments);
         this.logger.log('info', `Running pytest wrapper with arguments: ${discoveryArguments}`);
 
-        const result = await runProcess(
-            config.getPytestConfiguration().pytestPath(),
-            discoveryArguments,
-            {
-                cwd: config.getCwd(),
-                environment: additionalEnvironment,
-                acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
-            }).complete();
-
+        const result = await this.runPytest(config, additionalEnvironment, discoveryArguments).complete();
         const tests = parseTestSuites(result.output, config.getCwd());
         if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');
@@ -113,23 +106,41 @@ export class PytestTestRunner implements ITestRunner {
             '--override-ini', 'junit_family=xunit1'
         ].concat(runArguments.argumentsToPass);
 
-        this.logger.log('info', `Running pytest with arguments: ${testRunArguments}`);
-        const testExecution = runProcess(
-            config.getPytestConfiguration().pytestPath(),
-            testRunArguments,
-            {
-                cwd: config.getCwd(),
-                environment: additionalEnvironment,
-                acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
-            });
+        const testExecution = this.runPytest(config, additionalEnvironment, testRunArguments);
         this.testExecutions.set(test, testExecution);
         await testExecution.complete();
         this.testExecutions.delete(test);
+
         this.logger.log('info', 'Test execution completed');
         const states = await parseTestStates(file, config.getCwd());
 
         cleanupCallback();
         return states;
+    }
+
+    private runPytest(config: IWorkspaceConfiguration, env: IEnvironmentVariables, args: string[]): IProcessExecution {
+        const pytestPath = config.getPytestConfiguration().pytestPath();
+        if (pytestPath === path.basename(pytestPath)) {
+            this.logger.log('info', `Running ${pytestPath} as a Python module`);
+            return runModule({
+                pythonPath: config.pythonPath(),
+                module: config.getPytestConfiguration().pytestPath(),
+                environment: env,
+                args,
+                cwd: config.getCwd(),
+                acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
+            });
+        }
+
+        this.logger.log('info', `Running ${pytestPath} as an executable`);
+        return runProcess(
+            pytestPath,
+            args,
+            {
+                cwd: config.getCwd(),
+                environment: env,
+                acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
+            });
     }
 
     private async loadEnvironmentVariables(config: IWorkspaceConfiguration): Promise<IEnvironmentVariables> {

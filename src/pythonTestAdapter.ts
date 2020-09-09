@@ -25,6 +25,7 @@ type TestRunEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent 
 interface IPythonTestDebugConfig {
     env?: IEnvironmentVariables;
 
+    console?: string;
     stopOnEntry?: boolean;
     showReturnValue?: boolean;
     redirectOutput?: boolean;
@@ -206,6 +207,7 @@ export class PythonTestAdapter implements TestAdapter {
                     .map(cfg => <IPythonTestDebugConfig>({
                         env: EnvironmentVariablesLoader.merge(cfg.env || {}, globalEnvironment),
 
+                        console: cfg.console,
                         stopOnEntry: cfg.stopOnEntry,
                         showReturnValue: cfg.showReturnValue,
                         redirectOutput: cfg.redirectOutput,

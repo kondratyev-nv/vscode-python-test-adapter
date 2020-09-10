@@ -25,6 +25,8 @@ type TestRunEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent 
 interface IPythonTestDebugConfig {
     env?: IEnvironmentVariables;
 
+    name: string;
+    console?: string;
     stopOnEntry?: boolean;
     showReturnValue?: boolean;
     redirectOutput?: boolean;
@@ -111,11 +113,13 @@ export class PythonTestAdapter implements TestAdapter {
     public async debug(tests: string[]): Promise<void> {
         const config = this.configurationFactory.get(this.workspaceFolder);
         const debugConfiguration = await this.testRunner.debugConfiguration(config, tests[0]);
-        const launchJsonConfiguration = await this.detectDebugConfiguration(debugConfiguration.env);
+        const launchJsonConfiguration = await this.detectDebugConfiguration(
+            this.testsById.get(tests[0])?.label || tests[0],
+            debugConfiguration.env
+        );
         return new Promise<void>(() => {
             debug.startDebugging(this.workspaceFolder, {
                 ...{
-                    name: `Debug ${tests[0]}`,
                     type: 'python',
                     request: 'launch',
                     console: 'internalConsole',
@@ -185,11 +189,18 @@ export class PythonTestAdapter implements TestAdapter {
         }
     }
 
-    private async detectDebugConfiguration(globalEnvironment: IEnvironmentVariables) {
+    private async detectDebugConfiguration(
+        test: string,
+        globalEnvironment: IEnvironmentVariables
+    ): Promise<IPythonTestDebugConfig> {
+        const emptyJsonConfiguration = {
+            name: `Debug: ${test}`,
+        };
+
         const filename = path.join(this.workspaceFolder.uri.fsPath, '.vscode', 'launch.json');
         const launchJsonFileExists = await isFileExists(filename)
         if (!launchJsonFileExists) {
-            return {};
+            return emptyJsonConfiguration;
         }
         try {
             const content = await readFile(filename);
@@ -206,6 +217,8 @@ export class PythonTestAdapter implements TestAdapter {
                     .map(cfg => <IPythonTestDebugConfig>({
                         env: EnvironmentVariablesLoader.merge(cfg.env || {}, globalEnvironment),
 
+                        name: `${cfg.name}: ${test}`,
+                        console: cfg.console,
                         stopOnEntry: cfg.stopOnEntry,
                         showReturnValue: cfg.showReturnValue,
                         redirectOutput: cfg.redirectOutput,
@@ -213,11 +226,11 @@ export class PythonTestAdapter implements TestAdapter {
                         justMyCode: cfg.justMyCode,
                         subProcess: cfg.subProcess,
                     })),
-                {}
+                emptyJsonConfiguration
             );
         } catch (error) {
             this.logger.log('crit', `Could not load debug configuration: ${error}`);
-            return {};
+            return emptyJsonConfiguration;
         }
     }
 }

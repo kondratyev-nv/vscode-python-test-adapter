@@ -1,4 +1,11 @@
-## 0.4.6
+## 0.5.0
+
+ * Support for `python.testing.pytestPath` setting (Issue #60, thanks to @lucono)
+ * Support `name` and `console` in debug configuration in launch.json (Issue #185)
+ * Run tests on Python 3.8 in CI
+ * Update dependencies (thanks to @lucono)
+ 
+ ## 0.4.6
 
  * Update dependencies, migrate to vscode-test
  * Support for custom junitxml argument (Issue #172)

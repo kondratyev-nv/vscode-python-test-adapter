@@ -25,24 +25,26 @@ suite('VSCode workspace configuration', () => {
         );
     });
 
-    test.skip('should return values from python extension configuration (unittest)', () => {
+    test('should return values from python extension configuration (unittest)', () => {
         const configuration = createWorkspaceConfiguration('python_extension_configured_unittest');
         expect(configuration.getUnittestConfiguration().isUnittestEnabled).to.be.true;
-        expect(configuration.pythonPath()).to.be.eq('/some/path/to/python');
+        expect(configuration.pythonPath()).to.be.eq('python');
         expect(configuration.getCwd()).to.be.eq('/some/unittest/cwd');
     });
 
-    test.skip('should return values from python extension configuration (pytest)', () => {
+    test('should return values from python extension configuration (pytest)', () => {
         const configuration = createWorkspaceConfiguration('python_extension_configured_pytest');
         expect(configuration.getPytestConfiguration().isPytestEnabled).to.be.true;
         expect(configuration.pythonPath()).to.be.eq('/some/path/to/python');
         expect(configuration.getCwd()).to.be.eq('/some/unittest/cwd');
+        expect(configuration.getPytestConfiguration().pytestPath()).to.be.eq('pytest');
     });
 
-    test.skip('should return values from python extension configuration with resolved placeholders', () => {
+    test('should return values from python extension configuration with resolved placeholders', () => {
         const configuration = createWorkspaceConfiguration('python_extension_configured_with_placeholders');
         expect(configuration.pythonPath()).to.be.eq('${workspaceFolder}/some/path/to/python');
         expect(configuration.getCwd()).to.be.eq('${env:SOME_PATH_USED_IN_CWD}/some/unittest/cwd');
+        expect(configuration.getPytestConfiguration().pytestPath()).to.be.eq('pytest');
     });
 
     test('should return values overridden by python test explorer (unittest)', () => {

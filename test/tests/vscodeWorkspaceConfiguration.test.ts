@@ -44,7 +44,7 @@ suite('VSCode workspace configuration', () => {
         const configuration = createWorkspaceConfiguration('python_extension_configured_with_placeholders');
         expect(configuration.pythonPath()).to.be.eq('${workspaceFolder}/some/path/to/python');
         expect(configuration.getCwd()).to.be.eq('${env:SOME_PATH_USED_IN_CWD}/some/unittest/cwd');
-        expect(configuration.getPytestConfiguration().pytestPath()).to.be.eq('pytest');
+        expect(configuration.getPytestConfiguration().pytestPath()).to.be.eq('${workspaceFolder}/pytest_runner.sh');
     });
 
     test('should return values overridden by python test explorer (unittest)', () => {

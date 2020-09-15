@@ -1,5 +1,5 @@
 variables:
-  JUNIT_REPORTER_ENABLED: 1
+  # JUNIT_REPORTER_ENABLED: 1
   JUNIT_REPORTER_RESULT_DIRECTORY: $(Build.SourcesDirectory)
 
 trigger:
@@ -12,7 +12,7 @@ jobs:
 
 - job: Windows
   pool:
-    name: Hosted VS2017
+    vmImage: 'windows-latest'
     demands: npm
   strategy:
     matrix:
@@ -70,7 +70,7 @@ jobs:
 
 - job: macOS
   pool:
-    name: Hosted macOS
+    vmImage: 'macOS-latest'
     demands: npm
   strategy:
     matrix:
@@ -132,7 +132,7 @@ jobs:
 
 - job: Linux
   pool:
-    name: Hosted Ubuntu 1604
+    vmImage: 'ubuntu-latest'
     demands: npm
   strategy:
     matrix:

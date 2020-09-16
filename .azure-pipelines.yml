@@ -1,5 +1,5 @@
 variables:
-  # JUNIT_REPORTER_ENABLED: 1
+  JUNIT_REPORTER_ENABLED: 1
   JUNIT_REPORTER_RESULT_DIRECTORY: $(Build.SourcesDirectory)
 
 trigger:
@@ -16,15 +16,15 @@ jobs:
     demands: npm
   strategy:
     matrix:
-      Windows_Python27:
+      Python27:
         python.version: '2.7'
-      Windows_Python35:
+      Python35:
         python.version: '3.5'
-      Windows_Python36:
+      Python36:
         python.version: '3.6'
-      Windows_Python37:
+      Python37:
         python.version: '3.7'
-      Windows_Python38:
+      Python38:
         python.version: '3.8'
     maxParallel: 4
   steps:
@@ -34,9 +34,9 @@ jobs:
       versionSpec: '$(python.version)'
       architecture: 'x64'
   - task: NodeTool@0
-    displayName: 'Use Node 8.x'
+    displayName: 'Use Node 12.x'
     inputs:
-      versionSpec: 8.x
+      versionSpec: 12.x
   - script: npm install npm -g
     displayName: 'Update npm'
   - task: Npm@1
@@ -66,7 +66,7 @@ jobs:
     inputs:
       testRunner: JUnit
       testResultsFiles: $(Build.SourcesDirectory)\test-results.xml
-      testRunTitle: '$(Agent.JobName) ($(Agent.OS), $(python.version))'
+      testRunTitle: '$(Agent.JobName), Python $(python.version)'
 
 - job: macOS
   pool:
@@ -74,19 +74,19 @@ jobs:
     demands: npm
   strategy:
     matrix:
-      macOS_Python27:
+      Python27:
         python.version: '2.7'
         TOXENV: 'py27'
-      macOS_Python35:
+      Python35:
         python.version: '3.5'
         TOXENV: 'py35'
-      macOS_Python36:
+      Python36:
         python.version: '3.6'
         TOXENV: 'py36'
-      macOS_Python37:
+      Python37:
         python.version: '3.7'
         TOXENV: 'py37'
-      macOS_Python38:
+      Python38:
         python.version: '3.8'
         TOXENV: 'py38'
     maxParallel: 4
@@ -97,9 +97,9 @@ jobs:
       versionSpec: '$(python.version)'
       architecture: 'x64'
   - task: NodeTool@0
-    displayName: 'Use Node 8.x'
+    displayName: 'Use Node 12.x'
     inputs:
-      versionSpec: 8.x
+      versionSpec: 12.x
   - task: Npm@1
     displayName: 'Install dependencies'
     inputs:
@@ -128,7 +128,7 @@ jobs:
     inputs:
       testRunner: JUnit
       testResultsFiles: $(Build.SourcesDirectory)/test-results.xml
-      testRunTitle: '$(Agent.JobName) ($(Agent.OS), $(python.version))'
+      testRunTitle: '$(Agent.JobName), Python $(python.version)'
 
 - job: Linux
   pool:
@@ -136,15 +136,15 @@ jobs:
     demands: npm
   strategy:
     matrix:
-      Linux_Python27:
+      Python27:
         python.version: '2.7'
-      Linux_Python35:
+      Python35:
         python.version: '3.5'
-      Linux_Python36:
+      Python36:
         python.version: '3.6'
-      Linux_Python37:
+      Python37:
         python.version: '3.7'
-      Linux_Python38:
+      Python38:
         python.version: '3.8'
     maxParallel: 4
   steps:
@@ -154,9 +154,9 @@ jobs:
       versionSpec: '$(python.version)'
       architecture: 'x64'
   - task: NodeTool@0
-    displayName: 'Use Node 8.x'
+    displayName: 'Use Node 12.x'
     inputs:
-      versionSpec: 8.x
+      versionSpec: 12.x
   - script: npm install npm -g
     displayName: 'Update npm'
   - task: Npm@1
@@ -174,11 +174,11 @@ jobs:
     displayName: 'Update pip'
   - script: python -m pip install -r requirements.txt
     displayName: 'Install requirements'
-  - script: |
-      set -e
-      /usr/bin/Xvfb :10 -ac >> /tmp/Xvfb.out 2>&1 &
-      disown -ar
-    displayName: 'Start xvfb'
+  - bash: |
+      /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      echo ">>> Started xvfb"
+    displayName: Start xvfb
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
   - script: npm run lint
     displayName: 'Linting'
   - script: npm audit --production
@@ -187,13 +187,13 @@ jobs:
   - script: npm test
     displayName: 'Run tests'
     env:
-      DISPLAY: :10
+      DISPLAY: ':99.0'
   - task: PublishTestResults@2
     condition: succeededOrFailed()
     inputs:
       testRunner: JUnit
       testResultsFiles: $(Build.SourcesDirectory)/test-results.xml
-      testRunTitle: '$(Agent.JobName) ($(Agent.OS), $(python.version))'
+      testRunTitle: '$(Agent.JobName), Python $(python.version)'
   - script: npm run package
     displayName: 'Package'
   - task: CopyFiles@2

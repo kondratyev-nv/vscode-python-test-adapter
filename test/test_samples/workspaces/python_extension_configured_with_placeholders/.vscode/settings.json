@@ -1,5 +1,6 @@
 {
     "python.testing.pyTestEnabled": true,
     "python.pythonPath": "${workspaceFolder}/some/path/to/python",
-    "python.testing.cwd": "${env:SOME_PATH_USED_IN_CWD}/some/unittest/cwd"
+    "python.testing.cwd": "${env:SOME_PATH_USED_IN_CWD}/some/unittest/cwd",
+    "python.testing.pytestPath": "${workspaceFolder}/pytest_runner.sh"
 }

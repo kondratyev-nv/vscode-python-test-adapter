@@ -52,14 +52,15 @@ List of currently used properties:
 
 Property                          | Description
 ----------------------------------|---------------------------------------------------------------
-`python.pythonPath`               | Path to Python
-`python.envFile`                  | Path to environment variable definitions file
-`python.testing.cwd`              | Optional working directory for unit tests
-`python.testing.unittestEnabled`  | Whether to enable or disable unit testing using unittest (enables or disables test discovery for Test Explorer)
-`python.testing.unittestArgs`     | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered)
-`python.testing.pyTestEnabled`    | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer)
+`python.pythonPath`               | Path to Python.
+`python.envFile`                  | Path to environment variable definitions file.
+`python.testing.cwd`              | Optional working directory for unit tests.
+`python.testing.unittestEnabled`  | Whether to enable or disable unit testing using unittest (enables or disables test discovery for Test Explorer).
+`python.testing.unittestArgs`     | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered).
+`python.testing.pyTestEnabled`    | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer).
+`python.testing.pytestPath`       | Path to pytest executable or a pytest compatible module.
 `python.testing.pyTestArgs`       | Arguments passed to the pytest. Each argument is a separate item in the array.
-`pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension properties `python.testing.unittestEnabled` and `python.testing.pyTestEnabled`)
+`pythonTestExplorer.testFramework`| Test framework to use (overrides Python extension properties `python.testing.unittestEnabled` and `python.testing.pyTestEnabled`).
 
 Configuration supports placeholders for workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
 
@@ -85,6 +86,37 @@ Property                              | Description
 `testExplorer.hideWhen`               | Hide the Test Explorer when no test adapters have been registered or when no tests have been found by the registered adapters. The default is to never hide the Test Explorer (some test adapters only work with this default setting).
 
 See [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) documentation for the latest changes in configuration.
+
+### Configuring debug
+
+The extension will look for a configuration in launch.json with `"type": "python"` and `"request": "test"` to load any of the following options during debugging
+
+ * name
+ * console
+ * env
+ * stopOnEntry
+ * showReturnValue
+ * redirectOutput
+ * debugStdLib
+ * justMyCode
+ * subProcess
+
+For example,
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug test",
+            "type": "python",
+            "request": "test",
+            "console": "externalTerminal",
+            "justMyCode": false,
+            "stopOnEntry": true
+        }
+    ]
+}
+```
 
 ## Troubleshooting
 

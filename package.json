@@ -5,7 +5,7 @@
   "icon": "img/icon.png",
   "author": "Nikolay Kondratyev",
   "publisher": "littlefoxteam",
-  "version": "0.4.6",
+  "version": "0.5.0",
   "license": "MIT",
   "homepage": "https://github.com/kondratyev-nv/vscode-python-test-adapter",
   "repository": {
@@ -43,7 +43,7 @@
     "pytest"
   ],
   "scripts": {
-    "clean": "rimraf out *.vsix **/*.pyc **/__pycache__ **/.pytest_cache",
+    "clean": "rimraf out *.vsix **/*.pyc **/__pycache__ **/.pytest_cache **/.some_venv **/.venv",
     "build": "tsc",
     "postbuild": "copyfiles \"resources/python/**/*.py\" out",
     "watch": "tsc -w",

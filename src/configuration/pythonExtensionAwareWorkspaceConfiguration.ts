@@ -42,7 +42,7 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
             }
             await extension.exports.ready;
 
-            const pythonPath = extension.exports.settings.getExecutionDetails(workspaceFolder).execCommand[0];
+            const pythonPath = extension.exports.settings.getExecutionDetails(workspaceFolder.uri).execCommand[0];
             logger.log('info', `Using auto-detected pythonPath=${pythonPath}`);
             return pythonPath;
         }

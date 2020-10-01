@@ -103,7 +103,8 @@
     "onCommand:test-explorer.rerun",
     "onCommand:test-explorer.debug-test-at-cursor",
     "onCommand:test-explorer.redebug",
-    "onCommand:test-explorer.cancel"
+    "onCommand:test-explorer.cancel",
+    "onStartupFinished"
   ],
   "contributes": {
     "configuration": {

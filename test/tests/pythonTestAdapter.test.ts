@@ -66,8 +66,8 @@ import {
     suite(`Adapter events with ${label} runner`, () => {
         const workspaceFolder = findWorkspaceFolder(label)!;
         const configurationFactory: IConfigurationFactory = {
-            get(_: vscode.WorkspaceFolder): IWorkspaceConfiguration {
-                return configuration;
+            get(_: vscode.WorkspaceFolder): Promise<IWorkspaceConfiguration> {
+                return Promise.resolve(configuration);
             },
         };
 
@@ -96,7 +96,7 @@ import {
 
         test(`test execution events should be successfully fired for ${label}`, async () => {
             const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
-            const mainSuite = await runner.load(configurationFactory.get(workspaceFolder));
+            const mainSuite = await runner.load(await configurationFactory.get(workspaceFolder));
             // expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
             const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);
@@ -168,9 +168,11 @@ suite('Adapter events with pytest runner and invalid files during discovery', ()
     ];
     const workspaceFolder = findWorkspaceFolder('pytest')!;
     const configurationFactory: IConfigurationFactory = {
-        get(_: vscode.WorkspaceFolder): IWorkspaceConfiguration {
-            return createPytestConfiguration(
-                'pytest'
+        get(_: vscode.WorkspaceFolder): Promise<IWorkspaceConfiguration> {
+            return Promise.resolve(
+                createPytestConfiguration(
+                    'pytest'
+                )
             );
         },
     };
@@ -205,7 +207,7 @@ suite('Adapter events with pytest runner and invalid files during discovery', ()
     });
 
     test('test execution events should be successfully fired for pytest', async () => {
-        const mainSuite = await runner.load(configurationFactory.get(workspaceFolder));
+        const mainSuite = await runner.load(await configurationFactory.get(workspaceFolder));
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.have.length(2);
         const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);
@@ -252,9 +254,11 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
     ];
     const workspaceFolder = findWorkspaceFolder('unittest')!;
     const configurationFactory: IConfigurationFactory = {
-        get(_: vscode.WorkspaceFolder): IWorkspaceConfiguration {
-            return createUnittestConfiguration(
-                'unittest'
+        get(_: vscode.WorkspaceFolder): Promise<IWorkspaceConfiguration> {
+            return Promise.resolve(
+                createUnittestConfiguration(
+                    'unittest'
+                )
             );
         },
     };
@@ -289,7 +293,7 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
     });
 
     test('test execution events should be successfully fired for unittest', async () => {
-        const mainSuite = await runner.load(configurationFactory.get(workspaceFolder));
+        const mainSuite = await runner.load(await configurationFactory.get(workspaceFolder));
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.have.length(3);
         const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);

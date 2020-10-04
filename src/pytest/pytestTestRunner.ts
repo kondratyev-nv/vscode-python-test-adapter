@@ -76,7 +76,7 @@ export class PytestTestRunner implements ITestRunner {
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
         const discoveryArguments = this.getDiscoveryArguments(config.getPytestConfiguration().pytestArguments);
-        this.logger.log('info', `Running pytest wrapper with arguments: ${discoveryArguments}`);
+        this.logger.log('info', `Running pytest with arguments: ${discoveryArguments.join(', ')}`);
 
         const result = await this.runPytest(config, additionalEnvironment, discoveryArguments).complete();
         const tests = parseTestSuites(result.output, config.getCwd());
@@ -95,6 +95,10 @@ export class PytestTestRunner implements ITestRunner {
     }
 
     public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
+        if (!config.getPytestConfiguration().isPytestEnabled) {
+            this.logger.log('info', 'Pytest test execution is disabled');
+            return [];
+        }
         this.logger.log('info', `Running tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
         const additionalEnvironment = await this.loadEnvironmentVariables(config);
@@ -105,6 +109,7 @@ export class PytestTestRunner implements ITestRunner {
             '--override-ini', 'junit_logging=all',
             '--override-ini', 'junit_family=xunit1'
         ].concat(runArguments.argumentsToPass);
+        this.logger.log('info', `Running pytest with arguments: ${testRunArguments.join(', ')}`);
 
         const testExecution = this.runPytest(config, additionalEnvironment, testRunArguments);
         this.testExecutions.set(test, testExecution);

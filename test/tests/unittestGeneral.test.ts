@@ -193,6 +193,9 @@ suite('Unittest run and discovery with start folder in config', () => {
         envFile(): string {
             return '${workspaceFolder}/.env';
         },
+        autoTestDiscoverOnSaveEnabled(): boolean {
+            return true;
+        },
         getUnittestConfiguration() {
             return {
                 isUnittestEnabled: true,

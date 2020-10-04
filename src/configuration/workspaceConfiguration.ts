@@ -21,6 +21,8 @@ export interface IWorkspaceConfiguration {
 
     envFile(): string;
 
+    autoTestDiscoverOnSaveEnabled(): boolean;
+
     getUnittestConfiguration(): IUnittestConfiguration;
 
     getPytestConfiguration(): IPytestConfiguration;

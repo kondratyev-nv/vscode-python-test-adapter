@@ -92,6 +92,9 @@ export function createPytestConfiguration(folder: string, args?: string[], cwd?:
         envFile(): string {
             return path.join(wf.uri.fsPath, '..', '.env');
         },
+        autoTestDiscoverOnSaveEnabled(): boolean {
+            return true;
+        },
         getUnittestConfiguration(): IUnittestConfiguration {
             throw new Error();
         },
@@ -117,6 +120,9 @@ export function createUnittestConfiguration(folder: string): IWorkspaceConfigura
         },
         envFile(): string {
             return path.join(wf.uri.fsPath, '.env');
+        },
+        autoTestDiscoverOnSaveEnabled(): boolean {
+            return true;
         },
         getUnittestConfiguration(): IUnittestConfiguration {
             return {

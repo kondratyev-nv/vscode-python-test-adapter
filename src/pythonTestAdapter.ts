@@ -1,4 +1,4 @@
-import { debug, Event, EventEmitter, WorkspaceFolder, DebugConfiguration } from 'vscode';
+import { debug, Event, EventEmitter, WorkspaceFolder, DebugConfiguration, workspace } from 'vscode';
 import {
     TestAdapter,
     TestEvent,
@@ -53,6 +53,7 @@ export class PythonTestAdapter implements TestAdapter {
     private readonly autorunEmitter = new EventEmitter<void>();
 
     private readonly testsById = new Map<string, TestSuiteInfo | TestInfo>();
+    private readonly testsByFsPath = new Map<string, TestSuiteInfo | TestInfo>();
 
     constructor(
         public readonly workspaceFolder: WorkspaceFolder,
@@ -65,6 +66,47 @@ export class PythonTestAdapter implements TestAdapter {
             this.testStatesEmitter,
             this.autorunEmitter
         ];
+        this.registerActions();
+    }
+
+    private registerActions() {
+        this.disposables.push(workspace.onDidChangeConfiguration(async configurationChange => {
+            const sectionsToReload = [
+                'python.pythonPath',
+                'python.envFile',
+                'python.testing.cwd',
+                'python.testing.unittestEnabled',
+                'python.testing.unittestArgs',
+                'python.testing.pytestEnabled',
+                'python.testing.pytestPath',
+                'python.testing.pytestArgs',
+                'pythonTestExplorer.testFramework'
+            ];
+
+            const needsReload = sectionsToReload.some(
+                section => configurationChange.affectsConfiguration(section, this.workspaceFolder.uri));
+            if (needsReload) {
+                this.logger.log('info', 'Configuration changed, reloading tests');
+                this.load();
+
+            }
+        }));
+
+        this.disposables.push(workspace.onDidSaveTextDocument(async document => {
+            const config = await this.configurationFactory.get(this.workspaceFolder);
+            if (config.autoTestDiscoverOnSaveEnabled()) {
+                const filename = document.fileName;
+                if (this.testsByFsPath.has(filename)) {
+                    this.logger.log('debug', 'Test file changed, reloading tests');
+                    await this.load();
+                    return; // In case autorun is enabled - execution will be triggered on load.
+                }
+                if (filename.startsWith(this.workspaceFolder.uri.fsPath)) {
+                    this.logger.log('debug', 'Sending autorun event');
+                    this.autorunEmitter.fire();
+                }
+            }
+        }));
     }
 
     public async load(): Promise<void> {
@@ -72,6 +114,7 @@ export class PythonTestAdapter implements TestAdapter {
             this.testsEmitter.fire({ type: 'started' });
 
             this.testsById.clear();
+            this.testsByFsPath.clear();
             const config = await this.configurationFactory.get(this.workspaceFolder);
             const suite = await this.testRunner.load(config);
             this.saveToMap(suite);
@@ -160,6 +203,9 @@ export class PythonTestAdapter implements TestAdapter {
             return;
         }
         this.testsById.set(test.id, test);
+        if (test.file) {
+            this.testsByFsPath.set(test.file, test);
+        }
         if (test.type === 'suite') {
             test.children.forEach(child => this.saveToMap(child));
         }

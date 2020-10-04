@@ -24,6 +24,9 @@ function createPytestConfiguration(args?: string[]): IWorkspaceConfiguration {
         envFile(): string {
             return path.join(wf.uri.fsPath, '..', '.env');
         },
+        autoTestDiscoverOnSaveEnabled(): boolean {
+            return true;
+        },
         getUnittestConfiguration(): IUnittestConfiguration {
             throw new Error();
         },

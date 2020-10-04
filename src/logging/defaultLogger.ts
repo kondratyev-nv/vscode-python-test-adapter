@@ -15,13 +15,22 @@ export class DefaultLogger implements ILogger {
         try {
             this.output.write(
                 `${new Date().toISOString()} ` +
-                `${level} ` +
-                `at '${this.workspaceFolder.name}' ` +
-                `[${this.framework} runner]: ` +
+                `${this.levelCode(level)} ` +
+                `${this.framework} at '${this.workspaceFolder.name}': ` +
                 `${message}`
             );
         } catch {
             /* do nothing if cannot log */
+        }
+    }
+
+    private levelCode(level: LogLevel): string {
+        switch (level) {
+            case 'crit': return 'CRIT';
+            case 'warn': return 'WARN';
+            case 'info': return 'INFO';
+            case 'debug': return ' DBG';
+            default: return '?';
         }
     }
 }

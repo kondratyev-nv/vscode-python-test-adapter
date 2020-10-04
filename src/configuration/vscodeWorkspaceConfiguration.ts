@@ -22,7 +22,6 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
         this.pythonConfiguration = this.getPythonConfiguration(workspaceFolder);
         this.testExplorerConfiguration = this.getTestExplorerConfiguration(workspaceFolder);
     }
-
     public pythonPath() {
         return this.pythonConfiguration.get<string>('pythonPath', 'python');
     }
@@ -37,6 +36,10 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
 
     public envFile(): string {
         return this.pythonConfiguration.get<string>('envFile', '${workspaceFolder}/.env');
+    }
+
+    public autoTestDiscoverOnSaveEnabled(): boolean {
+        return this.pythonConfiguration.get<boolean>('testing.autoTestDiscoverOnSaveEnabled', true);
     }
 
     public getUnittestConfiguration(): IUnittestConfiguration {

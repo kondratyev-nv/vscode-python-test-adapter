@@ -84,6 +84,11 @@ export class UnittestTestRunner implements ITestRunner {
     }
 
     public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
+        if (!config.getUnittestConfiguration().isUnittestEnabled) {
+            this.logger.log('info', 'Unittest test execution is disabled');
+            return [];
+        }
+
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
         this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
             `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);

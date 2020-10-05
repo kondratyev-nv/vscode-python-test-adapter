@@ -30,6 +30,9 @@ import { findWorkspaceFolder, logger } from '../utils/helpers';
                 envFile(): string {
                     return path.join(wf.uri.fsPath, '.env');
                 },
+                autoTestDiscoverOnSaveEnabled(): boolean {
+                    return true;
+                },
                 getUnittestConfiguration(): IUnittestConfiguration {
                     return {
                         isUnittestEnabled: true,
@@ -62,6 +65,9 @@ import { findWorkspaceFolder, logger } from '../utils/helpers';
                 },
                 envFile(): string {
                     return '/some/not/existent/path/.env';
+                },
+                autoTestDiscoverOnSaveEnabled(): boolean {
+                    return true;
                 },
                 getUnittestConfiguration(): IUnittestConfiguration {
                     return {

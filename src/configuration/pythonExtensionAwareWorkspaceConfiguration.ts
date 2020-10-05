@@ -43,7 +43,7 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
             await extension.exports.ready;
 
             const pythonPath = extension.exports.settings.getExecutionDetails(workspaceFolder.uri).execCommand[0];
-            logger.log('info', `Using auto-detected pythonPath=${pythonPath}`);
+            logger.log('info', `Using auto-detected pythonPath ${pythonPath}`);
             return pythonPath;
         }
         return undefined;
@@ -59,6 +59,10 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
 
     public envFile(): string {
         return this.configuration.envFile();
+    }
+
+    public autoTestDiscoverOnSaveEnabled(): boolean {
+        return this.configuration.autoTestDiscoverOnSaveEnabled();
     }
 
     public getUnittestConfiguration(): IUnittestConfiguration {

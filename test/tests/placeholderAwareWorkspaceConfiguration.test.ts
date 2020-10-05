@@ -35,6 +35,9 @@ suite('Placeholder aware workspace configuration', () => {
             envFile(): string {
                 return '${workspaceFolder}/.env';
             },
+            autoTestDiscoverOnSaveEnabled(): boolean {
+                return true;
+            },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
                     isUnittestEnabled: true,
@@ -75,6 +78,9 @@ suite('Placeholder aware workspace configuration', () => {
             },
             envFile(): string {
                 return '${workspaceFolder}/.env';
+            },
+            autoTestDiscoverOnSaveEnabled(): boolean {
+                return true;
             },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
@@ -121,6 +127,9 @@ suite('Placeholder aware workspace configuration', () => {
             envFile(): string {
                 return '${workspaceFolder}/.env';
             },
+            autoTestDiscoverOnSaveEnabled(): boolean {
+                return true;
+            },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
                     isUnittestEnabled: true,
@@ -154,6 +163,9 @@ suite('Placeholder aware workspace configuration', () => {
             },
             envFile(): string {
                 return '~/.env';
+            },
+            autoTestDiscoverOnSaveEnabled(): boolean {
+                return true;
             },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
@@ -195,6 +207,9 @@ suite('Placeholder aware workspace configuration', () => {
             envFile(): string {
                 return '~/.env';
             },
+            autoTestDiscoverOnSaveEnabled(): boolean {
+                return true;
+            },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
                     isUnittestEnabled: true,
@@ -234,6 +249,9 @@ suite('Placeholder aware workspace configuration', () => {
                 envFile(): string {
                     return '${workspaceFolder}/.env';
                 },
+                autoTestDiscoverOnSaveEnabled(): boolean {
+                    return true;
+                },
                 getUnittestConfiguration(): IUnittestConfiguration {
                     return {
                         isUnittestEnabled: true,
@@ -270,6 +288,9 @@ suite('Placeholder aware workspace configuration', () => {
                 },
                 envFile(): string {
                     return '${workspaceFolder}/.env';
+                },
+                autoTestDiscoverOnSaveEnabled(): boolean {
+                    return true;
                 },
                 getUnittestConfiguration(): IUnittestConfiguration {
                     return {

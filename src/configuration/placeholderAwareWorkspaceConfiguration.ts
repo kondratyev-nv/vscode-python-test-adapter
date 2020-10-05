@@ -28,6 +28,10 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         return this.resolvePath(this.configuration.envFile());
     }
 
+    public autoTestDiscoverOnSaveEnabled(): boolean {
+        return this.configuration.autoTestDiscoverOnSaveEnabled();
+    }
+
     public getUnittestConfiguration(): IUnittestConfiguration {
         const original = this.configuration.getUnittestConfiguration();
         return {

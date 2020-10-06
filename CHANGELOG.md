@@ -1,3 +1,9 @@
+## 0.6.0
+
+ * Support for auto-reload and auto-run for tests (Issues #137 and #193)
+ * Support for `python.pythonPath` deprecation (Issue #177)
+ * Add onStartupFinished activation event (Issue #186)
+ 
 ## 0.5.0
 
  * Support for `python.testing.pytestPath` setting (Issue #60, thanks to @lucono)

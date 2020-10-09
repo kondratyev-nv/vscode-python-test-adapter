@@ -1,4 +1,5 @@
 import { WorkspaceFolder, extensions } from 'vscode';
+import { EOL } from 'os';
 
 import { ILogger } from '../logging/logger';
 import {
@@ -21,21 +22,37 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
         workspaceFolder: WorkspaceFolder,
         logger: ILogger
     ): Promise<PythonExtensionAwareWorkspaceConfiguration> {
-        const detectedPythonPath = await PythonExtensionAwareWorkspaceConfiguration.detectPythonPathPythonPath(
+        const detectedPythonPath = await PythonExtensionAwareWorkspaceConfiguration.detectPythonPath(
             workspaceFolder,
             logger
         );
         return new PythonExtensionAwareWorkspaceConfiguration(configuration, workspaceFolder, detectedPythonPath);
     }
 
-    private static async detectPythonPathPythonPath(
+    private static async detectPythonPath(
+        workspaceFolder: WorkspaceFolder,
+        logger: ILogger
+    ): Promise<string | undefined> {
+        try {
+            return await PythonExtensionAwareWorkspaceConfiguration
+                .tryDetectPythonPath(workspaceFolder, logger);
+        } catch (error) {
+            logger.log(
+                'crit',
+                `Failed to use pythonPath auto-detection from Python Extension: ${error}${EOL}${error.stack}`
+            );
+        }
+        return undefined;
+    }
+
+    private static async tryDetectPythonPath(
         workspaceFolder: WorkspaceFolder,
         logger: ILogger
     ): Promise<string | undefined> {
         const extension = extensions.getExtension('ms-python.python')!;
         const usingNewInterpreterStorage = extension.packageJSON?.featureFlags?.usingNewInterpreterStorage;
-
         logger.log('debug', `usingNewInterpreterStorage feature flag is '${usingNewInterpreterStorage}'`);
+
         if (usingNewInterpreterStorage) {
             if (!extension.isActive) {
                 await extension.activate();

@@ -1,9 +1,11 @@
 src/**
 test/**
+resources/**
 out/test/**
 tsconfig.json
 tslint.json
 .vscode/**
+.devcontainer/**
 .gitignore
 .travis.yml
 .azure-pipelines.yml

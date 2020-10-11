@@ -1,3 +1,7 @@
+## 0.6.1
+
+ * Fallback if failed to auto-detect pythonPath, fix vscodeignore (Issues #196)
+
 ## 0.6.0
 
  * Support for auto-reload and auto-run for tests (Issues #137 and #193)

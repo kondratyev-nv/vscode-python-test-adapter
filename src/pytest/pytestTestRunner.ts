@@ -105,6 +105,9 @@ export class PytestTestRunner implements ITestRunner {
         const runArguments = this.getRunArguments(test, config.getPytestConfiguration().pytestArguments);
         const { file, cleanupCallback } = await this.getJunitReportPath(config.getCwd(), runArguments);
         const testRunArguments = [
+            // HACK? for #198. When running specific suite pytest may detect other rootdir.
+            // See https://docs.pytest.org/en/stable/customize.html#finding-the-rootdir
+            `--rootdir=${config.getCwd()}`,
             `--junitxml=${file}`,
             '--override-ini', 'junit_logging=all',
             '--override-ini', 'junit_family=xunit1'

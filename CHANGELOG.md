@@ -1,3 +1,7 @@
+## 0.6.2
+
+ * Always set rootdir to current working directory (Issues #198)
+
 ## 0.6.1
 
  * Fallback if failed to auto-detect pythonPath, fix vscodeignore (Issues #196)

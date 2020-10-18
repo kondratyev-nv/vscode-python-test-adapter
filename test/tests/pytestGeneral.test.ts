@@ -5,6 +5,10 @@ import * as path from 'path';
 import { IWorkspaceConfiguration } from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
 import { createPytestConfiguration, extractExpectedState, extractErroredTests, findTestSuiteByLabel, logger } from '../utils/helpers';
+import {
+    PYTEST_EXPECTED_SUITES_LIST_WITHOUT_ERRORS,
+    PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS
+} from '../utils/pytest';
 
 suite('Pytest test discovery with errors', async () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
@@ -15,21 +19,8 @@ suite('Pytest test discovery with errors', async () => {
     test('should discover tests with errors', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
-        const expectedSuites = [
-            'describe_test.py',
-            'env_variables_test.py',
-            'fixture_test.py',
-            'generate_test.py',
-            'inner_fixture_test.py',
-            'string_test.py',
-            'subprocess_test.py',
-            'add_test.py',
-            'add_test.py',
-            'Discovery error in invalid_syntax_test.py',
-            'Discovery error in non_existing_module_test.py'
-        ];
         const labels = mainSuite!.children.map(x => x.label);
-        expect(labels).to.have.members(expectedSuites);
+        expect(labels).to.have.members(PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS);
     });
 });
 
@@ -58,7 +49,7 @@ suite('Run pytest tests with discovery errors', () => {
 suite('Pytest test discovery', async () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
         'pytest',
-        ['--ignore=test/import_error_tests']
+        ['--doctest-modules', '--ignore=test/import_error_tests']
     );
     const runner = new PytestTestRunner('some-id', logger());
 
@@ -88,19 +79,8 @@ suite('Pytest test discovery', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
-        const expectedSuites = [
-            'describe_test.py',
-            'env_variables_test.py',
-            'fixture_test.py',
-            'generate_test.py',
-            'inner_fixture_test.py',
-            'string_test.py',
-            'subprocess_test.py',
-            'add_test.py',
-            'add_test.py'
-        ];
         const labels = mainSuite!.children.map(x => x.label);
-        expect(labels).to.have.members(expectedSuites);
+        expect(labels).to.have.members(PYTEST_EXPECTED_SUITES_LIST_WITHOUT_ERRORS);
     });
 });
 
@@ -112,11 +92,12 @@ suite('Pytest test discovery with relative cwd folder', async () => {
     );
     const runner = new PytestTestRunner('some-id', logger());
 
-   test('should discover tests', async () => {
+    test('should discover tests', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
-        const expectedSuites = [
+        const labels = mainSuite!.children.map(x => x.label);
+        expect(labels).to.have.members([
             'describe_test.py',
             'env_variables_test.py',
             'fixture_test.py',
@@ -125,10 +106,9 @@ suite('Pytest test discovery with relative cwd folder', async () => {
             'string_test.py',
             'subprocess_test.py',
             'add_test.py',
-            'add_test.py'
-        ];
-        const labels = mainSuite!.children.map(x => x.label);
-        expect(labels).to.have.members(expectedSuites);
+            'add_test.py',
+            'test_simple.py'
+        ]);
     });
 });
 

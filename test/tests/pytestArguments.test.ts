@@ -2,11 +2,14 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 import * as fs from 'fs';
-
+import {
+    TestSuiteInfo
+} from 'vscode-test-adapter-api';
 import { isFileExists } from '../../src/utilities/fs';
 import { IWorkspaceConfiguration } from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
 import { createPytestConfiguration, extractExpectedState, extractErroredTests, findTestSuiteByLabel, logger } from '../utils/helpers';
+import { PYTEST_EXPECTED_SUITES_LIST_WITHOUT_ERRORS } from '../utils/pytest';
 
 suite('Pytest test discovery with additional arguments', async () => {
     const config: IWorkspaceConfiguration = createPytestConfiguration(
@@ -26,20 +29,8 @@ suite('Pytest test discovery with additional arguments', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
-        const expectedSuites = [
-            'arithmetic.py',
-            'describe_test.py',
-            'env_variables_test.py',
-            'fixture_test.py',
-            'generate_test.py',
-            'inner_fixture_test.py',
-            'string_test.py',
-            'subprocess_test.py',
-            'add_test.py',
-            'add_test.py'
-        ];
         const labels = mainSuite!.children.map(x => x.label);
-        expect(labels).to.have.members(expectedSuites);
+        expect(labels).to.have.members(PYTEST_EXPECTED_SUITES_LIST_WITHOUT_ERRORS);
     });
 });
 
@@ -260,5 +251,85 @@ suite('Use junit-xml argument for pytest tests', () => {
         } catch {
             /* intentionally ignored */
         }
+    });
+});
+
+suite('Run pytest suite with pytest.ini in subdirectory', () => {
+    /**
+     * In the first test we run all pytest tests and
+     * expect that both tests from test_simple.py will be executed.
+     * This is similar to running
+     *     $ pytest -v --ignore=test/import_error_tests
+     *     ...
+     *     test/submodule/test_simple.py::test_submodule_addition_passed PASSED
+     *     test/submodule/test_simple.py::test_submodule_subtraction_passed PASSED
+     *     ...
+     * from root folder (test/test_samples/pytest).
+     *
+     * In the second case we run tests from test/submodule/test_simple.py and
+     * expect that _only one of two tests_ will be executed.
+     * This is similar to running
+     *     $ pytest -v --ignore=test/import_error_tests test/submodule/test_simple.py
+     *     ...
+     *     test/submodule/test_simple.py::test_submodule_subtraction_passed PASSED
+     *     ...
+     * from root folder (test/test_samples/pytest).
+     *
+     * This is how rootdir detection in pytest works:
+     * https://docs.pytest.org/en/stable/customize.html#finding-the-rootdir
+     */
+    const runner = new PytestTestRunner('some-id', logger());
+
+    test('should discover and run all tests', async () => {
+        const config: IWorkspaceConfiguration = createPytestConfiguration(
+            'pytest',
+            [
+                '--ignore=test/import_error_tests'
+            ]);
+        const mainSuite = await runner.load(config);
+        expect(mainSuite).to.be.not.undefined;
+        expect(extractErroredTests(mainSuite!)).to.be.empty;
+        const submoduleSuite = findTestSuiteByLabel(mainSuite!, 'test_simple.py') as TestSuiteInfo;
+        expect(submoduleSuite).to.be.not.undefined;
+        expect(submoduleSuite.type).to.be.eq('suite');
+        expect(submoduleSuite.children).to.be.not.empty;
+
+        const submoduleTestToSkip = findTestSuiteByLabel(mainSuite!, 'test_submodule_addition_passed')!.id;
+        const submoduleTestToRun = findTestSuiteByLabel(mainSuite!, 'test_submodule_subtraction_passed')!.id;
+
+        const states = await runner.run(config, runner.adapterId);
+        expect(states).to.be.not.empty;
+        expect(states.map(s => s.test))
+            .and.to.include(submoduleTestToRun)
+            .and.to.include(submoduleTestToSkip);
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+        });
+    });
+
+    test('should run suite in submodule', async () => {
+        const config: IWorkspaceConfiguration = createPytestConfiguration(
+            'pytest',
+            [
+                '--ignore=test/import_error_tests'
+            ]);
+        const mainSuite = await runner.load(config);
+        expect(mainSuite).to.be.not.undefined;
+        expect(extractErroredTests(mainSuite!)).to.be.empty;
+        const submoduleSuite = findTestSuiteByLabel(mainSuite!, 'test_simple.py') as TestSuiteInfo;
+        expect(submoduleSuite).to.be.not.undefined;
+        expect(submoduleSuite.type).to.be.eq('suite');
+        expect(submoduleSuite.children).to.be.not.empty;
+
+        const submoduleTestToRun = findTestSuiteByLabel(mainSuite!, 'test_submodule_subtraction_passed')!.id;
+
+        const states = await runner.run(config, submoduleSuite.id);
+        expect(states).to.be.not.empty;
+        expect(states.map(s => s.test)).to.be.lengthOf(1).and.to.include(submoduleTestToRun);
+        states.forEach(state => {
+            const expectedState = extractExpectedState(state.test as string);
+            expect(state.state).to.be.eq(expectedState);
+        });
     });
 });

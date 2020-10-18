@@ -11,6 +11,7 @@ import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
 import { PlaceholderAwareWorkspaceConfiguration } from '../../src/configuration/placeholderAwareWorkspaceConfiguration';
 import { getPythonExecutable } from '../utils/testConfiguration';
 import { extractExpectedState, extractErroredTests, findTestSuiteByLabel, logger, findWorkspaceFolder } from '../utils/helpers';
+import { PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS } from '../utils/pytest';
 
 function createPytestConfiguration(args?: string[]): IWorkspaceConfiguration {
     const wf = findWorkspaceFolder('pytest')!;
@@ -49,21 +50,8 @@ suite('Pytest test discovery with a script', async () => {
     test('should discover tests', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
-        const expectedSuites = [
-            'describe_test.py',
-            'env_variables_test.py',
-            'fixture_test.py',
-            'generate_test.py',
-            'inner_fixture_test.py',
-            'string_test.py',
-            'subprocess_test.py',
-            'add_test.py',
-            'add_test.py',
-            'Discovery error in invalid_syntax_test.py',
-            'Discovery error in non_existing_module_test.py'
-        ];
         const labels = mainSuite!.children.map(x => x.label);
-        expect(labels).to.have.members(expectedSuites);
+        expect(labels).to.have.members(PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS);
     }).timeout(60000);
 });
 

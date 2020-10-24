@@ -51,7 +51,7 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
         type: 'test' as 'test',
         id: file,
         file,
-        label: `Discovery error in ${path.basename(file)}`,
+        label: `Error in ${path.basename(file)}`,
         errored: true,
         message,
     }));

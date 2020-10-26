@@ -10,12 +10,11 @@ export function setDescriptionForEqualLabels(
     values: { id: string, label: string, description?: string }[],
     idSeparator: string
 ) {
-    /* Assuming label is last part of id */
-    const notAllIdsEndsWithLabel = values.some(v => !v.id.endsWith(v.label));
-    if (notAllIdsEndsWithLabel) {
-        return;
-    }
-    const updatedLabels = mapUniqueLabelsById(values.map(v => ({ ...v, prefix: '' })), idSeparator);
+    const updatedLabels = mapUniqueLabelsById(
+        values.filter(v => v.id.endsWith(v.label)) // Assuming label is last part of id
+            .map(v => ({ ...v, prefix: '' })),
+        idSeparator
+    );
     values.filter(v => updatedLabels.has(v.id))
         .filter(v => updatedLabels.get(v.id)!.prefix)
         .forEach(v => {

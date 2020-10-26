@@ -5,7 +5,7 @@ import * as os from 'os';
 
 import {
     IPytestConfiguration,
-    IUnittestConfiguration, 
+    IUnittestConfiguration,
     IWorkspaceConfiguration
 } from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';

@@ -4,7 +4,14 @@ import * as path from 'path';
 
 import { IWorkspaceConfiguration } from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
-import { createPytestConfiguration, extractExpectedState, extractErroredTests, findTestSuiteByLabel, logger } from '../utils/helpers';
+import {
+    createPytestConfiguration,
+    extractExpectedState,
+    extractErroredTests,
+    findTestSuiteByLabel,
+    logger,
+    extractTopLevelLablesAndDescription
+} from '../utils/helpers';
 import {
     PYTEST_EXPECTED_SUITES_LIST_WITHOUT_ERRORS,
     PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS
@@ -19,8 +26,8 @@ suite('Pytest test discovery with errors', async () => {
     test('should discover tests with errors', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
-        const labels = mainSuite!.children.map(x => x.label);
-        expect(labels).to.have.members(PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS);
+        const labels = extractTopLevelLablesAndDescription(mainSuite!);
+        expect(labels).to.have.deep.members(PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS);
     });
 });
 
@@ -31,8 +38,8 @@ suite('Run pytest tests with discovery errors', () => {
     const runner = new PytestTestRunner('some-id', logger());
 
     [
-        'Discovery error in invalid_syntax_test.py',
-        'Discovery error in non_existing_module_test.py'
+        'Error in invalid_syntax_test.py',
+        'Error in non_existing_module_test.py'
     ].forEach(testMethod => {
         test(`should run ${testMethod} test`, async () => {
             const mainSuite = await runner.load(config);

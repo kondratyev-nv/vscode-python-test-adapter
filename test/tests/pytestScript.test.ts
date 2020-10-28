@@ -5,12 +5,20 @@ import * as os from 'os';
 
 import {
     IPytestConfiguration,
-    IUnittestConfiguration, IWorkspaceConfiguration
+    IUnittestConfiguration,
+    IWorkspaceConfiguration
 } from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
 import { PlaceholderAwareWorkspaceConfiguration } from '../../src/configuration/placeholderAwareWorkspaceConfiguration';
 import { getPythonExecutable } from '../utils/testConfiguration';
-import { extractExpectedState, extractErroredTests, findTestSuiteByLabel, logger, findWorkspaceFolder } from '../utils/helpers';
+import {
+    extractExpectedState,
+    extractErroredTests,
+    findTestSuiteByLabel,
+    logger,
+    findWorkspaceFolder,
+    extractTopLevelLablesAndDescription
+} from '../utils/helpers';
 import { PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS } from '../utils/pytest';
 
 function createPytestConfiguration(args?: string[]): IWorkspaceConfiguration {
@@ -50,8 +58,8 @@ suite('Pytest test discovery with a script', async () => {
     test('should discover tests', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
-        const labels = mainSuite!.children.map(x => x.label);
-        expect(labels).to.have.members(PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS);
+        const labels = extractTopLevelLablesAndDescription(mainSuite!);
+        expect(labels).to.have.deep.members(PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS);
     }).timeout(60000);
 });
 

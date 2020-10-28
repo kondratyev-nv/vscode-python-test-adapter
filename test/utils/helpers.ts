@@ -144,3 +144,9 @@ export async function sleep(ms: number): Promise<void> {
         setTimeout(() => resolve(), ms);
     });
 }
+
+export function extractTopLevelLablesAndDescription(suite: TestSuiteInfo): { label: string, description?: string }[] {
+    return suite.children.map(t => {
+        return { label: t.label, description: t.description };
+    });
+}

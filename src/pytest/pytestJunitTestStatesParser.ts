@@ -42,6 +42,7 @@ interface ITestCaseResult {
         $: { message: string; type: string };
     }[];
     'system-out': string[];
+    'system-err': string[];
 }
 
 type TestState = 'passed' | 'failed' | 'skipped';
@@ -93,7 +94,7 @@ function mapToTestState(testcase: ITestCaseResult, cwd: string) {
         state,
         test: testId,
         type: 'test' as 'test',
-        message: output + message,
+        message: message + EOL + EOL + output,
         decorations,
     };
 }
@@ -113,7 +114,7 @@ function getDecorations(state: TestState, line: string, message: string): { line
 }
 
 function getTestState(testcase: ITestCaseResult): [TestState, string, string] {
-    const output = empty(testcase['system-out']) ? '' : testcase['system-out'].join(EOL) + EOL;
+    const output = extractSystemOut(testcase) + extractSystemErr(testcase);
     if (testcase.error) {
         return ['failed', output, extractErrorMessage(testcase.error)];
     }
@@ -124,6 +125,14 @@ function getTestState(testcase: ITestCaseResult): [TestState, string, string] {
         return ['skipped', output, extractErrorMessage(testcase.skipped)];
     }
     return ['passed', '', output];
+}
+
+function extractSystemOut(testcase: ITestCaseResult) {
+    return empty(testcase['system-out']) ? '' : testcase['system-out'].join(EOL) + EOL;
+}
+
+function extractSystemErr(testcase: ITestCaseResult) {
+    return empty(testcase['system-err']) ? '' : testcase['system-err'].join(EOL) + EOL;
 }
 
 function extractErrorMessage(errors: { _: string, $: { message: string } }[]): string {

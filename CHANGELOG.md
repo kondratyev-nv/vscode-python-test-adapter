@@ -1,4 +1,8 @@
-## 0.6.2
+## 0.6.3
+
+ * Show stderr in test output for pytest (Issues #205)
+ 
+ ## 0.6.2
 
  * Always set rootdir to current working directory (Issues #198)
 

@@ -33,6 +33,7 @@ interface IPythonTestDebugConfig {
     debugStdLib?: boolean;
     justMyCode?: boolean;
     subProcess?: boolean;
+    envFile?: string;
 }
 
 export class PythonTestAdapter implements TestAdapter {
@@ -271,6 +272,7 @@ export class PythonTestAdapter implements TestAdapter {
                         debugStdLib: cfg.debugStdLib,
                         justMyCode: cfg.justMyCode,
                         subProcess: cfg.subProcess,
+                        envFile: cfg.envFile,
                     })),
                 emptyJsonConfiguration
             );

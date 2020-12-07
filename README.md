@@ -101,6 +101,7 @@ The extension will look for a configuration in launch.json with `"type": "python
  * debugStdLib
  * justMyCode
  * subProcess
+ * envFile
 
 For example,
 ```json
@@ -113,7 +114,8 @@ For example,
             "request": "test",
             "console": "externalTerminal",
             "justMyCode": false,
-            "stopOnEntry": true
+            "stopOnEntry": true,
+            "envFile": "${workspaceFolder}/.env.test",
         }
     ]
 }

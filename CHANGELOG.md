@@ -1,3 +1,7 @@
+## 0.6.4
+
+ * Support the debuggers envFile configuration (Issues #204, thanks to @matthewshirley)
+ 
 ## 0.6.3
 
  * Show stderr in test output for pytest (Issues #205)

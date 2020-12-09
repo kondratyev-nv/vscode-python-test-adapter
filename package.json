@@ -5,7 +5,7 @@
   "icon": "img/icon.png",
   "author": "Nikolay Kondratyev",
   "publisher": "littlefoxteam",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "license": "MIT",
   "homepage": "https://github.com/kondratyev-nv/vscode-python-test-adapter",
   "repository": {

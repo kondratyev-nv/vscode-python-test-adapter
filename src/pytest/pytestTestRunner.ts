@@ -187,35 +187,35 @@ export class PytestTestRunner implements ITestRunner {
 
     private getDiscoveryArguments(rawPytestArguments: string[]): string[] {
         const argumentParser = this.configureCommonArgumentParser();
-        const [, argumentsToPass] = argumentParser.parseKnownArgs(rawPytestArguments);
+        const [, argumentsToPass] = argumentParser.parse_known_args(rawPytestArguments);
         return ['--collect-only'].concat(argumentsToPass);
     }
 
     private getRunArguments(test: string, rawPytestArguments: string[]): IRunArguments {
         const argumentParser = this.configureCommonArgumentParser();
-        argumentParser.addArgument(
-            ['--setuponly', '--setup-only'],
-            { action: 'storeTrue' });
-        argumentParser.addArgument(
-            ['--setupshow', '--setup-show'],
-            { action: 'storeTrue' });
-        argumentParser.addArgument(
-            ['--setupplan', '--setup-plan'],
-            { action: 'storeTrue' });
-        argumentParser.addArgument(
-            ['--collectonly', '--collect-only'],
-            { action: 'storeTrue' });
-        argumentParser.addArgument(
-            ['--trace'],
-            { dest: 'trace', action: 'storeTrue' });
+        argumentParser.add_argument(
+            '--setuponly', '--setup-only',
+            { action: 'store_true' });
+        argumentParser.add_argument(
+            '--setupshow', '--setup-show',
+            { action: 'store_true' });
+        argumentParser.add_argument(
+            '--setupplan', '--setup-plan',
+            { action: 'store_true' });
+        argumentParser.add_argument(
+            '--collectonly', '--collect-only',
+            { action: 'store_true' });
+        argumentParser.add_argument(
+            '--trace',
+            { dest: 'trace', action: 'store_true' });
 
         // Handle positional arguments (list of tests to run).
         // We hande them only in 'Run' configuration, because they might be used as filter on discovery stage.
-        argumentParser.addArgument(
-            ['tests'],
+        argumentParser.add_argument(
+            'tests',
             { nargs: '*' });
 
-        const [knownArguments, argumentsToPass] = argumentParser.parseKnownArgs(rawPytestArguments);
+        const [knownArguments, argumentsToPass] = argumentParser.parse_known_args(rawPytestArguments);
         return {
             junitReportPath: (knownArguments as { xmlpath?: string }).xmlpath,
             argumentsToPass: argumentsToPass.concat(
@@ -228,49 +228,49 @@ export class PytestTestRunner implements ITestRunner {
 
     private configureCommonArgumentParser() {
         const argumentParser = new ArgumentParser({
-            debug: true, // Argument errors throw exception in debug mode and process.exit in normal.
+            exit_on_error: false,
         });
-        argumentParser.addArgument(
-            ['--rootdir'],
+        argumentParser.add_argument(
+            '--rootdir',
             { action: 'store', dest: 'rootdir' });
-        argumentParser.addArgument(
-            ['-x', '--exitfirst'],
-            { dest: 'maxfail', action: 'storeConst', constant: 1 });
-        argumentParser.addArgument(
-            ['--maxfail'],
-            { dest: 'maxfail', action: 'store', defaultValue: 0 });
-        argumentParser.addArgument(
-            ['--fixtures', '--funcargs'],
-            { action: 'storeTrue', dest: 'showfixtures', defaultValue: false });
-        argumentParser.addArgument(
-            ['--fixtures-per-test'],
-            { action: 'storeTrue', dest: 'show_fixtures_per_test', defaultValue: false });
-        argumentParser.addArgument(
-            ['--lf', '--last-failed'],
-            { action: 'storeTrue', dest: 'lf' });
-        argumentParser.addArgument(
-            ['--ff', '--failed-first'],
-            { action: 'storeTrue', dest: 'failedfirst' });
-        argumentParser.addArgument(
-            ['--nf', '--new-first'],
-            { action: 'storeTrue', dest: 'newfirst' });
-        argumentParser.addArgument(
-            ['--cache-show'],
-            { action: 'storeTrue', dest: 'cacheshow' });
-        argumentParser.addArgument(
-            ['--lfnf', '--last-failed-no-failures'],
-            { action: 'store', dest: 'last_failed_no_failures', choices: ['all', 'none'], defaultValue: 'all' });
-        argumentParser.addArgument(
-            ['--pdb'],
-            { dest: 'usepdb', action: 'storeTrue' });
-        argumentParser.addArgument(
-            ['--pdbcls'],
+        argumentParser.add_argument(
+            '-x', '--exitfirst',
+            { dest: 'maxfail', action: 'store_const', const: 1 });
+        argumentParser.add_argument(
+            '--maxfail',
+            { dest: 'maxfail', action: 'store', default: 0 });
+        argumentParser.add_argument(
+            '--fixtures', '--funcargs',
+            { action: 'store_true', dest: 'showfixtures', default: false });
+        argumentParser.add_argument(
+            '--fixtures-per-test',
+            { action: 'store_true', dest: 'show_fixtures_per_test', default: false });
+        argumentParser.add_argument(
+            '--lf', '--last-failed',
+            { action: 'store_true', dest: 'lf' });
+        argumentParser.add_argument(
+            '--ff', '--failed-first',
+            { action: 'store_true', dest: 'failedfirst' });
+        argumentParser.add_argument(
+            '--nf', '--new-first',
+            { action: 'store_true', dest: 'newfirst' });
+        argumentParser.add_argument(
+            '--cache-show',
+            { action: 'store_true', dest: 'cacheshow' });
+        argumentParser.add_argument(
+            '--lfnf', '--last-failed-no-failures',
+            { action: 'store', dest: 'last_failed_no_failures', choices: ['all', 'none'], default: 'all' });
+        argumentParser.add_argument(
+            '--pdb',
+            { dest: 'usepdb', action: 'store_true' });
+        argumentParser.add_argument(
+            '--pdbcls',
             { dest: 'usepdb_cls' });
-        argumentParser.addArgument(
-            ['--junitxml', '--junit-xml'],
+        argumentParser.add_argument(
+            '--junitxml', '--junit-xml',
             { action: 'store', dest: 'xmlpath' });
-        argumentParser.addArgument(
-            ['--junitprefix', '--junit-prefix'],
+        argumentParser.add_argument(
+            '--junitprefix', '--junit-prefix',
             { action: 'store' });
         return argumentParser;
     }

@@ -80,7 +80,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     }
 
     private getUnitTestArguments(): IUnittestArguments {
-        const [known] = this.unittestArgumentParser.parseKnownArgs(
+        const [known] = this.unittestArgumentParser.parse_known_args(
             this.getConfigurationValueOrDefault(
                 this.pythonConfiguration,
                 ['unitTest.unittestArgs', 'testing.unittestArgs'],
@@ -120,15 +120,15 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
 
     private configureUnittestArgumentParser() {
         const argumentParser = new ArgumentParser({
-            debug: true, // Argument errors throw exception in debug mode and process.exit in normal.
+            exit_on_error: false,
         });
-        argumentParser.addArgument(['-p', '--pattern'], {
+        argumentParser.add_argument('-p', '--pattern', {
             dest: 'pattern',
-            defaultValue: 'test*.py',
+            default: 'test*.py',
         });
-        argumentParser.addArgument(['-s', '--start-directory'], {
+        argumentParser.add_argument('-s', '--start-directory', {
             dest: 'startDirectory',
-            defaultValue: '.',
+            default: '.',
         });
         return argumentParser;
     }

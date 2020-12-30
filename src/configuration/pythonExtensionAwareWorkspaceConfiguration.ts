@@ -8,6 +8,8 @@ import {
     IWorkspaceConfiguration
 } from './workspaceConfiguration';
 
+const MS_PYTHON_EXTENSION_ID = 'ms-python.python';
+
 export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceConfiguration {
     private constructor(
         private readonly configuration: IWorkspaceConfiguration,
@@ -49,7 +51,11 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
         workspaceFolder: WorkspaceFolder,
         logger: ILogger
     ): Promise<string | undefined> {
-        const extension = extensions.getExtension('ms-python.python')!;
+        const extension = extensions.getExtension(MS_PYTHON_EXTENSION_ID);
+        if (!extension) {
+            logger.log('debug', `Extension ${MS_PYTHON_EXTENSION_ID} not found, skipping pythonPath auto-detection`);
+            return undefined;
+        }
         const usingNewInterpreterStorage = extension.packageJSON?.featureFlags?.usingNewInterpreterStorage;
         logger.log('debug', `usingNewInterpreterStorage feature flag is '${usingNewInterpreterStorage}'`);
 

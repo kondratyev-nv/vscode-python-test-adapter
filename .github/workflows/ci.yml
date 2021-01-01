@@ -7,13 +7,22 @@ on:
     branches: [ master ]
 
 jobs:
-  build_and_test:
+  build:
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        python-version: ['3.5', '3.6', '3.7', '3.8']
+        python-version: ['2.7', '3.6', '3.7', '3.8']
     runs-on: ${{ matrix.os }}
     steps:
+    - name: Cleanup pre-installed tools
+      if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' }}
+      run: |
+        # This is a fix for https://github.com/actions/virtual-environments/issues/1918
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
@@ -35,6 +44,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
+    - name: Show PYTHONPATH
+      run: |
+        which python
+        python -c "import sys; print(sys.path)"
+      shell: bash
     - name: Run tests
       uses: GabrielBB/xvfb-action@v1
       with:

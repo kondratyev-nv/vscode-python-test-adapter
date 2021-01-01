@@ -279,7 +279,7 @@ export class PytestTestRunner implements ITestRunner {
         return new Promise<{ file: string, cleanupCallback: () => void }>((resolve, reject) => {
             tmp.file((error, file, _, cleanupCallback) => {
                 if (error) {
-                    reject(`Can not create temporary file ${file}: ${error}`);
+                    reject(new Error(`Can not create temporary file ${file}: ${error}`));
                 }
                 resolve({ file, cleanupCallback });
             });

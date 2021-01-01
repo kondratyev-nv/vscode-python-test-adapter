@@ -49,23 +49,23 @@ class CommandProcessExecution implements IProcessExecution {
 
             this.commandProcess.once('close', exitCode => {
                 if (this.acceptedExitCodes.indexOf(exitCode) < 0 && !this.commandProcess.killed) {
-                    reject(`Process exited with code ${exitCode}: ${decode(stderrBuffer)}`);
+                    reject(new Error(`Process exited with code ${exitCode}: ${decode(stderrBuffer)}`));
                     return;
                 }
 
                 const output = decode(stdoutBuffer);
                 if (!output) {
                     if (stdoutBuffer.length > 0) {
-                        reject('Can not decode output from the process');
+                        reject(new Error('Can not decode output from the process'));
                     } else if (stderrBuffer.length > 0 && !this.commandProcess.killed) {
-                        reject(`Process returned an error:${EOL}${decode(stderrBuffer)}`);
+                        reject(new Error(`Process returned an error:${EOL}${decode(stderrBuffer)}`));
                     }
                 }
                 resolve({ exitCode, output });
             });
 
             this.commandProcess.once('error', error => {
-                reject(`Error occurred during process execution: ${error}`);
+                reject(new Error(`Error occurred during process execution: ${error}`));
             });
         });
     }

@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
         python-version: ['2.7', '3.6', '3.7', '3.8']
     runs-on: ${{ matrix.os }}
     steps:
@@ -47,7 +47,7 @@ jobs:
     - name: Show PYTHONPATH
       run: |
         which python
-        python -c "import sys; print(sys.path)"
+        python -c "import sys; print(sys.version); print(sys.path);"
       shell: bash
     - name: Run tests
       uses: GabrielBB/xvfb-action@v1

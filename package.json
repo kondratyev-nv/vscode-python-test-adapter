@@ -17,8 +17,8 @@
   },
   "badges": [
     {
-      "url": "https://travis-ci.com/kondratyev-nv/vscode-python-test-adapter.svg?branch=master",
-      "href": "https://travis-ci.com/kondratyev-nv/vscode-python-test-adapter",
+      "url": "https://github.com/kondratyev-nv/vscode-python-test-adapter/workflows/GitHub%20Actions%20CI/badge.svg",
+      "href": "https://github.com/kondratyev-nv/vscode-python-test-adapter/actions?query=workflow%3A%22GitHub+Actions+CI%22+branch%3Amaster",
       "description": "Continuous integration (Travis)"
     },
     {

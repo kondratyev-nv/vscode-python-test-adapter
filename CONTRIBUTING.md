@@ -1,13 +1,13 @@
-## Building and testing extension
+# Building and testing extension
 
-### Prerequisites
+## Prerequisites
 
 1. Node.js (>= 8.10.0), npm >= 5.8.0
 1. Python 2.7 or Python >= 3.4 (required only for testing the extension and running tests)
 1. Windows, macOS, or Linux
 1. Visual Studio Code
 
-### Setup
+## Setup
 
 ```shell
 git clone https://github.com/kondratyev-nv/vscode-python-test-adapter
@@ -16,11 +16,12 @@ npm ci
 ```
 
 To run tests from the VS Code you will also need additional python modules to be installed
+
 ```shell
 python -m pip install --upgrade -r requirements.txt
 ```
 
-### Build
+## Build
 
 Run the `Build` tasks from the [Command Palette](https://code.visualstudio.com/docs/editor/tasks) (short cut `CTRL+SHIFT+B` or `⇧⌘B`)
 
@@ -30,11 +31,11 @@ You can also compile from the command-line:
 npm run build
 ```
 
-### Errors and Warnings
+## Errors and Warnings
 
 TypeScript errors and warnings will be displayed in the `Problems` window of Visual Studio Code.
 
-### Validate your changes
+## Validate your changes
 
 To test the changes, launch a development version of VS Code using the `Run extension` launch option.
 

@@ -90,21 +90,34 @@ function toSuites(suites: ITestCaseSplit[] | undefined): TestSuiteInfo[] {
         }));
 }
 
-function toFirstLevelTests(tests: ITestCaseSplit[] | undefined): TestInfo[] {
+function toFirstLevelTests(tests: ITestCaseSplit[] | undefined): (TestSuiteInfo | TestInfo)[] {
     if (!tests) {
         return [];
     }
-    return tests.map(test => {
-        const testId = `${test.idHead}::${test.idTail}`;
-        return {
-            id: testId,
-            label: test.idTail,
-            type: 'test' as 'test',
-            file: test.path,
-            line: test.line,
-            tooltip: testId,
-        };
-    });
+    const testsByParameterized = groupBy(tests, t => t.idTail.includes('['));
+    const basicTests: (TestSuiteInfo | TestInfo)[] = (testsByParameterized.get(false) || []).map(toTest);
+    const parameterizedSuites: (TestSuiteInfo | TestInfo)[] =
+        Array.from(groupBy(testsByParameterized.get(true) || [], t => t.idTail.substring(0, t.idTail.indexOf('['))).entries())
+            .map(([baseName, parameterizedTests]) => ({
+                type: 'suite' as 'suite',
+                id: `${parameterizedTests[0].idHead}::${baseName}`,
+                label: baseName,
+                file: parameterizedTests[0].path,
+                children: parameterizedTests.map(toTest)
+            }));
+    return basicTests.concat(parameterizedSuites);
+}
+
+function toTest(test: ITestCaseSplit): TestInfo {
+    const testId = `${test.idHead}::${test.idTail}`;
+    return {
+        id: testId,
+        label: test.idTail,
+        type: 'test' as 'test',
+        file: test.path,
+        line: test.line,
+        tooltip: testId,
+    };
 }
 
 function splitTest(test: ITestCaseSplit) {

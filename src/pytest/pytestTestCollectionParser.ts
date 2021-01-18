@@ -96,15 +96,17 @@ function toFirstLevelTests(tests: ITestCaseSplit[] | undefined): (TestSuiteInfo 
     }
     const testsByParameterized = groupBy(tests, t => t.idTail.includes('['));
     const basicTests: (TestSuiteInfo | TestInfo)[] = (testsByParameterized.get(false) || []).map(toTest);
-    const parameterizedSuites: (TestSuiteInfo | TestInfo)[] =
-        Array.from(groupBy(testsByParameterized.get(true) || [], t => t.idTail.substring(0, t.idTail.indexOf('['))).entries())
-            .map(([baseName, parameterizedTests]) => ({
-                type: 'suite' as 'suite',
-                id: `${parameterizedTests[0].idHead}::${baseName}`,
-                label: baseName,
-                file: parameterizedTests[0].path,
-                children: parameterizedTests.map(toTest)
-            }));
+    const parameterizedTestsBySuite = groupBy(
+        testsByParameterized.get(true) || [],
+        t => t.idTail.substring(0, t.idTail.indexOf('[')));
+    const parameterizedSuites: (TestSuiteInfo | TestInfo)[] = Array.from(parameterizedTestsBySuite.entries())
+        .map(([baseName, parameterizedTests]) => ({
+            type: 'suite' as 'suite',
+            id: `${parameterizedTests[0].idHead}::${baseName}`,
+            label: baseName,
+            file: parameterizedTests[0].path,
+            children: parameterizedTests.map(toTest),
+        }));
     return basicTests.concat(parameterizedSuites);
 }
 

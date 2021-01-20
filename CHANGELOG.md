@@ -1,22 +1,27 @@
+## 0.6.6
+
+* Add test suites for parameterized tests (Issue #155)
+* Migrated build from TravisCI to GitHub Actions
+
 ## 0.6.5
 
 * Update dependencies
 
 ## 0.6.4
 
-* Support the debuggers envFile configuration (Issues #204, thanks to @matthewshirley)
+* Support the debuggers envFile configuration (Issue #204, thanks to @matthewshirley)
 
 ## 0.6.3
 
-* Show stderr in test output for pytest (Issues #205)
+* Show stderr in test output for pytest (Issue #205)
 
 ## 0.6.2
 
-* Always set rootdir to current working directory (Issues #198)
+* Always set rootdir to current working directory (Issue #198)
 
 ## 0.6.1
 
-* Fallback if failed to auto-detect pythonPath, fix vscodeignore (Issues #196)
+* Fallback if failed to auto-detect pythonPath, fix vscodeignore (Issue #196)
 
 ## 0.6.0
 

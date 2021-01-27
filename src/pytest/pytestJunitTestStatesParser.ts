@@ -25,6 +25,7 @@ interface ITestCaseDescription {
     file: string;
     line: string;
     name: string;
+    time: number;
 }
 
 interface ITestCaseResult {
@@ -68,7 +69,7 @@ function parseXml(content: string): Promise<any> {
     });
 }
 
-function parseTestResults(parserResult: any, cwd: string) {
+function parseTestResults(parserResult: any, cwd: string): TestEvent[] {
     if (!parserResult) {
         return [];
     }
@@ -83,12 +84,12 @@ function parseTestResults(parserResult: any, cwd: string) {
     }).reduce((r, x) => r.concat(x), []);
 }
 
-function mapToTestState(testcase: ITestCaseResult, cwd: string) {
+function mapToTestState(testcase: ITestCaseResult, cwd: string): TestEvent | undefined {
     const testId = buildTestName(cwd, testcase.$);
     if (!testId) {
         return undefined;
     }
-    const [state, output, message] = getTestState(testcase);
+    const [state, output, message, time] = getTestState(testcase);
     const decorations = getDecorations(state, testcase.$.line, message);
     return {
         state,
@@ -96,6 +97,7 @@ function mapToTestState(testcase: ITestCaseResult, cwd: string) {
         type: 'test' as 'test',
         message: message + EOL + EOL + output,
         decorations,
+        description: time ? `(${time}s)` : undefined,
     };
 }
 
@@ -113,18 +115,19 @@ function getDecorations(state: TestState, line: string, message: string): { line
     }];
 }
 
-function getTestState(testcase: ITestCaseResult): [TestState, string, string] {
+function getTestState(testcase: ITestCaseResult): [TestState, string, string, number | undefined] {
     const output = extractSystemOut(testcase) + extractSystemErr(testcase);
+    const executionTime = testcase.$.time;
     if (testcase.error) {
-        return ['failed', output, extractErrorMessage(testcase.error)];
+        return ['failed', output, extractErrorMessage(testcase.error), executionTime];
     }
     if (testcase.failure) {
-        return ['failed', output, extractErrorMessage(testcase.failure)];
+        return ['failed', output, extractErrorMessage(testcase.failure), executionTime];
     }
     if (testcase.skipped) {
-        return ['skipped', output, extractErrorMessage(testcase.skipped)];
+        return ['skipped', output, extractErrorMessage(testcase.skipped), executionTime];
     }
-    return ['passed', '', output];
+    return ['passed', '', output, executionTime];
 }
 
 function extractSystemOut(testcase: ITestCaseResult) {

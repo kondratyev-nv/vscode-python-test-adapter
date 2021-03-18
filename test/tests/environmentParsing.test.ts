@@ -6,6 +6,7 @@ import { IPytestConfiguration, IUnittestConfiguration } from '../../src/configur
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
 import { UnittestTestRunner } from '../../src/unittest/unittestTestRunner';
 import { findWorkspaceFolder, logger } from '../utils/helpers';
+import { getPythonExecutable } from '../utils/testConfiguration';
 
 [
     {
@@ -22,7 +23,7 @@ import { findWorkspaceFolder, logger } from '../utils/helpers';
             const wf = findWorkspaceFolder('bad_env_file')!;
             const config = {
                 pythonPath(): string {
-                    return 'python';
+                    return getPythonExecutable();
                 },
                 getCwd(): string {
                     return wf.uri.fsPath;
@@ -58,7 +59,7 @@ import { findWorkspaceFolder, logger } from '../utils/helpers';
             const wf = findWorkspaceFolder('bad_env_file')!;
             const config = {
                 pythonPath(): string {
-                    return 'python';
+                    return getPythonExecutable();
                 },
                 getCwd(): string {
                     return wf.uri.fsPath;

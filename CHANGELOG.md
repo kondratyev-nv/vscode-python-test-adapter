@@ -1,3 +1,7 @@
+## 0.6.7
+
+* Hacky fix for pytest result parsing (Issue #233)
+
 ## 0.6.6
 
 * Add test suites for parameterized tests (Issue #155)

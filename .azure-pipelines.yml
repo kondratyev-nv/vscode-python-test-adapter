@@ -76,19 +76,14 @@ jobs:
     matrix:
       Python27:
         python.version: '2.7'
-        TOXENV: 'py27'
       Python35:
         python.version: '3.5'
-        TOXENV: 'py35'
       Python36:
         python.version: '3.6'
-        TOXENV: 'py36'
       Python37:
         python.version: '3.7'
-        TOXENV: 'py37'
       Python38:
         python.version: '3.8'
-        TOXENV: 'py38'
     maxParallel: 4
   steps:
   - task: UsePythonVersion@0
@@ -113,15 +108,14 @@ jobs:
       customCommand: 'run build'
   - script: python -m pip install --upgrade pip
     displayName: 'Update pip'
-  - script: |
-      python -m pip install --upgrade setuptools tox
+  - script: python -m pip install -r requirements.txt
     displayName: 'Install requirements'
   - script: npm run lint
     displayName: 'Linting'
   - script: npm audit --production
     displayName: 'Npm security audit'
     continueOnError: 'true'
-  - script: tox -e $(TOXENV)
+  - script: VSCODE_PYTHON=$(which python) npm test
     displayName: 'Run tests'
   - task: PublishTestResults@2
     condition: succeededOrFailed()

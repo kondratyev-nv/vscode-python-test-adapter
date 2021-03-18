@@ -6,6 +6,7 @@ import * as xml2js from 'xml2js';
 
 import { empty } from '../utilities/collections';
 import { readFile } from '../utilities/fs';
+import { startsWith } from '../utilities/strings';
 
 interface ITestSuiteResult {
     $: {
@@ -173,13 +174,13 @@ function matchModule(testClass: string, testFile: string): { matched: boolean, p
         return { matched: false, position: -1 };
     }
     const { name, ext } = path.parse(testFile);
-    if (testClass.startsWith(name, position)) {
+    if (startsWith(testClass, name, position)) {
         let moduleEndPosition = position + name.length;
         // There is a possibility that class name contains file extension, see Tavern test plugin, for example.
-        if (ext && testClass.startsWith(ext, moduleEndPosition)) {
+        if (ext && startsWith(testClass, ext, moduleEndPosition)) {
             moduleEndPosition += ext.length;
         }
-        if (testClass.startsWith('.', moduleEndPosition)) {
+        if (startsWith(testClass, '.', moduleEndPosition)) {
             moduleEndPosition += 1;
         }
         return { matched: true, position: moduleEndPosition };
@@ -195,7 +196,7 @@ function matchParentPath(testClass: string, testFile: string): { matched: boolea
     const testFileParentPath = parentPathToMatch.split(path.sep);
     let index = 0;
     const allClassPartsMatchesPath = testFileParentPath.every(pathPart => {
-        if (testClass.startsWith(pathPart + '.', index)) {
+        if (startsWith(testClass, pathPart + '.', index)) {
             index += pathPart.length + 1;
             return true;
         }

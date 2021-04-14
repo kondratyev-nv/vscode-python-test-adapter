@@ -157,6 +157,7 @@ export class PytestTestRunner implements ITestRunner {
         const updatedPythonPath = [
             config.getCwd(),
             environment.PYTHONPATH,
+            process.env.PYTHONPATH,
             DISCOVERY_OUTPUT_PLUGIN_INFO.PACKAGE_PATH
         ].filter(item => item).join(path.delimiter);
 

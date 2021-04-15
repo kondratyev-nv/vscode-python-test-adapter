@@ -152,22 +152,22 @@ export class PytestTestRunner implements ITestRunner {
     }
 
     private async loadEnvironmentVariables(config: IWorkspaceConfiguration): Promise<IEnvironmentVariables> {
-        const environment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
+        const envFileEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
 
         const updatedPythonPath = [
             config.getCwd(),
-            environment.PYTHONPATH,
+            envFileEnvironment.PYTHONPATH,
             process.env.PYTHONPATH,
             DISCOVERY_OUTPUT_PLUGIN_INFO.PACKAGE_PATH
         ].filter(item => item).join(path.delimiter);
 
         const updatedPytestPlugins = [
-            environment.PYTEST_PLUGINS,
+            envFileEnvironment.PYTEST_PLUGINS,
             DISCOVERY_OUTPUT_PLUGIN_INFO.MODULE_NAME
         ].filter(item => item).join(',');
 
         return {
-            ...environment,
+            ...envFileEnvironment,
             PYTHONPATH: updatedPythonPath,
             PYTEST_PLUGINS: updatedPytestPlugins,
         };

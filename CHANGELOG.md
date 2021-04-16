@@ -1,3 +1,7 @@
+## 0.6.8
+
+* Include global PYTHONPATH when overriding PYTHONPATH for pytest (Issue #230)
+
 ## 0.6.7
 
 * Hacky fix for pytest result parsing (Issue #233)

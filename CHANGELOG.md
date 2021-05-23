@@ -1,6 +1,6 @@
 ## 0.6.8
 
-* Include global PYTHONPATH when overriding PYTHONPATH for pytest (Issue #230)
+* Include global PYTHONPATH when overriding PYTHONPATH for pytest (Issue #230, thanks to @bergkvist)
 
 ## 0.6.7
 

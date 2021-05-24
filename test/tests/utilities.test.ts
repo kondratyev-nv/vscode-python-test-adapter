@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 import { setDescriptionForEqualLabels } from '../../src/utilities/tests';
+import { startsWith, concatNonEmpty } from '../../src/utilities/strings';
 
 suite('Description for equal labels', async () => {
     test('should not be set for tests with distinctive labels', async () => {
@@ -88,5 +89,31 @@ suite('Description for equal labels', async () => {
                 label: 'Error in module3.py',
             }
         ])
+    });
+});
+
+suite('String utilities - startsWith', async () => {
+    test('should return true for substring with offset', async () => {
+        expect(startsWith('abcdef', 'cd', 2)).to.be.true;
+    });
+
+    test('should return true for the beginning of the string', async () => {
+        expect(startsWith('abcdef', 'abc')).to.be.true;
+    });
+
+    test('should return false for invalid offet', async () => {
+        expect(startsWith('abcdef', 'cd', 1)).to.be.false;
+        expect(startsWith('abcdef', 'cd', 3)).to.be.false;
+    });
+});
+
+suite('String utilities - concatNonEmpty', async () => {
+    test('should filter empty strings', async () => {
+        expect(concatNonEmpty('.', 'ab', '', '', 'cd', 'e', '', 'f', '')).to.be.eq('ab.cd.e.f');
+        expect(concatNonEmpty('.', '', '', 'ab', 'cd', 'e', '', 'f', '')).to.be.eq('ab.cd.e.f');
+    });
+
+    test('should return empty string for empty strings', async () => {
+        expect(concatNonEmpty('.', '', '', '', '')).to.be.empty;
     });
 });

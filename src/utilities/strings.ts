@@ -14,3 +14,14 @@
 export function startsWith(s: string, p: string, offset: number = 0): boolean {
     return s.substring(offset).startsWith(p);
 }
+
+/**
+ * Contatenate non-empty strings of an array into a single string, separated by the specified glue string.
+ *
+ * @param glue A string used to separate one element of the array from the next in the resulting string.
+ * @param s List of strings to filter and concatenate.
+ * @returns All non-empty strings of an array contatenated into a string, separated by the specified glue string.
+ */
+export function concatNonEmpty(glue: string, ...s: string[]): string {
+    return s.filter(p => p).join(glue);
+}

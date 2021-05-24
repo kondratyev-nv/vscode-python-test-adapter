@@ -109,7 +109,6 @@ export class PytestTestRunner implements ITestRunner {
             // See https://docs.pytest.org/en/stable/customize.html#finding-the-rootdir
             `--rootdir=${config.getCwd()}`,
             `--junitxml=${file}`,
-            '--override-ini', 'junit_logging=all',
             '--override-ini', 'junit_family=xunit1'
         ].concat(runArguments.argumentsToPass);
         this.logger.log('info', `Running pytest with arguments: ${testRunArguments.join(', ')}`);

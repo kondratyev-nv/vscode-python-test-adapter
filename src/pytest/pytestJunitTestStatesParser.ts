@@ -6,7 +6,7 @@ import * as xml2js from 'xml2js';
 
 import { empty } from '../utilities/collections';
 import { readFile } from '../utilities/fs';
-import { startsWith } from '../utilities/strings';
+import { startsWith, concatNonEmpty } from '../utilities/strings';
 
 interface ITestSuiteResult {
     $: {
@@ -96,7 +96,7 @@ function mapToTestState(testcase: ITestCaseResult, cwd: string): TestEvent | und
         state,
         test: testId,
         type: 'test' as 'test',
-        message: message + EOL + EOL + output,
+        message: concatNonEmpty(EOL + EOL, message, output),
         decorations,
         description: time ? `(${time}s)` : undefined,
     };
@@ -117,7 +117,7 @@ function getDecorations(state: TestState, line: string, message: string): { line
 }
 
 function getTestState(testcase: ITestCaseResult): [TestState, string, string, number | undefined] {
-    const output = extractSystemOut(testcase) + extractSystemErr(testcase);
+    const output = concatNonEmpty(EOL, extractSystemOut(testcase), extractSystemErr(testcase));
     const executionTime = testcase.$.time;
     if (testcase.error) {
         return ['failed', output, extractErrorMessage(testcase.error), executionTime];
@@ -132,18 +132,18 @@ function getTestState(testcase: ITestCaseResult): [TestState, string, string, nu
 }
 
 function extractSystemOut(testcase: ITestCaseResult) {
-    return empty(testcase['system-out']) ? '' : testcase['system-out'].join(EOL) + EOL;
+    return empty(testcase['system-out']) ? '' : testcase['system-out'].join(EOL);
 }
 
 function extractSystemErr(testcase: ITestCaseResult) {
-    return empty(testcase['system-err']) ? '' : testcase['system-err'].join(EOL) + EOL;
+    return empty(testcase['system-err']) ? '' : testcase['system-err'].join(EOL);
 }
 
 function extractErrorMessage(errors: { _: string, $: { message: string } }[]): string {
     if (!errors || !errors.length) {
         return '';
     }
-    return errors.map(e => e.$.message + EOL + e._).join(EOL);
+    return concatNonEmpty(EOL, ...errors.map(e => concatNonEmpty(EOL, e.$.message, e._)));
 }
 
 function buildTestName(cwd: string, test: ITestCaseDescription): string | undefined {

@@ -15,9 +15,11 @@ import { IConfigurationFactory } from './configuration/configurationFactory';
 import { ILogger } from './logging/logger';
 import { ITestRunner } from './testRunner';
 import * as path from 'path';
+import { EOL } from 'os';
 import { parse } from 'jsonc-parser';
 import { isFileExists, readFile } from './utilities/fs';
 import { empty, firstOrDefault } from './utilities/collections';
+import { concatNonEmpty } from './utilities/strings';
 import { IEnvironmentVariables, EnvironmentVariablesLoader } from './environmentVariablesLoader';
 
 type TestRunEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent;
@@ -123,8 +125,9 @@ export class PythonTestAdapter implements TestAdapter {
 
             this.testsEmitter.fire({ type: 'finished', suite });
         } catch (error) {
-            this.logger.log('crit', `Test loading failed: ${error}`);
-            this.testsEmitter.fire({ type: 'finished', suite: undefined, errorMessage: error.stack });
+            const errorMessage = `Test loading failed: ${concatNonEmpty(EOL, error, error.stack)}`;
+            this.logger.log('crit', errorMessage);
+            this.testsEmitter.fire({ type: 'finished', suite: undefined, errorMessage });
         }
     }
 

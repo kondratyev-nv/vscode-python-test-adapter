@@ -40,6 +40,7 @@ class CommandProcessExecution implements IProcessExecution {
         this.pid = this.commandProcess.pid;
         this.acceptedExitCodes = configuration?.acceptedExitCodes || [0];
     }
+    
     public async complete(): Promise<{ exitCode: number; output: string; }> {
         return new Promise<{ exitCode: number, output: string }>((resolve, reject) => {
             const stdoutBuffer: Buffer[] = [];
@@ -48,7 +49,7 @@ class CommandProcessExecution implements IProcessExecution {
             this.commandProcess.stderr!.on('data', chunk => stderrBuffer.push(chunk));
 
             this.commandProcess.once('close', exitCode => {
-                if (this.acceptedExitCodes.indexOf(exitCode) < 0 && !this.commandProcess.killed) {
+                if (this.exitedWithUnexpectedExitCode(exitCode) && !this.commandProcess.killed) {
                     reject(new Error(`Process exited with code ${exitCode}: ${decode(stderrBuffer)}`));
                     return;
                 }
@@ -61,7 +62,7 @@ class CommandProcessExecution implements IProcessExecution {
                         reject(new Error(`Process returned an error:${EOL}${decode(stderrBuffer)}`));
                     }
                 }
-                resolve({ exitCode, output });
+                resolve({ exitCode: exitCode || 0, output });
             });
 
             this.commandProcess.once('error', error => {
@@ -69,8 +70,13 @@ class CommandProcessExecution implements IProcessExecution {
             });
         });
     }
+    
     public cancel(): void {
         this.commandProcess.kill('SIGINT');
+    }
+
+    private exitedWithUnexpectedExitCode(exitCode: number | null): boolean {
+        return exitCode !== null && this.acceptedExitCodes.indexOf(exitCode) < 0;
     }
 }
 

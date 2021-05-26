@@ -32,9 +32,11 @@ class PythonProcessExecution implements IProcessExecution {
             });
         this.pid = this.pythonProcess.pid;
     }
+    
     public async complete(): Promise<{ exitCode: number; output: string; }> {
         return this.pythonProcess.complete();
     }
+    
     public cancel(): void {
         this.pythonProcess.cancel();
     }

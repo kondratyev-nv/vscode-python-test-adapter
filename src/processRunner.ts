@@ -40,7 +40,7 @@ class CommandProcessExecution implements IProcessExecution {
         this.pid = this.commandProcess.pid;
         this.acceptedExitCodes = configuration?.acceptedExitCodes || [0];
     }
-    
+
     public async complete(): Promise<{ exitCode: number; output: string; }> {
         return new Promise<{ exitCode: number, output: string }>((resolve, reject) => {
             const stdoutBuffer: Buffer[] = [];
@@ -70,7 +70,7 @@ class CommandProcessExecution implements IProcessExecution {
             });
         });
     }
-    
+
     public cancel(): void {
         this.commandProcess.kill('SIGINT');
     }

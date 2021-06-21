@@ -1,6 +1,5 @@
 import { ChildProcess, spawn } from 'child_process';
 import * as iconv from 'iconv-lite';
-import { EOL } from 'os';
 
 export interface IProcessRunConfiguration {
     cwd?: string;
@@ -58,8 +57,6 @@ class CommandProcessExecution implements IProcessExecution {
                 if (!output) {
                     if (stdoutBuffer.length > 0) {
                         reject(new Error('Can not decode output from the process'));
-                    } else if (stderrBuffer.length > 0 && !this.commandProcess.killed) {
-                        reject(new Error(`Process returned an error:${EOL}${decode(stderrBuffer)}`));
                     }
                 }
                 resolve({ exitCode: exitCode || 0, output });

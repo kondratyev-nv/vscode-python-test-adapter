@@ -5,6 +5,7 @@ import * as os from 'os';
 
 import {
     IPytestConfiguration,
+    ITestplanConfiguration,
     IUnittestConfiguration,
     IWorkspaceConfiguration
 } from '../../src/configuration/workspaceConfiguration';
@@ -46,6 +47,13 @@ function createPytestConfiguration(args?: string[]): IWorkspaceConfiguration {
                     '${workspaceFolder}/pytest_runner.sh',
                 isPytestEnabled: true,
                 pytestArguments: args || [],
+            };
+        },
+        getTestplanConfiguration(): ITestplanConfiguration {
+            return {
+                testplanPath: () => 'test_plan.py',
+                isTestplanEnabled: true,
+                testplanArguments: [],
             };
         },
     }, wf, logger());

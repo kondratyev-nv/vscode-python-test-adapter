@@ -5,9 +5,11 @@ import * as os from 'os';
 
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
 import { UnittestTestRunner } from '../../src/unittest/unittestTestRunner';
+import { TestplanTestRunner } from '../../src/testplan/testplanTestRunner';
 import {
     createPytestConfiguration,
     createUnittestConfiguration,
+    createTestplanConfiguration,
     extractExpectedState,
     extractErroredTests,
     findTestSuiteByLabel,
@@ -26,6 +28,12 @@ import {
         label: 'pytest',
         runner: new PytestTestRunner('second-id', logger()),
         configuration: createPytestConfiguration('pytest_test_cancellation'),
+        allowNoTestCompleted: os.platform() === 'win32',
+    },
+    {
+        label: 'testplan',
+        runner: new TestplanTestRunner('third-id', logger()),
+        configuration: createTestplanConfiguration('testplan_test_cancellation'),
         allowNoTestCompleted: os.platform() === 'win32',
     }
 ].forEach(({ label, runner, configuration, allowNoTestCompleted }) => {

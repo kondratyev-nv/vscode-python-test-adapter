@@ -124,7 +124,7 @@
           "description": "Test framework to use for Python Test Explorer (default is null and Python extension settings are used)",
           "scope": "resource"
         },
-        "python.testing.pytestPath": {
+        "pythonTestExplorer.testplanPath": {
           "type": "string",
           "default": "test_plan.py",
           "description": "Relative path to testplan main suite.",

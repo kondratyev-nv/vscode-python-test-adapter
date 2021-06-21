@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 
-import { IPytestConfiguration, IUnittestConfiguration } from '../../src/configuration/workspaceConfiguration';
+import { IPytestConfiguration, ITestplanConfiguration, IUnittestConfiguration } from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
 import { UnittestTestRunner } from '../../src/unittest/unittestTestRunner';
 import { findWorkspaceFolder, logger } from '../utils/helpers';
@@ -50,6 +50,13 @@ import { getPythonExecutable } from '../utils/testConfiguration';
                         pytestArguments: [],
                     };
                 },
+                getTestplanConfiguration(): ITestplanConfiguration {
+                    return {
+                        testplanPath: () => 'test_plan.py',
+                        isTestplanEnabled: true,
+                        testplanArguments: [],
+                    };
+                },
             };
             const suites = await runner.load(config);
             expect(suites).to.be.undefined;
@@ -84,6 +91,13 @@ import { getPythonExecutable } from '../utils/testConfiguration';
                         pytestPath: () => 'pytest',
                         isPytestEnabled: true,
                         pytestArguments: [],
+                    };
+                },
+                getTestplanConfiguration(): ITestplanConfiguration {
+                    return {
+                        testplanPath: () => 'test_plan.py',
+                        isTestplanEnabled: true,
+                        testplanArguments: [],
                     };
                 },
             };

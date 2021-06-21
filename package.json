@@ -117,11 +117,33 @@
           "enum": [
             "unittest",
             "pytest",
+            "testplan",
             null
           ],
           "default": null,
           "description": "Test framework to use for Python Test Explorer (default is null and Python extension settings are used)",
           "scope": "resource"
+        },
+        "python.testing.pytestPath": {
+          "type": "string",
+          "default": "test_plan.py",
+          "description": "Relative path to testplan main suite.",
+          "scope": "resource"
+        },
+        "pythonTestExplorer.testplantestArgs": {
+          "type": "array",
+          "description": "Arguments passed in. Each argument is a separate item in the array.",
+          "default": [],
+          "items": {
+              "type": "string"
+          },
+          "scope": "resource"
+        },
+        "pythonTestExplorer.testplanEnabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable testing using testplan.",
+            "scope": "resource"
         }
       }
     }

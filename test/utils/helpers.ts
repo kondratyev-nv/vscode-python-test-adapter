@@ -5,6 +5,7 @@ import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 import { PlaceholderAwareWorkspaceConfiguration } from '../../src/configuration/placeholderAwareWorkspaceConfiguration';
 import {
     IPytestConfiguration,
+    ITestplanConfiguration,
     IUnittestConfiguration,
     IWorkspaceConfiguration
 } from '../../src/configuration/workspaceConfiguration';
@@ -105,6 +106,9 @@ export function createPytestConfiguration(folder: string, args?: string[], cwd?:
                 pytestArguments: args || [],
             };
         },
+        getTestplanConfiguration(): ITestplanConfiguration {
+            throw new Error();
+        },
     }, wf, logger());
 }
 
@@ -136,6 +140,41 @@ export function createUnittestConfiguration(folder: string): IWorkspaceConfigura
         getPytestConfiguration(): IPytestConfiguration {
             throw new Error();
         },
+        getTestplanConfiguration(): ITestplanConfiguration {
+            throw new Error();
+        },
+    }, wf, logger());
+}
+
+export function createTestplanConfiguration(folder: string, args?: string[], cwd?: string): IWorkspaceConfiguration {
+    const python = getPythonExecutable();
+    const wf = findWorkspaceFolder(folder)!;
+    return new PlaceholderAwareWorkspaceConfiguration({
+        pythonPath(): string {
+            return python;
+        },
+        getCwd(): string {
+            return cwd || wf.uri.fsPath;
+        },
+        envFile(): string {
+            return path.join(wf.uri.fsPath, '..', '.env');
+        },
+        autoTestDiscoverOnSaveEnabled(): boolean {
+            return true;
+        },
+        getUnittestConfiguration(): IUnittestConfiguration {
+            throw new Error();
+        },
+        getPytestConfiguration(): IPytestConfiguration {
+            throw new Error();
+        },
+        getTestplanConfiguration(): ITestplanConfiguration {
+            return {
+                testplanPath: () => 'test_plan.py',
+                isTestplanEnabled: true,
+                testplanArguments: args || [],
+            };
+        },
     }, wf, logger());
 }
 
@@ -149,4 +188,30 @@ export function extractTopLevelLablesAndDescription(suite: TestSuiteInfo): { lab
     return suite.children.map(t => {
         return { label: t.label, description: t.description };
     });
+}
+
+export function extractAllLabels(suite: TestSuiteInfo): string[] {
+    return suite.children.map(t => {
+        if ((t as TestSuiteInfo).children)
+        {
+            return [t.label].concat(extractAllLabels(t as TestSuiteInfo));
+        }
+        else
+        {
+            return [t.label];
+        }
+    }).reduce((r,x) => r.concat(x),[]);
+}
+
+export function extractAllIds(suite: TestSuiteInfo): string[] {
+    return suite.children.map(t => {
+        if ((t as TestSuiteInfo).children)
+        {
+            return [t.id].concat(extractAllIds(t as TestSuiteInfo));
+        }
+        else
+        {
+            return [t.id];
+        }
+    }).reduce((r,x) => r.concat(x),[]);
 }

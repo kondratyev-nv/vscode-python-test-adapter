@@ -8,7 +8,7 @@ import { ILogger } from './logging/logger';
 import { NoopOutputChannel } from './logging/outputChannels/noopOutputChannel';
 import { VscodeOutputChannel } from './logging/outputChannels/vscodeOutputChannel';
 import { PytestTestRunner } from './pytest/pytestTestRunner';
-import { TestplanTestRunner } from './testplan/TestplanTestRunner';
+import { TestplanTestRunner } from './testplan/testplanTestRunner';
 import { PythonTestAdapter } from './pythonTestAdapter';
 import { UnittestTestRunner } from './unittest/unittestTestRunner';
 

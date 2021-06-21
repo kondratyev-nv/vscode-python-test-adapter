@@ -52,7 +52,7 @@ export async function parseTestStates(
 ): Promise<TestEvent[]> {
 
     const xmlDirContent = await readDir(outputXmlDir);
-    var testResults: TestEvent[] = [];
+    let testResults: TestEvent[] = [];
 
     for (const xmlFile of xmlDirContent) {
         const content = await readFile(path.join(outputXmlDir, xmlFile));

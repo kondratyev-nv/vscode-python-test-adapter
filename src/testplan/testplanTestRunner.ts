@@ -17,13 +17,8 @@ import { parseTestSuites } from './testplanTestCollectionParser';
 
 // --- Testplan Exit Codes ---
 // 0: All tests were collected and passed successfully
-// 1: Tests were collected and run but some of the tests failed
-// 2: Test execution was interrupted by the user
-// 3: Internal error happened while executing tests
-// 4: pytest command line usage error
-// 5: No tests were collected
-// See https://docs.pytest.org/en/stable/usage.html#possible-exit-codes
-const PYTEST_NON_ERROR_EXIT_CODES = [0, 1, 2, 5];
+// 1: Tests were collected and run but some of the tests failed or none found
+const TESTPLAN_NON_ERROR_EXIT_CODES = [0, 1];
 
 const DISCOVERY_OUTPUT_PLUGIN_INFO = {
     PACKAGE_PATH: path.resolve(__dirname, '../../resources/python'),
@@ -78,7 +73,7 @@ export class TestplanTestRunner implements ITestRunner {
         this.logger.log('info', `Running testplan with arguments: ${discoveryArguments.join(', ')}`);
 
         const result = await this.runTestPlan(config, additionalEnvironment, discoveryArguments).complete();
-        const tests = parseTestSuites(result.output, config.getCwd());
+        const tests = parseTestSuites(result.output);
         if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
@@ -121,7 +116,9 @@ export class TestplanTestRunner implements ITestRunner {
         return states;
     }
 
-    private runTestPlan(config: IWorkspaceConfiguration, env: IEnvironmentVariables, args: string[]): IProcessExecution {
+    private runTestPlan(config: IWorkspaceConfiguration, env: IEnvironmentVariables, args: string[])
+    : IProcessExecution
+    {
         const testplanPath = config.getTestplanConfiguration().testplanPath();
 
         this.logger.log('info', `Running ${testplanPath} as an executable`);
@@ -131,7 +128,7 @@ export class TestplanTestRunner implements ITestRunner {
             {
                 cwd: config.getCwd(),
                 environment: env,
-                acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
+                acceptedExitCodes: TESTPLAN_NON_ERROR_EXIT_CODES,
             });
     }
 
@@ -146,14 +143,14 @@ export class TestplanTestRunner implements ITestRunner {
         ].filter(item => item).join(path.delimiter);
 
         const updatedTestplanPlugins = [
-            envFileEnvironment.PYTEST_PLUGINS,
+            envFileEnvironment.TESTPLAN_PLUGINS,
             DISCOVERY_OUTPUT_PLUGIN_INFO.MODULE_NAME
         ].filter(item => item).join(',');
 
         return {
             ...envFileEnvironment,
             PYTHONPATH: updatedPythonPath,
-            PYTEST_PLUGINS: updatedTestplanPlugins,
+            TESTPLAN_PLUGINS: updatedTestplanPlugins,
         };
     }
 
@@ -173,7 +170,7 @@ export class TestplanTestRunner implements ITestRunner {
     private getDiscoveryArguments(rawTestplanArguments: string[]): string[] {
         const argumentParser = this.configureCommonArgumentParser();
         const [, argumentsToPass] = argumentParser.parse_known_args(rawTestplanArguments);
-        return ['--info','pattern-full'].concat(argumentsToPass);
+        return ['--info', 'pattern-full'].concat(argumentsToPass);
     }
 
     private getRunArguments(test: string, rawTestplanArguments: string[]): IRunArguments {
@@ -201,7 +198,7 @@ export class TestplanTestRunner implements ITestRunner {
             '--timeout',
             { action: 'store', dest: 'timeout'});
         argumentParser.add_argument(
-            '-v','--verbose',
+            '-v', '--verbose',
             { action: 'store', dest: 'verbose' });
         argumentParser.add_argument(
             '--stdout-style',

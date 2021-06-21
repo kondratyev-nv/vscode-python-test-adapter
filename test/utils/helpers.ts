@@ -200,7 +200,7 @@ export function extractAllLabels(suite: TestSuiteInfo): string[] {
         {
             return [t.label];
         }
-    }).reduce((r,x) => r.concat(x),[]);
+    }).reduce((r, x) => r.concat(x), []);
 }
 
 export function extractAllIds(suite: TestSuiteInfo): string[] {
@@ -213,5 +213,5 @@ export function extractAllIds(suite: TestSuiteInfo): string[] {
         {
             return [t.id];
         }
-    }).reduce((r,x) => r.concat(x),[]);
+    }).reduce((r, x) => r.concat(x), []);
 }

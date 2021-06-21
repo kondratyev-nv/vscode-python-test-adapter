@@ -111,9 +111,9 @@ suite('Testplan test discovery with relative cwd folder', async () => {
         expect(mainSuite).to.be.not.undefined;
         const labels = extractAllLabels(mainSuite!);
 
-        expect(labels).to.have.deep.members(['TestEcho','MyTestsuite','my_testcase']);
+        expect(labels).to.have.deep.members(['TestEcho', 'MyTestsuite', 'my_testcase']);
         const ids = extractAllIds(mainSuite!);
-        expect(ids).to.have.deep.members(['TestEcho','TestEcho:MyTestsuite','TestEcho:MyTestsuite:my_testcase']);
+        expect(ids).to.have.deep.members(['TestEcho', 'TestEcho:MyTestsuite', 'TestEcho:MyTestsuite:my_testcase']);
     });
 });
 
@@ -153,7 +153,7 @@ suite('Run testplan tests', () => {
                 { file: 'test/test_plan.py', case: 'Secondary:BetaSuite:testcase_one_passed' },
                 { file: 'test/test_plan.py', case: 'Secondary:BetaSuite:testcase_two_passed'}
             ],
-        },
+        }
     ].forEach(({ suite, cases }) => {
         test(`should run ${suite.label} suite`, async () => {
             const mainSuite = await runner.load(config);

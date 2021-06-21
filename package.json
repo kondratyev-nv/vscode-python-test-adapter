@@ -135,15 +135,15 @@
           "description": "Arguments passed in. Each argument is a separate item in the array.",
           "default": [],
           "items": {
-              "type": "string"
+            "type": "string"
           },
           "scope": "resource"
         },
         "pythonTestExplorer.testplanEnabled": {
-            "type": "boolean",
-            "default": false,
-            "description": "Enable testing using testplan.",
-            "scope": "resource"
+          "type": "boolean",
+          "default": false,
+          "description": "Enable testing using testplan.",
+          "scope": "resource"
         }
       }
     }

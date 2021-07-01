@@ -54,6 +54,9 @@ jobs:
     displayName: 'Update pip'
   - script: python -m pip install -r requirements.txt
     displayName: 'Install requirements'
+  - script: python -m pip install https://github.com/morganstanley/testplan/archive/refs/tags/latest.zip
+    displayName: 'Install testplan'
+    condition: and(succeeded(), ne($(python.version), '2.7'))
   - script: npm run lint
     displayName: 'Linting'
   - script: npm audit --production
@@ -110,6 +113,9 @@ jobs:
     displayName: 'Update pip'
   - script: python -m pip install -r requirements.txt
     displayName: 'Install requirements'
+  - script: python -m pip install https://github.com/morganstanley/testplan/archive/refs/tags/latest.zip
+    displayName: 'Install testplan'
+    condition: and(succeeded(), ne($(python.version), '2.7'))
   - script: npm run lint
     displayName: 'Linting'
   - script: npm audit --production
@@ -168,6 +174,9 @@ jobs:
     displayName: 'Update pip'
   - script: python -m pip install -r requirements.txt
     displayName: 'Install requirements'
+  - script: python -m pip install https://github.com/morganstanley/testplan/archive/refs/tags/latest.zip
+    displayName: 'Install testplan'
+    condition: and(succeeded(), ne($(python.version), '2.7'))
   - bash: |
       /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
       echo ">>> Started xvfb"

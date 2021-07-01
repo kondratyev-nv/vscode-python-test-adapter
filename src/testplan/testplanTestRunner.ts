@@ -18,12 +18,8 @@ import { parseTestSuites } from './testplanTestCollectionParser';
 // --- Testplan Exit Codes ---
 // 0: All tests were collected and passed successfully
 // 1: Tests were collected and run but some of the tests failed or none found
-const TESTPLAN_NON_ERROR_EXIT_CODES = [0, 1];
+const TESTPLAN_NON_ERROR_EXIT_CODES = [0, 1, 2];
 
-const DISCOVERY_OUTPUT_PLUGIN_INFO = {
-    PACKAGE_PATH: path.resolve(__dirname, '../../resources/python'),
-    MODULE_NAME: 'vscode_python_test_adapter.testplan.discovery_output_plugin',
-};
 
 interface IRunArguments {
     junitReportPath?: string;
@@ -138,19 +134,13 @@ export class TestplanTestRunner implements ITestRunner {
         const updatedPythonPath = [
             config.getCwd(),
             envFileEnvironment.PYTHONPATH,
-            process.env.PYTHONPATH,
-            DISCOVERY_OUTPUT_PLUGIN_INFO.PACKAGE_PATH
+            process.env.PYTHONPATH
         ].filter(item => item).join(path.delimiter);
-
-        const updatedTestplanPlugins = [
-            envFileEnvironment.TESTPLAN_PLUGINS,
-            DISCOVERY_OUTPUT_PLUGIN_INFO.MODULE_NAME
-        ].filter(item => item).join(',');
 
         return {
             ...envFileEnvironment,
             PYTHONPATH: updatedPythonPath,
-            TESTPLAN_PLUGINS: updatedTestplanPlugins,
+            TESTPLAN_PLUGINS: envFileEnvironment.TESTPLAN_PLUGINS,
         };
     }
 
@@ -195,20 +185,8 @@ export class TestplanTestRunner implements ITestRunner {
             '--runpath',
             { action: 'store', dest: 'runpath'});
         argumentParser.add_argument(
-            '--timeout',
-            { action: 'store', dest: 'timeout'});
-        argumentParser.add_argument(
-            '-v', '--verbose',
-            { action: 'store', dest: 'verbose' });
-        argumentParser.add_argument(
             '--stdout-style',
             { action: 'store', dest: 'stdout_style'});
-        argumentParser.add_argument(
-            '--shuffle',
-            { action: 'store', dest: 'shuffle'});
-        argumentParser.add_argument(
-            '--shuffle-seed',
-            { action: 'store', dest: 'shuffle_seed'});
         return argumentParser;
     }
 

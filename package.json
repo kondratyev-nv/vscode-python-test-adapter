@@ -142,7 +142,7 @@
         "pythonTestExplorer.testplanEnabled": {
           "type": "boolean",
           "default": false,
-          "description": "Enable testing using testplan.",
+          "description": "Enable testing using Testplan. Note that Testplan is only supported for Python 3.6+.",
           "scope": "resource"
         }
       }

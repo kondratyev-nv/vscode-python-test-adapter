@@ -16,6 +16,7 @@ import {
     logger,
     sleep
 } from '../utils/helpers';
+import { isPython3 } from './utilities';
 
 [
     {
@@ -34,10 +35,10 @@ import {
         label: 'testplan',
         runner: new TestplanTestRunner('third-id', logger()),
         configuration: createTestplanConfiguration('testplan_test_cancellation'),
-        allowNoTestCompleted: os.platform() === 'win32',
+        allowNoTestCompleted: isPython3(),
     }
 ].forEach(({ label, runner, configuration, allowNoTestCompleted }) => {
-    suite(`Test cancellation with ${label}`, () => {
+    (allowNoTestCompleted ? suite : suite.skip)(`Test cancellation with ${label}`, () => {
 
         test('should run and cancel all tests', async () => {
             const mainSuite = await runner.load(configuration);

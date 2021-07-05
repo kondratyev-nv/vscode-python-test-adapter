@@ -50,11 +50,7 @@ function createPytestConfiguration(args?: string[]): IWorkspaceConfiguration {
             };
         },
         getTestplanConfiguration(): ITestplanConfiguration {
-            return {
-                testplanPath: () => 'test_plan.py',
-                isTestplanEnabled: true,
-                testplanArguments: [],
-            };
+            throw new Error();
         },
     }, wf, logger());
 }

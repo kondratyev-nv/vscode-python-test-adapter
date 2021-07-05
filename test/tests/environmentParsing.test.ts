@@ -4,6 +4,7 @@ import * as path from 'path';
 
 import { IPytestConfiguration, ITestplanConfiguration, IUnittestConfiguration } from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
+import { TestplanTestRunner } from '../../src/testplan/testplanTestRunner';
 import { UnittestTestRunner } from '../../src/unittest/unittestTestRunner';
 import { findWorkspaceFolder, logger } from '../utils/helpers';
 import { getPythonExecutable } from '../utils/testConfiguration';
@@ -16,6 +17,10 @@ import { getPythonExecutable } from '../utils/testConfiguration';
     {
         name: 'unittest',
         runner: new UnittestTestRunner('some-id', logger()),
+    },
+    {
+        name: 'testplan',
+        runner: new TestplanTestRunner('some-id', logger()),
     }
 ].forEach(({ name, runner }) => {
     suite(`Environment variable parsing with ${name} runner`, () => {

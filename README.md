@@ -26,6 +26,7 @@ tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?ite
 * Convenient error reporting during test discovery
 * Unittest and Pytest debugging
 * Shows a failed test's log when the test is selected in the explorer
+* Re-run tests on save
 * Supports multi-root workspaces
 * Supports Unittest and Pytest test frameworks and their plugins
 
@@ -123,6 +124,34 @@ For example,
 }
 ```
 
+## FAQ
+
+### 1. Disable duplicated Code Lenses
+
+[Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) provides a set of Code Lenses to run and debug tests. However, the Python extension also provides a set of its own. As of now, there are no way to disable Code Lenses from the Python extension, see https://github.com/microsoft/vscode-python/issues/10898. If you use only Python Test Explorer to run your tests, you can disable testing functionality by the Python extension with the following settings
+
+```json
+{
+    // this settings are 'false' by default, so removing those should also work
+    "python.testing.unittestEnabled": false, 
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestEnabled": false,
+    "pythonTestExplorer.testFramework": "pytest" // (or unittest)
+}
+```
+
+### 2. How to use this extesion to run Django tests?
+
+You can use pytest to discover and run Django tests with this extension.  For this, install [`pytest-django` package](https://pypi.org/project/pytest-django/) and follow its [Getting started guide](https://pytest-django.readthedocs.io/en/latest/tutorial.html).
+
+### 3. How to re-run tests on save?
+
+[Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) allows to run tests on saving files in a workspace. To enable autorun, right-click on a test suite and select "Enable autorun". After that, any changes to files in a workspace will re-execute tests when files are saved. See the example below.
+![Screen-Recording-2020-10-06-at-2](https://user-images.githubusercontent.com/4085884/95249072-d9bdc380-0820-11eb-89ab-57d147bce6ac.gif)
+
+You can enable autorun for all tests by clicking on three dots in the Test explorer UI bar.
+<img width="605" alt="image" src="https://user-images.githubusercontent.com/4085884/95249184-007bfa00-0821-11eb-813a-20a24719fb74.png">
+
 ## Troubleshooting
 
 Whether no tests were discovered in the Test Explorer view or anything else doesn't work as expected, you can see logging output selecting `Python Test Adapter Log` in the Output section.
@@ -130,5 +159,5 @@ Whether no tests were discovered in the Test Explorer view or anything else does
 ## Questions, issues, feature requests, and contributions
 
 * If you're happy using this extension - star [GitHub repo](https://github.com/kondratyev-nv/vscode-python-test-adapter) and [share your positive feedback in VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=LittleFoxTeam.vscode-python-test-adapter&ssr=false#review-details).
-* If you have any question or a problem with the extension, please [file an issue](https://github.com/kondratyev-nv/vscode-python-test-adapter/issues).
+* If you have any question or a problem with the extension, please [file an issue](https://github.com/kondratyev-nv/vscode-python-test-adapter/issues). Make sure, to include information on Python version, test framework you using, what plugins are installed (mostly for pytest), and what do you see in logs (Python Test Adapter Log in the Output section).
 * Contributions are always welcome! Please see [contributing guide](CONTRIBUTING.md) for more details.

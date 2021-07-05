@@ -147,9 +147,11 @@ You can use pytest to discover and run Django tests with this extension.  For th
 ### 3. How to re-run tests on save?
 
 [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) allows to run tests on saving files in a workspace. To enable autorun, right-click on a test suite and select "Enable autorun". After that, any changes to files in a workspace will re-execute tests when files are saved. See the example below.
+
 ![Screen-Recording-2020-10-06-at-2](https://user-images.githubusercontent.com/4085884/95249072-d9bdc380-0820-11eb-89ab-57d147bce6ac.gif)
 
 You can enable autorun for all tests by clicking on three dots in the Test explorer UI bar.
+
 <img width="605" alt="image" src="https://user-images.githubusercontent.com/4085884/95249184-007bfa00-0821-11eb-813a-20a24719fb74.png">
 
 ## Troubleshooting

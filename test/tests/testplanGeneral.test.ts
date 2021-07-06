@@ -11,9 +11,9 @@ import {
     findTestSuiteByLabel,
     logger
 } from '../utils/helpers';
-import { isPython3 } from './utilities';
+import { isTestplanPrerequisiteMet } from './utilities';
 
-const canTestplanRun = isPython3();
+const canTestplanRun = isTestplanPrerequisiteMet();
 
 (canTestplanRun ? suite : suite.skip)('Testplan test discovery', async () => {
     const config: IWorkspaceConfiguration = createTestplanConfiguration(

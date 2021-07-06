@@ -16,7 +16,7 @@ import {
     logger,
     sleep
 } from '../utils/helpers';
-import { isPython3 } from './utilities';
+import { isTestplanPrerequisiteMet } from './utilities';
 
 [
     {
@@ -35,7 +35,7 @@ import { isPython3 } from './utilities';
         label: 'testplan',
         runner: new TestplanTestRunner('third-id', logger()),
         configuration: createTestplanConfiguration('testplan_test_cancellation'),
-        allowNoTestCompleted: isPython3(),
+        allowNoTestCompleted: isTestplanPrerequisiteMet(),
     }
 ].forEach(({ label, runner, configuration, allowNoTestCompleted }) => {
     (allowNoTestCompleted ? suite : suite.skip)(`Test cancellation with ${label}`, () => {

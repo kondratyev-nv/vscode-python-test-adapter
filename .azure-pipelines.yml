@@ -56,7 +56,7 @@ jobs:
     displayName: 'Install requirements'
   - script: python -m pip install https://github.com/morganstanley/testplan/archive/refs/tags/latest.zip
     displayName: 'Install testplan'
-    condition: and(succeeded(), and( ne(${{ python.version }}, '2.7'), ne(${{ python.version }}, '3.6'))
+    condition: and(succeeded(), and( ne(${{ python.version }}, '2.7'), and( ne(${{ python.version }}, '3.5'), ne(${{ python.version }}, '3.6') ) ) )
   - script: npm run lint
     displayName: 'Linting'
   - script: npm audit --production
@@ -115,7 +115,7 @@ jobs:
     displayName: 'Install requirements'
   - script: python -m pip install https://github.com/morganstanley/testplan/archive/refs/tags/latest.zip
     displayName: 'Install testplan'
-    condition: and(succeeded(), and( ne(${{ python.version }}, '2.7'), ne(${{ python.version }}, '3.6'))
+    condition: and(succeeded(), and( ne(${{ python.version }}, '2.7'), and( ne(${{ python.version }}, '3.5'), ne(${{ python.version }}, '3.6') ) ) )
   - script: npm run lint
     displayName: 'Linting'
   - script: npm audit --production
@@ -176,7 +176,7 @@ jobs:
     displayName: 'Install requirements'
   - script: python -m pip install https://github.com/morganstanley/testplan/archive/refs/tags/latest.zip
     displayName: 'Install testplan'
-    condition: and(succeeded(), and( ne(${{ python.version }}, '2.7'), ne(${{ python.version }}, '3.6'))
+    condition: and(succeeded(), and( ne(${{ python.version }}, '2.7'), and( ne(${{ python.version }}, '3.5'), ne(${{ python.version }}, '3.6') ) ) )
   - bash: |
       /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
       echo ">>> Started xvfb"

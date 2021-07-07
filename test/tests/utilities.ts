@@ -10,7 +10,7 @@ export function isTestplanPrerequisiteMet(): boolean {
         {
             // stdout is "Python <major>.<minor>.<patch>"
             const version = stdout.split(' ')[1]
-            return gte(version, '3.7');
+            return gte(version, '3.7.0');
         }
         return false;
       });

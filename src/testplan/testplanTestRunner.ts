@@ -70,11 +70,13 @@ export class TestplanTestRunner implements ITestRunner {
         this.logger.log('info', `Running testplan with arguments: ${discoveryArguments.join(', ')}`);
 
         const result = await this.runTestPlan(config, additionalEnvironment, discoveryArguments).complete();
-        const tests = parseTestSuites(result.output);
+        this.logger.log('info', 'Test run result: ${result.output}')
+        const tests = parseTestSuites(result.output, this.logger);
         if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
         }
+        this.logger.log('info', 'Tests discovered: ${tests}')
 
         setDescriptionForEqualLabels(tests, path.sep);
         return {

@@ -30,15 +30,9 @@ import { isTestplanPrerequisiteMet } from './utilities';
         runner: new PytestTestRunner('second-id', logger()),
         configuration: createPytestConfiguration('pytest_test_cancellation'),
         allowNoTestCompleted: os.platform() === 'win32',
-    },
-    {
-        label: 'testplan',
-        runner: new TestplanTestRunner('third-id', logger()),
-        configuration: createTestplanConfiguration('testplan_test_cancellation'),
-        allowNoTestCompleted: isTestplanPrerequisiteMet(),
     }
 ].forEach(({ label, runner, configuration, allowNoTestCompleted }) => {
-    (allowNoTestCompleted ? suite : suite.skip)(`Test cancellation with ${label}`, () => {
+    suite(`Test cancellation with ${label}`, () => {
 
         test('should run and cancel all tests', async () => {
             const mainSuite = await runner.load(configuration);
@@ -73,4 +67,40 @@ import { isTestplanPrerequisiteMet } from './utilities';
             expect(states).to.be.empty;
         });
     });
+});
+
+isTestplanPrerequisiteMet().then(isTestplan => {
+    if (isTestplan) {
+        suite('Test cancellation with testplan', async () => {
+            const config = createTestplanConfiguration('testplan_test_cancellation');
+            const runner = new TestplanTestRunner('some-id', logger());
+
+            test('should run and cancel all tests', async () => {
+                const mainSuite = await runner.load(config);
+                expect(mainSuite).to.be.not.undefined;
+                expect(extractErroredTests(mainSuite!)).to.be.empty;
+                const statesPromise = runner.run(config, mainSuite!.id);
+                await sleep(1000);
+                runner.cancel();
+                const states = await statesPromise;
+
+                // Testplan currently doesn't create xml report on cancel, so it is empty
+                // https://github.com/morganstanley/testplan/issues/673
+                expect(states).to.be.empty;
+            });
+
+            test('should run and cancel single test', async () => {
+                const mainSuite = await runner.load(config);
+                expect(mainSuite).to.be.not.undefined;
+                expect(extractErroredTests(mainSuite!)).to.be.empty;
+                const suite = findTestSuiteByLabel(mainSuite!, 'test_sleep');
+                expect(suite).to.be.not.undefined;
+                const statesPromise = runner.run(config, suite!.id);
+                await sleep(1000);
+                runner.cancel();
+                const states = await statesPromise;
+                expect(states).to.be.empty;
+            });
+        });
+    }
 });

@@ -6,8 +6,12 @@ import time
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-@testsuite
+@testsuite(strict_order=True)
 class SleepSuite(object):
+    @testcase
+    def test_before_sleep_passed(self, env, result):
+        pass
+
     @testcase
     def test_sleep(self, env, result):
         time.sleep(20) # should be more than test timeout

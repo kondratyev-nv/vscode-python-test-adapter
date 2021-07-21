@@ -18,6 +18,7 @@ import { parseTestSuites } from './testplanTestCollectionParser';
 // --- Testplan Exit Codes ---
 // 0: All tests were collected and passed successfully
 // 1: Tests were collected and run but some of the tests failed or none found
+// 2: Test file was not found, however discovery was successful with empty result
 const TESTPLAN_NON_ERROR_EXIT_CODES = [0, 1, 2];
 
 
@@ -187,6 +188,9 @@ export class TestplanTestRunner implements ITestRunner {
         argumentParser.add_argument(
             '--stdout-style',
             { action: 'store', dest: 'stdout_style'});
+        argumentParser.add_argument(
+            '--xml',
+            { action: 'store', dest: 'xmlpath' });
         return argumentParser;
     }
 

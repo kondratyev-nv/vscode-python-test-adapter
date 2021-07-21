@@ -131,7 +131,7 @@
           "description": "Relative path to testplan main suite.",
           "scope": "resource"
         },
-        "pythonTestExplorer.testplantestArgs": {
+        "pythonTestExplorer.testplanArgs": {
           "type": "array",
           "description": "Arguments passed in. Each argument is a separate item in the array.",
           "default": [],
@@ -143,7 +143,7 @@
         "pythonTestExplorer.testplanEnabled": {
           "type": "boolean",
           "default": false,
-          "description": "Enable testing using Testplan. Note that Testplan is only supported for Python 3.6+.",
+          "description": "Enable testing using Testplan. Note that Testplan is only supported for Python 3.7+.",
           "scope": "resource"
         }
       }

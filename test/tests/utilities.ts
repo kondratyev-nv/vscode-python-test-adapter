@@ -1,18 +1,18 @@
 import { exec } from 'child_process';
+import util = require('util');
+export const execPromise = util.promisify(exec);
 import { getPythonExecutable } from '../utils/testConfiguration';
 import { gte } from 'semver';
 
 
-export function isTestplanPrerequisiteMet(): boolean {
+export async function isTestplanPrerequisiteMet(): Promise<boolean> {
     const command = getPythonExecutable() + ' --version';
-    exec(command, (err, stdout) => {
-        if (!err && stdout)
-        {
-            // stdout is "Python <major>.<minor>.<patch>"
-            const version = stdout.split(' ')[1]
-            return gte(version, '3.7.0');
-        }
-        return false;
-      });
+    const result = await execPromise(command);
+    if (!result.stderr && result.stdout)
+    {
+        // stdout is "Python <major>.<minor>.<patch>"
+        const version = result.stdout.split(' ')[1]
+        return gte(version, '3.7.0');
+    }
     return false;
 }

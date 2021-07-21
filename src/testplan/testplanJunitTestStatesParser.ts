@@ -79,9 +79,7 @@ function parseTestResults(parserResult: any): TestEvent[] {
     if (!parserResult) {
         return [];
     }
-    const testSuiteResults: ITestSuiteResult[] = parserResult.testsuites ?
-        parserResult.testsuites.testsuite : // from pytest 5.1.0, see https://github.com/pytest-dev/pytest/issues/5477
-        [parserResult.testsuite];           // before pytest 5.1.0
+    const testSuiteResults: ITestSuiteResult[] = parserResult.testsuites.testsuite;
     return testSuiteResults.map(testSuiteResult => {
         if (!Array.isArray(testSuiteResult.testcase)) {
             return [];

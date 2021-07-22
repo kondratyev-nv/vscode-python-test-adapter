@@ -52,4 +52,6 @@ jobs:
     - name: Run tests
       uses: GabrielBB/xvfb-action@v1
       with:
-        run: ENABLE_TEST_LOGGING=1 npm test
+        run: npm test
+      env:
+        ENABLE_TEST_LOGGING: 1

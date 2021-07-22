@@ -1,5 +1,4 @@
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
-import { ILogger } from '../logging/logger';
 
 enum TestObjectType{
     APP = 0,
@@ -18,7 +17,7 @@ enum TestObjectType{
 //   Secondary::BetaSuite
 //     Secondary::BetaSuite::passing_testcase_one
 //     Secondary::BetaSuite::passing_testcase_two
-export function parseTestSuites(content: string, logger: ILogger): (TestSuiteInfo | TestInfo)[] {
+export function parseTestSuites(content: string): (TestSuiteInfo | TestInfo)[] {
 
     const suites: (TestSuiteInfo | TestInfo)[] = [];
     const parentStack: TestSuiteInfo[] = [];
@@ -36,7 +35,6 @@ export function parseTestSuites(content: string, logger: ILogger): (TestSuiteInf
 
             switch (testRank) {
                 case TestObjectType.APP: {
-                    logger.log('info', 'App found ${data}');
                     const appSuite = newTestSuite(data, testRank);
 
                     parentStack.push(appSuite);
@@ -44,7 +42,6 @@ export function parseTestSuites(content: string, logger: ILogger): (TestSuiteInf
                     break;
                 }
                 case TestObjectType.SUITE: {
-                    logger.log('info', 'Suite found ${data}');
                     const suite = newTestSuite(data, testRank);
 
                     parentStack[parentStack.length - 1].children.push(suite);
@@ -52,7 +49,6 @@ export function parseTestSuites(content: string, logger: ILogger): (TestSuiteInf
                     break;
                 }
                 case TestObjectType.TEST: {
-                    logger.log('info', 'Test found ${data}');
                     const test = newTest(data);
                     parentStack[parentStack.length - 1].children.push(test);
                     break;

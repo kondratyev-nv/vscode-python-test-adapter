@@ -53,5 +53,3 @@ jobs:
       uses: GabrielBB/xvfb-action@v1
       with:
         run: npm test
-      env:
-        ENABLE_TEST_LOGGING: 1

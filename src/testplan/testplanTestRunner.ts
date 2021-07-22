@@ -70,7 +70,7 @@ export class TestplanTestRunner implements ITestRunner {
         this.logger.log('info', `Running testplan with arguments: ${discoveryArguments.join(', ')}`);
 
         const result = await this.runTestPlan(config, additionalEnvironment, discoveryArguments).complete();
-        this.logger.log('info', 'Test run result: ${result.output}')
+        this.logger.log('info', `Test run result: ${result.output}`)
         const tests = parseTestSuites(result.output, this.logger);
         if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');
@@ -120,7 +120,7 @@ export class TestplanTestRunner implements ITestRunner {
     {
         const testplanPath = config.getTestplanConfiguration().testplanPath();
 
-        this.logger.log('info', `Running ${testplanPath} as an executable`);
+        this.logger.log('info', `Running ${testplanPath} as an executable in ${config.getCwd()} folder`);
         return runProcess(
             config.pythonPath(),
             [testplanPath].concat(args),

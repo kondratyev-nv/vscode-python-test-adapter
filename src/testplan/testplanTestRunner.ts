@@ -51,7 +51,7 @@ export class TestplanTestRunner implements ITestRunner {
         const additionalEnvironment = await this.loadEnvironmentVariables(config);
         const runArguments = this.getRunArguments(test, config.getTestplanConfiguration().testplanArguments);
         return {
-            module: 'testplantest',
+            program: config.getTestplanConfiguration().testplanPath(),
             cwd: config.getCwd(),
             args: runArguments.argumentsToPass,
             env: additionalEnvironment,

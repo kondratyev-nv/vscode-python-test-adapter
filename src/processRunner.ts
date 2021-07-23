@@ -36,7 +36,7 @@ class CommandProcessExecution implements IProcessExecution {
                     ...configuration?.environment,
                 },
             });
-        this.pid = this.commandProcess.pid;
+        this.pid = this.commandProcess.pid || -1;
         this.acceptedExitCodes = configuration?.acceptedExitCodes || [0];
     }
 

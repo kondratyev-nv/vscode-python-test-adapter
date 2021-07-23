@@ -75,6 +75,7 @@
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.6.1",
+    "@types/semver": "^7.3.6",
     "@types/tmp": "^0.2.0",
     "@types/vscode": "^1.23.0",
     "@types/xml2js": "^0.4.8",
@@ -117,10 +118,32 @@
           "enum": [
             "unittest",
             "pytest",
+            "testplan",
             null
           ],
           "default": null,
           "description": "Test framework to use for Python Test Explorer (default is null and Python extension settings are used)",
+          "scope": "resource"
+        },
+        "pythonTestExplorer.testplanPath": {
+          "type": "string",
+          "default": "test_plan.py",
+          "description": "Relative path to testplan main suite.",
+          "scope": "resource"
+        },
+        "pythonTestExplorer.testplanArgs": {
+          "type": "array",
+          "description": "Arguments passed in. Each argument is a separate item in the array.",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "scope": "resource"
+        },
+        "pythonTestExplorer.testplanEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable testing using Testplan. Note that Testplan is only supported for Python 3.7+.",
           "scope": "resource"
         }
       }

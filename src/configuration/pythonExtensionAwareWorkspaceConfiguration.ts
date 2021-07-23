@@ -4,6 +4,7 @@ import { EOL } from 'os';
 import { ILogger } from '../logging/logger';
 import {
     IPytestConfiguration,
+    ITestplanConfiguration,
     IUnittestConfiguration,
     IWorkspaceConfiguration
 } from './workspaceConfiguration';
@@ -94,5 +95,9 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
 
     public getPytestConfiguration(): IPytestConfiguration {
         return this.configuration.getPytestConfiguration();
+    }
+
+    public getTestplanConfiguration(): ITestplanConfiguration {
+        return this.configuration.getTestplanConfiguration();
     }
 }

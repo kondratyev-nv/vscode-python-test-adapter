@@ -6,7 +6,8 @@ import { IWorkspaceConfiguration } from './configuration/workspaceConfiguration'
 import { IEnvironmentVariables } from './environmentVariablesLoader';
 
 export interface IDebugConfiguration {
-    module: string;
+    program?: string;
+    module?: string;
     cwd: string;
     args: string[];
     env: IEnvironmentVariables;

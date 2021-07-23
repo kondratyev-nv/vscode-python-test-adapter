@@ -5,6 +5,7 @@ import { WorkspaceFolder } from 'vscode';
 import { ILogger } from '../logging/logger';
 import {
     IPytestConfiguration,
+    ITestplanConfiguration,
     IUnittestConfiguration,
     IWorkspaceConfiguration
 } from './workspaceConfiguration';
@@ -49,6 +50,15 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
             pytestPath: () => this.getPytestPath(),
             isPytestEnabled: original.isPytestEnabled,
             pytestArguments: original.pytestArguments.map(argument => this.resolvePlaceholders(argument)),
+        };
+    }
+
+    public getTestplanConfiguration(): ITestplanConfiguration {
+        const original = this.configuration.getTestplanConfiguration();
+        return {
+            testplanPath: () => this.resolveExecutablePath(original.testplanPath()),
+            isTestplanEnabled: original.isTestplanEnabled,
+            testplanArguments: original.testplanArguments.map(argument => this.resolvePlaceholders(argument)),
         };
     }
 

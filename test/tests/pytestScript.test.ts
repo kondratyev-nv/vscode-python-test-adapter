@@ -5,6 +5,7 @@ import * as os from 'os';
 
 import {
     IPytestConfiguration,
+    ITestplanConfiguration,
     IUnittestConfiguration,
     IWorkspaceConfiguration
 } from '../../src/configuration/workspaceConfiguration';
@@ -47,6 +48,9 @@ function createPytestConfiguration(args?: string[]): IWorkspaceConfiguration {
                 isPytestEnabled: true,
                 pytestArguments: args || [],
             };
+        },
+        getTestplanConfiguration(): ITestplanConfiguration {
+            throw new Error();
         },
     }, wf, logger());
 }

@@ -7,6 +7,9 @@
             "path": "pytest"
         },
         {
+            "path": "testplan"
+        },
+        {
             "path": "workspaces/empty_configuration"
         },
         {
@@ -14,6 +17,9 @@
         },
         {
             "path": "workspaces/python_extension_configured_pytest"
+        },
+        {
+            "path": "workspaces/python_extension_configured_testplan"
         },
         {
             "path": "workspaces/test_framework_overridden_unittest"
@@ -38,6 +44,9 @@
         },
         {
             "path": "unittest_test_cancellation"
+        },
+        {
+            "path": "testplan_test_cancellation"
         }
     ],
     "settings": {}

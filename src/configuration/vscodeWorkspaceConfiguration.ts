@@ -3,6 +3,7 @@ import { workspace, WorkspaceConfiguration, WorkspaceFolder } from 'vscode';
 
 import {
     IPytestConfiguration,
+    ITestplanConfiguration,
     IUnittestArguments,
     IUnittestConfiguration,
     IWorkspaceConfiguration
@@ -54,6 +55,14 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
             pytestPath: () => this.getPytestPath(),
             isPytestEnabled: this.isPytestTestEnabled(),
             pytestArguments: this.getPytestArguments(),
+        };
+    }
+
+    public getTestplanConfiguration(): ITestplanConfiguration {
+        return {
+            testplanPath: () => this.getTestplanPath(),
+            isTestplanEnabled: this.isTestplanTestEnabled(),
+            testplanArguments: this.getTestplanArguments(),
         };
     }
 
@@ -116,6 +125,22 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
             ['unitTest.pyTestArgs', 'testing.pyTestArgs', 'testing.pytestArgs'],
             []
         );
+    }
+
+    private isTestplanTestEnabled(): boolean {
+        const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
+        if (overriddenTestFramework) {
+            return 'testplan' === overriddenTestFramework;
+        }
+        return this.testExplorerConfiguration.get<boolean>('testplanEnabled', false);
+    }
+
+    private getTestplanPath(): string {
+        return this.testExplorerConfiguration.get<string>('testplanPath', 'test_plan.py');
+    }
+
+    private getTestplanArguments(): string[] {
+        return this.testExplorerConfiguration.get<string[]>('testplanArgs', []);
     }
 
     private configureUnittestArgumentParser() {

@@ -6,6 +6,7 @@ import * as path from 'path';
 import { PlaceholderAwareWorkspaceConfiguration } from '../../src/configuration/placeholderAwareWorkspaceConfiguration';
 import {
     IPytestConfiguration,
+    ITestplanConfiguration,
     IUnittestConfiguration,
     IWorkspaceConfiguration
 } from '../../src/configuration/workspaceConfiguration';
@@ -54,6 +55,13 @@ suite('Placeholder aware workspace configuration', () => {
                     pytestArguments: [],
                 };
             },
+            getTestplanConfiguration(): ITestplanConfiguration {
+                return {
+                    testplanPath: () => 'test_plan.py',
+                    isTestplanEnabled: true,
+                    testplanArguments: [],
+                };
+            },
         });
 
         const wfPath = getWorkspaceFolder().uri.fsPath;
@@ -98,6 +106,13 @@ suite('Placeholder aware workspace configuration', () => {
                     pytestArguments: [
                         '--result-log=${workspaceFolder}/${env:RELATIVE_PYTEST_LOG_PATH}'
                     ],
+                };
+            },
+            getTestplanConfiguration(): ITestplanConfiguration {
+                return {
+                    testplanPath: () => 'test_plan.py',
+                    isTestplanEnabled: true,
+                    testplanArguments: [],
                 };
             },
         });
@@ -146,6 +161,13 @@ suite('Placeholder aware workspace configuration', () => {
                     pytestArguments: [],
                 };
             },
+            getTestplanConfiguration(): ITestplanConfiguration {
+                return {
+                    testplanPath: () => 'test_plan.py',
+                    isTestplanEnabled: true,
+                    testplanArguments: [],
+                };
+            },
         });
 
         const wfPath = getWorkspaceFolder().uri.fsPath;
@@ -181,6 +203,13 @@ suite('Placeholder aware workspace configuration', () => {
                     pytestPath: () => 'pytest',
                     isPytestEnabled: true,
                     pytestArguments: [],
+                };
+            },
+            getTestplanConfiguration(): ITestplanConfiguration {
+                return {
+                    testplanPath: () => 'test_plan.py',
+                    isTestplanEnabled: true,
+                    testplanArguments: [],
                 };
             },
         });
@@ -226,6 +255,13 @@ suite('Placeholder aware workspace configuration', () => {
                     pytestArguments: [],
                 };
             },
+            getTestplanConfiguration(): ITestplanConfiguration {
+                return {
+                    testplanPath: () => 'test_plan.py',
+                    isTestplanEnabled: true,
+                    testplanArguments: [],
+                };
+            },
         });
 
         const homePath = os.homedir();
@@ -268,6 +304,13 @@ suite('Placeholder aware workspace configuration', () => {
                         pytestArguments: [],
                     };
                 },
+                getTestplanConfiguration(): ITestplanConfiguration {
+                    return {
+                        testplanPath: () => 'test_plan.py',
+                        isTestplanEnabled: true,
+                        testplanArguments: [],
+                    };
+                },
             });
 
             expect(configuration.pythonPath()).to.be.eq(path.resolve(expectedPath, 'some', 'local', 'python'));
@@ -306,6 +349,13 @@ suite('Placeholder aware workspace configuration', () => {
                         pytestPath: () => 'pytest',
                         isPytestEnabled: true,
                         pytestArguments: [],
+                    };
+                },
+                getTestplanConfiguration(): ITestplanConfiguration {
+                    return {
+                        testplanPath: () => 'test_plan.py',
+                        isTestplanEnabled: true,
+                        testplanArguments: [],
                     };
                 },
             });

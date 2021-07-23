@@ -1,2 +1,4 @@
 pytest
 pytest-describe
+git+git://github.com/morganstanley/testplan@latest#egg=testplan; python_version > '3.6'
+plotly

@@ -8,6 +8,7 @@ import { ILogger } from './logging/logger';
 import { NoopOutputChannel } from './logging/outputChannels/noopOutputChannel';
 import { VscodeOutputChannel } from './logging/outputChannels/vscodeOutputChannel';
 import { PytestTestRunner } from './pytest/pytestTestRunner';
+import { TestplanTestRunner } from './testplan/testplanTestRunner';
 import { PythonTestAdapter } from './pythonTestAdapter';
 import { UnittestTestRunner } from './unittest/unittestTestRunner';
 
@@ -24,12 +25,17 @@ function registerTestAdapters(
     const pytestLogger = loggerFactory('pytest', wf);
     const pytestRunner = new PytestTestRunner(nextId(), pytestLogger);
 
+    const testplanLogger = loggerFactory('testplan', wf);
+    const testplanRunner = new TestplanTestRunner(nextId(), pytestLogger);
+
     const unittestConfigurationFactory = new DefaultConfigurationFactory(unittestLogger);
     const pytestConfigurationFactory = new DefaultConfigurationFactory(pytestLogger);
+    const testplantConfigurationFactory = new DefaultConfigurationFactory(testplanLogger);
 
     const adapters = [
         new PythonTestAdapter(wf, unittestRunner, unittestConfigurationFactory, unittestLogger),
-        new PythonTestAdapter(wf, pytestRunner, pytestConfigurationFactory, pytestLogger)
+        new PythonTestAdapter(wf, pytestRunner, pytestConfigurationFactory, pytestLogger),
+        new PythonTestAdapter(wf, testplanRunner, testplantConfigurationFactory, testplanLogger)
     ];
     adapters.forEach(adapter => extension.exports.registerTestAdapter(adapter));
     return adapters;

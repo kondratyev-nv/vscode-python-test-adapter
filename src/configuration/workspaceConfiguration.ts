@@ -14,6 +14,12 @@ export interface IPytestConfiguration {
     isPytestEnabled: boolean;
 }
 
+export interface ITestplanConfiguration {
+    testplanPath(): string,
+    testplanArguments: string[];
+    isTestplanEnabled: boolean;
+}
+
 export interface IWorkspaceConfiguration {
     pythonPath(): string;
 
@@ -26,4 +32,6 @@ export interface IWorkspaceConfiguration {
     getUnittestConfiguration(): IUnittestConfiguration;
 
     getPytestConfiguration(): IPytestConfiguration;
+
+    getTestplanConfiguration(): ITestplanConfiguration;
 }

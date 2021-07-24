@@ -1,4 +1,4 @@
-import { IProcessExecution, runProcess } from './processRunner'
+import { IProcessExecution, runProcess } from './processRunner';
 
 interface ICommonPythonRunConfiguration {
     pythonPath: string;

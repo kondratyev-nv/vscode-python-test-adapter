@@ -248,7 +248,7 @@ export class PythonTestAdapter implements TestAdapter {
         };
 
         const filename = path.join(this.workspaceFolder.uri.fsPath, '.vscode', 'launch.json');
-        const launchJsonFileExists = await isFileExists(filename)
+        const launchJsonFileExists = await isFileExists(filename);
         if (!launchJsonFileExists) {
             return emptyJsonConfiguration;
         }

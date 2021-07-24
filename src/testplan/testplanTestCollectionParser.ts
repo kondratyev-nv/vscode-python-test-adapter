@@ -30,7 +30,7 @@ export function parseTestSuites(content: string): (TestSuiteInfo | TestInfo)[] {
             const testRank = data.length - 1;
 
             if (testRank < parentStack.length) {
-                parentStack.pop()
+                parentStack.pop();
             }
 
             switch (testRank) {

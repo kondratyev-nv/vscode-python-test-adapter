@@ -3,6 +3,7 @@
         "tslint:recommended"
     ],
     "rules": {
+        "semicolon": [true, "always"],
         "max-line-length": {
             "options": [
                 120

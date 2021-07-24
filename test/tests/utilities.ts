@@ -11,7 +11,7 @@ export async function isTestplanPrerequisiteMet(): Promise<boolean> {
     if (!result.stderr && result.stdout)
     {
         // stdout is "Python <major>.<minor>.<patch>"
-        const version = result.stdout.split(' ')[1]
+        const version = result.stdout.split(' ')[1];
         return gte(version, '3.7.0');
     }
     return false;

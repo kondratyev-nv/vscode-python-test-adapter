@@ -26,7 +26,7 @@ suite('Description for equal labels', async () => {
                 id: 'some.module2.SomeTest2',
                 label: 'SomeTest2',
             }
-        ])
+        ]);
     });
 
     test('should be set for tests with same labels', async () => {
@@ -53,7 +53,7 @@ suite('Description for equal labels', async () => {
                 label: 'SomeTest',
                 description: 'module2',
             }
-        ])
+        ]);
     });
 
     test('should not modify description for tests when label is not a part of id', async () => {
@@ -88,7 +88,7 @@ suite('Description for equal labels', async () => {
                 id: 'some.module3.SomeTest',
                 label: 'Error in module3.py',
             }
-        ])
+        ]);
     });
 });
 

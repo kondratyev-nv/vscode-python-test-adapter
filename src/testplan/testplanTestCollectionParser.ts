@@ -29,7 +29,7 @@ export function parseTestSuites(content: string): (TestSuiteInfo | TestInfo)[] {
             const data = line.split('::');
             const testRank = data.length - 1;
 
-            if (testRank < parentStack.length) {
+            while (testRank < parentStack.length) {
                 parentStack.pop();
             }
 

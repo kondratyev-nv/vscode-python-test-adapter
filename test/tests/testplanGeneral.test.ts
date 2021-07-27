@@ -5,8 +5,8 @@ import { IWorkspaceConfiguration } from '../../src/configuration/workspaceConfig
 import { TestplanTestRunner } from '../../src/testplan/testplanTestRunner';
 import {
     createTestplanConfiguration,
+    expectLabelsAreSameRecursive,
     extractAllIds,
-    extractAllLabels,
     extractExpectedState,
     findTestSuiteByLabel,
     logger
@@ -45,22 +45,27 @@ isTestplanPrerequisiteMet().then(isTestplan => {
             test('should discover tests', async () => {
                 const mainSuite = await runner.load(config);
                 expect(mainSuite).to.be.not.undefined;
-                const labels = extractAllLabels(mainSuite!);
 
-                expect(labels).to.have.deep.members([
-                    'Primary',
-                    'AlphaSuite',
-                    'test_equality_passed',
-                    'test_equality_failed',
-                    'test_membership_passed',
-                    'test_membership_failed',
-                    'test_regex_passed',
-                    'test_regex_failed',
-                    'Secondary',
-                    'BetaSuite',
-                    'testcase_one_passed',
-                    'testcase_two_passed'
-                ]);
+                const expectedHierarchy = {
+                    'Primary': {
+                        'AlphaSuite': {
+                            'test_equality_passed': {},
+                            'test_equality_failed': {},
+                            'test_membership_passed': {},
+                            'test_membership_failed': {},
+                            'test_regex_passed': {},
+                            'test_regex_failed': {},
+                        },
+                    },
+                    'Secondary': {
+                        'BetaSuite': {
+                            'testcase_one_passed': {},
+                            'testcase_two_passed': {},
+                        },
+                    },
+                };
+                expectLabelsAreSameRecursive(expectedHierarchy, mainSuite!);
+
                 const ids = extractAllIds(mainSuite!);
                 expect(ids).to.have.deep.members([
                     'Primary',
@@ -90,9 +95,10 @@ isTestplanPrerequisiteMet().then(isTestplan => {
             test('should discover tests', async () => {
                 const mainSuite = await runner.load(config);
                 expect(mainSuite).to.be.not.undefined;
-                const labels = extractAllLabels(mainSuite!);
+                expectLabelsAreSameRecursive(
+                    { 'TestEcho': { 'MyTestsuite': { 'my_testcase': {} } } },
+                    mainSuite!);
 
-                expect(labels).to.have.deep.members(['TestEcho', 'MyTestsuite', 'my_testcase']);
                 const ids = extractAllIds(mainSuite!);
                 expect(ids).to.have.deep.members(
                     ['TestEcho', 'TestEcho:MyTestsuite', 'TestEcho:MyTestsuite:my_testcase']
@@ -123,18 +129,18 @@ isTestplanPrerequisiteMet().then(isTestplan => {
                     suite: { label: 'AlphaSuite', description: undefined },
                     cases: [
                         { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_equality_passed' },
-                        { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_equality_failed'},
-                        { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_membership_passed'},
-                        { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_membership_failed'},
-                        { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_regex_passed'},
-                        { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_regex_failed'}
+                        { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_equality_failed' },
+                        { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_membership_passed' },
+                        { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_membership_failed' },
+                        { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_regex_passed' },
+                        { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_regex_failed' }
                     ],
                 },
                 {
                     suite: { label: 'BetaSuite', description: undefined },
                     cases: [
                         { file: 'test/test_plan.py', case: 'Secondary:BetaSuite:testcase_one_passed' },
-                        { file: 'test/test_plan.py', case: 'Secondary:BetaSuite:testcase_two_passed'}
+                        { file: 'test/test_plan.py', case: 'Secondary:BetaSuite:testcase_two_passed' }
                     ],
                 }
             ].forEach(({ suite, cases }) => {

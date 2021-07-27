@@ -43,7 +43,7 @@ export class UnittestTestRunner implements ITestRunner {
             cwd: config.getCwd(),
             args: [testId],
             env: additionalEnvironment,
-        }
+        };
     }
 
     public async load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined> {

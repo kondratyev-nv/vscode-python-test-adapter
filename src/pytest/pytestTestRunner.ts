@@ -8,7 +8,7 @@ import { ArgumentParser } from 'argparse';
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { IEnvironmentVariables, EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
-import { IProcessExecution, runProcess } from '../processRunner'
+import { IProcessExecution, runProcess } from '../processRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities/collections';
 import { setDescriptionForEqualLabels } from '../utilities/tests';

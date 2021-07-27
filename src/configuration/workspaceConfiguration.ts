@@ -9,13 +9,13 @@ export interface IUnittestConfiguration {
 }
 
 export interface IPytestConfiguration {
-    pytestPath(): string,
+    pytestPath(): string;
     pytestArguments: string[];
     isPytestEnabled: boolean;
 }
 
 export interface ITestplanConfiguration {
-    testplanPath(): string,
+    testplanPath(): string;
     testplanArguments: string[];
     isTestplanEnabled: boolean;
 }

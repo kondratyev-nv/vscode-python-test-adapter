@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
@@ -10,7 +11,12 @@ import {
     IWorkspaceConfiguration
 } from '../../src/configuration/workspaceConfiguration';
 import { ILogger } from '../../src/logging/logger';
+import { empty } from '../../src/utilities/collections';
 import { getPythonExecutable } from './testConfiguration';
+
+interface ITreeNode {
+    [key: string]: ITreeNode;
+}
 
 export function logger(): ILogger {
     return {
@@ -190,27 +196,33 @@ export function extractTopLevelLablesAndDescription(suite: TestSuiteInfo): { lab
     });
 }
 
-export function extractAllLabels(suite: TestSuiteInfo): string[] {
-    return suite.children.map(t => {
-        if ((t as TestSuiteInfo).children)
-        {
-            return [t.label].concat(extractAllLabels(t as TestSuiteInfo));
+export function expectLabelsAreSameRecursive(expected: ITreeNode, actual: TestSuiteInfo): void {
+    const expectedLabels = Object.keys(expected);
+    const actualLabels = actual.children.map(t => t.label);
+    expect(actualLabels).to.have.members(expectedLabels);
+
+    for (const [label, expectedChild] of Object.entries(expected)) {
+        const actualChild = actual.children.find(t => t.label === label);
+        expect(actualChild).to.be.not.undefined;
+        if (empty(Object.keys(expectedChild))) {
+            expect(actualChild!.type).to.be.eq(
+                'test',
+                `Invalid node type for ${actualChild!.label} (${actualChild!.id}) ${Object.keys(expectedChild)}`);
+        } else {
+            expect(actualChild!.type).to.be.eq(
+                'suite',
+                `Invalid node type for ${actualChild!.label} (${actualChild!.id}) ${Object.keys(expectedChild)}`);
+            expectLabelsAreSameRecursive(expectedChild, actualChild as TestSuiteInfo);
         }
-        else
-        {
-            return [t.label];
-        }
-    }).reduce((r, x) => r.concat(x), []);
+    }
 }
 
 export function extractAllIds(suite: TestSuiteInfo): string[] {
     return suite.children.map(t => {
-        if ((t as TestSuiteInfo).children)
-        {
+        if ((t as TestSuiteInfo).children) {
             return [t.id].concat(extractAllIds(t as TestSuiteInfo));
         }
-        else
-        {
+        else {
             return [t.id];
         }
     }).reduce((r, x) => r.concat(x), []);

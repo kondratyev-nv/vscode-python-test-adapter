@@ -1,3 +1,10 @@
+## 0.7.0
+
+* Support for testplan framework (thanks to @cnx-tcsikos)
+* Fix pytest returning empty output (Issue #245)
+* Update dependencies
+* Update README with FAQ, update lint rules.
+
 ## 0.6.8
 
 * Include global PYTHONPATH when overriding PYTHONPATH for pytest (Issue #230, thanks to @bergkvist)

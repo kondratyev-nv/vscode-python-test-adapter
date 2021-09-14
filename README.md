@@ -68,7 +68,7 @@ Property                                       | Description
 `pythonTestExplorer.testplanArgs`              | Arguments passed in. Each argument is a separate item in the array.
 `pythonTestExplorer.testplanEnabled`           | Enable testing using Testplan. _Note that Testplan is only supported for Python 3.7+._
 
-Configuration supports a placeholders for workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
+Configuration supports a placeholders for the workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
 
 ### Configuring Test Explorer UI
 

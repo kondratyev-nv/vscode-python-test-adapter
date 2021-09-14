@@ -45,8 +45,8 @@ tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?ite
 By default the extension uses the configuration from [Python extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 To configure Python for your project see [Getting Started with Python in VS Code](https://code.visualstudio.com/docs/python/python-tutorial).
 
-However, test framework used by this extension can be overridden by `pythonTestExplorer.testFramework` configuration property.
-Right now, the two available option are `unittest`, `pytest` and `testplan`. When property is set to `null`, the configuration from Python extension is used.
+However, the test framework used by this extension can be overridden by `pythonTestExplorer.testFramework` configuration property.
+Right now, the three available options are `unittest`, `pytest` and `testplan`. When the property is set to `null`, the configuration from Python extension is used.
 
 ### Configuring Python test discovery and execution
 
@@ -68,7 +68,7 @@ Property                                       | Description
 `pythonTestExplorer.testplanArgs`              | Arguments passed in. Each argument is a separate item in the array.
 `pythonTestExplorer.testplanEnabled`           | Enable testing using Testplan. _Note that Testplan is only supported for Python 3.7+._
 
-Configuration supports placeholders for workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
+Configuration supports a placeholders for workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
 
 ### Configuring Test Explorer UI
 
@@ -135,7 +135,7 @@ For example,
 
 ```json
 {
-    // this settings are 'false' by default, so removing those should also work
+    // these settings are 'false' by default, so removing those should also work
     "python.testing.unittestEnabled": false, 
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": false,
@@ -143,7 +143,7 @@ For example,
 }
 ```
 
-### 2. How to use this extesion to run Django tests?
+### 2. How to use this extension to run Django tests?
 
 You can use pytest to discover and run Django tests with this extension.  For this, install [`pytest-django` package](https://pypi.org/project/pytest-django/) and follow its [Getting started guide](https://pytest-django.readthedocs.io/en/latest/tutorial.html).
 

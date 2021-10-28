@@ -39,7 +39,7 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
         try {
             return await PythonExtensionAwareWorkspaceConfiguration
                 .tryDetectPythonPath(workspaceFolder, logger);
-        } catch (error) {
+        } catch (error: any) {
             logger.log(
                 'crit',
                 `Failed to use pythonPath auto-detection from Python Extension: ${error}${EOL}${error.stack}`

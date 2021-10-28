@@ -124,7 +124,7 @@ export class PythonTestAdapter implements TestAdapter {
             this.sortTests(suite);
 
             this.testsEmitter.fire({ type: 'finished', suite });
-        } catch (error) {
+        } catch (error: any) {
             const errorMessage = `Test loading failed: ${concatNonEmpty(EOL, error, error.stack)}`;
             this.logger.log('crit', errorMessage);
             this.testsEmitter.fire({ type: 'finished', suite: undefined, errorMessage });
@@ -146,7 +146,7 @@ export class PythonTestAdapter implements TestAdapter {
                             this.testStatesEmitter.fire(state);
                         }
                     });
-                } catch (reason) {
+                } catch (reason: any) {
                     this.logger.log('crit', `Execution of the test "${test}" failed: ${reason}`);
                     this.setTestStatesRecursive(test, 'failed', reason);
                 }

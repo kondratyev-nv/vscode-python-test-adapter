@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 import { PlaceholderAwareWorkspaceConfiguration } from '../../src/configuration/placeholderAwareWorkspaceConfiguration';
 import {
+    IBehaveConfiguration,
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
@@ -115,6 +116,13 @@ export function createPytestConfiguration(folder: string, args?: string[], cwd?:
         getTestplanConfiguration(): ITestplanConfiguration {
             throw new Error();
         },
+        getBehaveConfiguration(): IBehaveConfiguration {
+            return {
+                behavePath: () => 'behave',
+                isBehaveEnabled: true,
+                behaveArguments: args || [],
+            };
+        },
     }, wf, logger());
 }
 
@@ -149,6 +157,9 @@ export function createUnittestConfiguration(folder: string): IWorkspaceConfigura
         getTestplanConfiguration(): ITestplanConfiguration {
             throw new Error();
         },
+        getBehaveConfiguration(): IBehaveConfiguration {
+            throw new Error();
+        },
     }, wf, logger());
 }
 
@@ -179,6 +190,13 @@ export function createTestplanConfiguration(folder: string, args?: string[], cwd
                 testplanPath: () => 'test_plan.py',
                 isTestplanEnabled: true,
                 testplanArguments: args || [],
+            };
+        },
+        getBehaveConfiguration(): IBehaveConfiguration {
+            return {
+                behavePath: () => 'behave',
+                isBehaveEnabled: true,
+                behaveArguments: args || [],
             };
         },
     }, wf, logger());

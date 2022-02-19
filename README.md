@@ -4,7 +4,7 @@
 [![Azure Pipelines CI](https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_apis/build/status/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code%20CI?branchName=master)](https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_build/latest?definitionId=1&branchName=master)
 [![Dependencies Status](https://david-dm.org/kondratyev-nv/vscode-python-unittest-adapter/status.svg)](https://david-dm.org/kondratyev-nv/vscode-python-unittest-adapter)
 
-This extension allows you to run your Python [Unittest](https://docs.python.org/3/library/unittest.html#module-unittest), [Pytest](https://docs.pytest.org/en/latest/) or [Testplan](https://testplan.readthedocs.io/)
+This extension allows you to run your Python [Unittest](https://docs.python.org/3/library/unittest.html#module-unittest), [Pytest](https://docs.pytest.org/en/latest/), [Testplan](https://testplan.readthedocs.io/) or [Behave](https://behave.readthedocs.io/en/latest/)
 tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer).
 
 ![Screenshot](img/screenshot.png)
@@ -17,6 +17,7 @@ tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?ite
   * [Unittest documentation](https://docs.python.org/3/library/unittest.html#module-unittest)
   * [Pytest documentation](https://docs.pytest.org/en/latest/getting-started.html)
   * [Testplan documentation](https://testplan.readthedocs.io/en/latest/getting_started.html)
+  * [Behave documentation](https://behave.readthedocs.io/en/latest/)
 * Open Test View sidebar
 * Run your tests using the ![Run](img/run-button.png) icon in the Test Explorer
 
@@ -62,6 +63,9 @@ Property                                       | Description
 `python.testing.pyTestEnabled`                 | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer).
 `python.testing.pytestPath`                    | Path to pytest executable or a pytest compatible module.
 `python.testing.pyTestArgs`                    | Arguments passed to the pytest. Each argument is a separate item in the array.
+`python.testing.behaveEnabled`                 | Whether to enable or disable testing using behave (enables or disables test discovery for Test Explorer).
+`python.testing.behavePath`                    | Path to behave executable.
+`python.testing.behaveArgs`                    | Arguments passed to behave. Each argument is a separate item in the array.
 `python.testing.autoTestDiscoverOnSaveEnabled` | When `true` tests will be automatically rediscovered when saving a test file.
 `pythonTestExplorer.testFramework`             | Test framework to use (overrides Python extension properties `python.testing.unittestEnabled` and `python.testing.pyTestEnabled`).
 `pythonTestExplorer.testplanPath`              | Relative path to testplan main suite.

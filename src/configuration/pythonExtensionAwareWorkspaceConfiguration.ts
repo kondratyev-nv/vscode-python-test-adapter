@@ -3,6 +3,7 @@ import { EOL } from 'os';
 
 import { ILogger } from '../logging/logger';
 import {
+    IBehaveConfiguration,
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
@@ -99,5 +100,9 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
 
     public getTestplanConfiguration(): ITestplanConfiguration {
         return this.configuration.getTestplanConfiguration();
+    }
+
+    public getBehaveConfiguration(): IBehaveConfiguration {
+        return this.configuration.getBehaveConfiguration();
     }
 }

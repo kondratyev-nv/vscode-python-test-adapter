@@ -83,6 +83,9 @@ export class PythonTestAdapter implements TestAdapter {
                 'python.testing.pytestEnabled',
                 'python.testing.pytestPath',
                 'python.testing.pytestArgs',
+                'python.testing.behaveEnabled',
+                'python.testing.behavePath',
+                'python.testing.behaveArgs',
                 'pythonTestExplorer.testFramework'
             ];
 

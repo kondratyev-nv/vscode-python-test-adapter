@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as os from 'os';
 
 import {
+    IBehaveConfiguration,
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
@@ -50,6 +51,9 @@ function createPytestConfiguration(args?: string[]): IWorkspaceConfiguration {
             };
         },
         getTestplanConfiguration(): ITestplanConfiguration {
+            throw new Error();
+        },
+        getBehaveConfiguration(): IBehaveConfiguration {
             throw new Error();
         },
     }, wf, logger());

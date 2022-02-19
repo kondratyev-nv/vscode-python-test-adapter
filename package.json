@@ -40,7 +40,8 @@
     "test",
     "testing",
     "unittest",
-    "pytest"
+    "pytest",
+    "behave"
   ],
   "scripts": {
     "clean": "rimraf out *.vsix **/*.pyc **/__pycache__ **/.pytest_cache **/.some_venv **/.venv",
@@ -119,6 +120,7 @@
             "unittest",
             "pytest",
             "testplan",
+            "behave",
             null
           ],
           "default": null,

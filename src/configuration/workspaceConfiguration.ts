@@ -20,6 +20,12 @@ export interface ITestplanConfiguration {
     isTestplanEnabled: boolean;
 }
 
+export interface IBehaveConfiguration {
+    behavePath(): string;
+    behaveArguments: string[];
+    isBehaveEnabled: boolean;
+}
+
 export interface IWorkspaceConfiguration {
     pythonPath(): string;
 
@@ -34,4 +40,6 @@ export interface IWorkspaceConfiguration {
     getPytestConfiguration(): IPytestConfiguration;
 
     getTestplanConfiguration(): ITestplanConfiguration;
+
+    getBehaveConfiguration(): IBehaveConfiguration;
 }

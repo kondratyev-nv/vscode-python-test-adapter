@@ -11,6 +11,7 @@ import { PytestTestRunner } from './pytest/pytestTestRunner';
 import { TestplanTestRunner } from './testplan/testplanTestRunner';
 import { PythonTestAdapter } from './pythonTestAdapter';
 import { UnittestTestRunner } from './unittest/unittestTestRunner';
+import { BehaveTestRunner } from './behave/behaveTestRunner';
 
 type LoggerFactory = (framework: string, wf: vscode.WorkspaceFolder) => ILogger;
 
@@ -28,14 +29,19 @@ function registerTestAdapters(
     const testplanLogger = loggerFactory('testplan', wf);
     const testplanRunner = new TestplanTestRunner(nextId(), pytestLogger);
 
+    const behaveLogger = loggerFactory('behave', wf);
+    const behaveRunner = new BehaveTestRunner(nextId(), behaveLogger);
+
     const unittestConfigurationFactory = new DefaultConfigurationFactory(unittestLogger);
     const pytestConfigurationFactory = new DefaultConfigurationFactory(pytestLogger);
     const testplantConfigurationFactory = new DefaultConfigurationFactory(testplanLogger);
+    const behaveConfigurationFactory = new DefaultConfigurationFactory(behaveLogger);
 
     const adapters = [
         new PythonTestAdapter(wf, unittestRunner, unittestConfigurationFactory, unittestLogger),
         new PythonTestAdapter(wf, pytestRunner, pytestConfigurationFactory, pytestLogger),
-        new PythonTestAdapter(wf, testplanRunner, testplantConfigurationFactory, testplanLogger)
+        new PythonTestAdapter(wf, testplanRunner, testplantConfigurationFactory, testplanLogger),
+        new PythonTestAdapter(wf, behaveRunner, behaveConfigurationFactory, behaveLogger)
     ];
     adapters.forEach(adapter => extension.exports.registerTestAdapter(adapter));
     return adapters;

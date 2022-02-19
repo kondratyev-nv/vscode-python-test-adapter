@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 
-import { IPytestConfiguration, ITestplanConfiguration, IUnittestConfiguration } from '../../src/configuration/workspaceConfiguration';
+import { IBehaveConfiguration, IPytestConfiguration, ITestplanConfiguration, IUnittestConfiguration } from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
 import { TestplanTestRunner } from '../../src/testplan/testplanTestRunner';
 import { UnittestTestRunner } from '../../src/unittest/unittestTestRunner';
@@ -62,6 +62,13 @@ import { getPythonExecutable } from '../utils/testConfiguration';
                         testplanArguments: [],
                     };
                 },
+                getBehaveConfiguration(): IBehaveConfiguration {
+                    return {
+                        behavePath: () => 'behave',
+                        isBehaveEnabled: true,
+                        behaveArguments: [],
+                    };
+                },
             };
             const suites = await runner.load(config);
             expect(suites).to.be.undefined;
@@ -103,6 +110,13 @@ import { getPythonExecutable } from '../utils/testConfiguration';
                         testplanPath: () => 'test_plan.py',
                         isTestplanEnabled: true,
                         testplanArguments: [],
+                    };
+                },
+                getBehaveConfiguration(): IBehaveConfiguration {
+                    return {
+                        behavePath: () => 'behave',
+                        isBehaveEnabled: true,
+                        behaveArguments: [],
                     };
                 },
             };

@@ -60,7 +60,7 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
                 tooltip: scenario.location,
                 children: scenario.steps.map(step => ({
                     type: 'test' as 'test',
-                    id: "step" + (stepid += 1),
+                    id: 'step' + (stepid += 1),
                     label: step.name,
                     file: extractFile(step.location, cwd),
                     line: extractLine(step.location),
@@ -94,7 +94,7 @@ export function parseTestStates(content: string): TestEvent[] {
             const steps = scenario.steps.map( (step) : TestEvent => ({
                 type: 'test' as 'test',
                 state: step.result.status,
-                test: "step" + (stepid += 1),
+                test: 'step' + (stepid += 1),
                 message: (step.result.error_message ? step.result.error_message.join('\n') : ""),
                 decorations: [],
                 description: undefined,

@@ -77,7 +77,7 @@
     "@types/node": "^17.0.18",
     "@types/semver": "^7.3.9",
     "@types/tmp": "^0.2.3",
-    "@types/vscode": "^1.64.0",
+    "@types/vscode": "^1.59.0",
     "@types/xml2js": "^0.4.9",
     "chai": "^4.3.6",
     "copyfiles": "2.4.1",
@@ -92,7 +92,7 @@
   },
   "main": "out/src/main.js",
   "engines": {
-    "vscode": "^1.23.0"
+    "vscode": "^1.59.0"
   },
   "activationEvents": [
     "onLanguage:python",

@@ -42,7 +42,7 @@ isTestplanPrerequisiteMet().then(isTestplan => {
             expect(mainSuite).to.be.not.undefined;
             expect(mainSuite!.label).to.be.eq('Testplan tests');
             expect(mainSuite!.children).to.be.not.empty;
-        });
+        }).timeout(60000);
 
         test('should discover tests', async () => {
             const mainSuite = await runner.load(config);

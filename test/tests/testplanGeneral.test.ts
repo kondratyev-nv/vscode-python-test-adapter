@@ -160,7 +160,7 @@ isTestplanPrerequisiteMet().then(isTestplan => {
                     const expectedState = extractExpectedState(state.test as string);
                     expect(state.state).to.be.eq(expectedState);
                 });
-            });
+            }).timeout(60000);
         });
     }).timeout(60000);
 });

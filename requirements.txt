@@ -1,5 +1,6 @@
 pytest
-pytest-describe
+pytest-describe; python_version >= '3.6'
+pytest-describe==1.0.0; python_version < '3.6'
 https://github.com/morganstanley/testplan/archive/main.zip; python_version > '3.6'
 plotly
 

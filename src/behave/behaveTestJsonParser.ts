@@ -39,9 +39,17 @@ interface IResult {
     error_message?: string[];
 }
 
-export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | TestInfo)[] {
+function safeJsonParse(text: string) : IFeature[] {
+    try {
+        return JSON.parse(text);
+    } catch (err) {
+        // this.logger.log('warn', 'parse json failed: ${text}');
+        return [];
+    }
+}
 
-    const discoveryResult : IFeature[] = JSON.parse(content);
+export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | TestInfo)[] {
+    const discoveryResult = safeJsonParse(content);
 
     let stepid = 0;
     const suites = discoveryResult.map(feature => <TestSuiteInfo | TestInfo>({
@@ -64,8 +72,8 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
                     label: step.name,
                     file: extractFile(step.location, cwd),
                     line: extractLine(step.location),
-                    tooltip: step.location
-                }))
+                    tooltip: step.location,
+                })),
             })),
         }));
 
@@ -79,28 +87,28 @@ function extractLine(text: string) : number {
 
 function extractFile(text: string, cwd : string) {
     const separatorIndex = text.indexOf(':');
-    return path.resolve(cwd, text.substring(0, separatorIndex))
+    return path.resolve(cwd, text.substring(0, separatorIndex));
 }
 
 export function parseTestStates(content: string): TestEvent[] {
-    const runtestResult : IFeature[] = JSON.parse(content);
+    const runtestResult = safeJsonParse(content);
 
     let states : TestEvent[] = [];
 
     let stepid = 0;
 
-    runtestResult.forEach( (feature) => {
-        feature.elements.forEach( (scenario) => {
+    runtestResult.forEach( feature => {
+        feature.elements.forEach( scenario => {
             const steps = scenario.steps.map( (step) : TestEvent => ({
                 type: 'test' as 'test',
                 state: step.result.status,
                 test: 'step' + (stepid += 1),
-                message: (step.result.error_message ? step.result.error_message.join('\n') : ""),
+                message: (step.result.error_message ? step.result.error_message.join('\n') : ''),
                 decorations: [],
                 description: undefined,
             }));
             states = states.concat(steps);
-        })
+        });
     });
 
     return states;

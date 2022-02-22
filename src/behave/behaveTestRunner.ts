@@ -99,8 +99,9 @@ export class BehaveTestRunner implements ITestRunner {
         const result = await this.runBehave(config, additionalEnvironment, testRunArguments).complete();
         const states = parseTestStates(result.output);
         if (empty(states)) {
+            // maybe an error occured
             this.logger.log('warn', 'No tests run');
-            return [];
+            this.logger.log('warn', 'Output: ${result.output}');
         }
 
         return states;

@@ -1,4 +1,8 @@
 pytest
-pytest-describe
-git+git://github.com/morganstanley/testplan@latest#egg=testplan; python_version > '3.6'
+pytest-describe; python_version >= '3.6'
+pytest-describe==1.0.0; python_version < '3.6'
+https://github.com/morganstanley/testplan/archive/main.zip; python_version > '3.6'
 plotly
+
+# temporary fix for testplan
+markupsafe==2.0.1; python_version > '3.6'

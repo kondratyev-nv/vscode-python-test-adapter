@@ -103,9 +103,12 @@ export class BehaveTestRunner implements ITestRunner {
         this.logger.log('info', `Running tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
         const testRunArguments = this.getRunArguments(test, config.getBehaveConfiguration().behaveArguments);
-        this.logger.log('info', `Running behave with arguments: ${testRunArguments.join(', ')}`);
+        this.logger.log('info', `Running behave with arguments: ${testRunArguments.argumentsToPass.join(', ')}`);
+        this.logger.log('info', `Running behave with locations: ${testRunArguments.locations.join(', ')}`);
 
-        const result = await this.runBehave(config, additionalEnvironment, testRunArguments).complete();
+        const params = [ ...testRunArguments.argumentsToPass, ...testRunArguments.locations];
+
+        const result = await this.runBehave(config, additionalEnvironment, params).complete();
         const states = parseTestStates(result.output);
         if (empty(states)) {
             // maybe an error occured

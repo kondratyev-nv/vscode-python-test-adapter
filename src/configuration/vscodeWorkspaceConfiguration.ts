@@ -157,15 +157,27 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
         if (overriddenTestFramework) {
             return 'behave' === overriddenTestFramework;
         }
-        return this.testExplorerConfiguration.get<boolean>('behaveEnabled', false);
+        return this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['testing.behaveEnabled', 'testing.BehaveEnabled'],
+            false
+        );
     }
 
     private getBehavePath(): string {
-        return this.testExplorerConfiguration.get<string>('behavePath', 'behave');
+        return this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['testing.behavePath', 'testing.BehavePath'],
+            'behave'
+        );
     }
 
     private getBehaveArguments(): string[] {
-        return this.testExplorerConfiguration.get<string[]>('behaveArgs', []);
+        return this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['testing.behaveArgs', 'testing.BehaveArgs'],
+            []
+        );
     }
 
     private configureUnittestArgumentParser() {

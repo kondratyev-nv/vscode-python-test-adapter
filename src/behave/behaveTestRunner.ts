@@ -26,6 +26,11 @@ const DISCOVERY_OUTPUT_PLUGIN_INFO = {
     MODULE_NAME: 'vscode_python_test_adapter.behave.discovery_output_plugin',
 };
 
+interface IBehaveArguments {
+    argumentsToPass: string[];
+    locations: string[];
+}
+
 
 export class BehaveTestRunner implements ITestRunner {
 
@@ -50,10 +55,11 @@ export class BehaveTestRunner implements ITestRunner {
     public async debugConfiguration(config: IWorkspaceConfiguration, test: string): Promise<IDebugConfiguration> {
         const additionalEnvironment = await this.loadEnvironmentVariables(config);
         const runArguments = this.getRunArguments(test, config.getBehaveConfiguration().behaveArguments);
+        const params = [ ...runArguments.argumentsToPass, ...runArguments.locations];
         return {
             module: 'behave',
             cwd: config.getCwd(),
-            args: runArguments,
+            args: params,
             env: additionalEnvironment,
         };
     }
@@ -67,9 +73,12 @@ export class BehaveTestRunner implements ITestRunner {
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
         const discoveryArguments = this.getDiscoveryArguments(config.getBehaveConfiguration().behaveArguments);
-        this.logger.log('info', `Running behave with arguments: ${discoveryArguments.join(', ')}`);
+        this.logger.log('info', `Running behave with arguments: ${discoveryArguments.argumentsToPass.join(', ')}`);
+        this.logger.log('info', `Running behave with locations: ${discoveryArguments.locations.join(', ')}`);
 
-        const result = await this.runBehave(config, additionalEnvironment, discoveryArguments).complete();
+        const params = [ ...discoveryArguments.argumentsToPass, ...discoveryArguments.locations];
+
+        const result = await this.runBehave(config, additionalEnvironment, params).complete();
         const tests = parseTestSuites(result.output, config.getCwd());
         if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');
@@ -154,17 +163,23 @@ export class BehaveTestRunner implements ITestRunner {
         };
     }
 
-    private getDiscoveryArguments(rawBehaveArguments: string[]): string[] {
+    private getDiscoveryArguments(rawBehaveArguments: string[]): IBehaveArguments {
         const argumentParser = this.configureCommonArgumentParser();
-        const [, argumentsToPass] = argumentParser.parse_known_args(rawBehaveArguments);
-        return ['-d', '-f', 'json', '--no-summary', '--no-snippets'].concat(argumentsToPass);
+        const [knownArguments, argumentsToPass] = argumentParser.parse_known_args(rawBehaveArguments);
+        return {
+            locations: (knownArguments as { locations?: string[] }).locations || [],
+            argumentsToPass: ['-d', '-f', 'json', '--no-summary', '--no-snippets'].concat(argumentsToPass),
+        };
     }
 
     // @ts-expect-error
-    private getRunArguments(test: string, rawBehaveArguments: string[]): string[] {
+    private getRunArguments(test: string, rawBehaveArguments: string[]): IBehaveArguments {
         const argumentParser = this.configureCommonArgumentParser();
-        const [, argumentsToPass] = argumentParser.parse_known_args(rawBehaveArguments);
-        return ['-f', 'json', '--no-summary', '--no-snippets'].concat(argumentsToPass);
+        const [knownArguments, argumentsToPass] = argumentParser.parse_known_args(rawBehaveArguments);
+        return {
+            locations: (knownArguments as { locations?: string[] }).locations || [],
+            argumentsToPass: ['-f', 'json', '--no-summary', '--no-snippets'].concat(argumentsToPass),
+        };
     }
 
     private configureCommonArgumentParser() {
@@ -180,6 +195,12 @@ export class BehaveTestRunner implements ITestRunner {
         argumentParser.add_argument(
             '-i', '--include',
             { action: 'store', dest: 'include' });
+
+        // Handle positional arguments (list of testsuite directories to run behave in).
+        argumentParser.add_argument(
+            'locations',
+            { nargs: '*' });
+
         return argumentParser;
     }
 }

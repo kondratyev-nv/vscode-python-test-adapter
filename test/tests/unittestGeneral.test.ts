@@ -212,7 +212,7 @@ suite('Unittest run and discovery with start folder in config', () => {
             throw new Error('Testplan is not available');
         },
         getBehaveConfiguration() {
-            throw new Error('Testplan is not available');
+            throw new Error('Behave is not available');
         },
     };
     const runner = new UnittestTestRunner('some-id', logger());

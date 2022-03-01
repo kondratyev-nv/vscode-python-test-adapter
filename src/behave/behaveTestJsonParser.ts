@@ -22,7 +22,7 @@ interface IFeature {
     tags:     any[];
     location: string;
     status:   IStatus;
-    elements: IScenario[];
+    elements?: IScenario[];
 }
 interface IStep {
     keyword:   string;
@@ -59,7 +59,7 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
             file: extractFile(feature.location, cwd),
             line: extractLine(feature.location),
             tooltip: feature.location,
-            children: feature.elements.map(scenario => ({
+                children: (feature.elements || []).map(scenario => ({
                 type: 'suite' as 'suite',
                 id: scenario.location,
                 label: scenario.name,
@@ -98,7 +98,7 @@ export function parseTestStates(content: string): TestEvent[] {
     let stepid = 0;
 
     runtestResult.forEach( feature => {
-        feature.elements.forEach( scenario => {
+        (feature.elements || []).forEach( scenario => {
             const steps = scenario.steps.map( (step) : TestEvent => ({
                 type: 'test' as 'test',
                 state: step.result.status,

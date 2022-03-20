@@ -82,7 +82,7 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
 
 function extractLine(text: string) : number {
     const separatorIndex = text.indexOf(':');
-    return Number(text.substring(separatorIndex + 1));
+    return parseInt(text.substring(separatorIndex + 1), 10);
 }
 
 function extractFile(text: string, cwd : string) {

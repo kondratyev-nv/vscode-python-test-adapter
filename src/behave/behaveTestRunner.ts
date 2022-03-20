@@ -175,13 +175,14 @@ export class BehaveTestRunner implements ITestRunner {
         };
     }
 
-    // @ts-expect-error
     private getRunArguments(test: string, rawBehaveArguments: string[]): IBehaveArguments {
         const argumentParser = this.configureCommonArgumentParser();
         const [knownArguments, argumentsToPass] = argumentParser.parse_known_args(rawBehaveArguments);
         return {
-            locations: (knownArguments as { locations?: string[] }).locations || [],
-            argumentsToPass: ['-f', 'json', '--no-summary', '--no-snippets'].concat(argumentsToPass),
+            locations: ((knownArguments as { locations?: string[] }).locations || [])
+                .concat(test !== this.adapterId ? [test] : []),
+            argumentsToPass: ['-f', 'json', '--no-summary', '--no-snippets']
+                .concat(argumentsToPass)
         };
     }
 

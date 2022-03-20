@@ -59,7 +59,7 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
             file: extractFile(feature.location, cwd),
             line: extractLine(feature.location),
             tooltip: feature.location,
-                children: (feature.elements || []).map(scenario => ({
+            children: (feature.elements || []).map(scenario => ({
                 type: 'suite' as 'suite',
                 id: scenario.location,
                 label: scenario.name,

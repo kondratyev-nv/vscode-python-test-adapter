@@ -43,7 +43,7 @@ function safeJsonParse(text: string) : IFeature[] {
     try {
         return JSON.parse(text);
     } catch (err) {
-        // this.logger.log('warn', 'parse json failed: ${text}');
+        // parse json has failed, return empty array
         return [];
     }
 }

@@ -159,7 +159,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
         }
         return this.getConfigurationValueOrDefault(
             this.pythonConfiguration,
-            ['testing.behaveEnabled', 'testing.BehaveEnabled'],
+            ['testing.behaveEnabled'],
             false
         );
     }
@@ -167,7 +167,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private getBehavePath(): string {
         return this.getConfigurationValueOrDefault(
             this.pythonConfiguration,
-            ['testing.behavePath', 'testing.BehavePath'],
+            ['testing.behavePath'],
             'behave'
         );
     }
@@ -175,7 +175,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private getBehaveArguments(): string[] {
         return this.getConfigurationValueOrDefault(
             this.pythonConfiguration,
-            ['testing.behaveArgs', 'testing.BehaveArgs'],
+            ['testing.behaveArgs'],
             []
         );
     }

@@ -2,6 +2,7 @@ import { ArgumentParser } from 'argparse';
 import { workspace, WorkspaceConfiguration, WorkspaceFolder } from 'vscode';
 
 import {
+    IBehaveConfiguration,
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestArguments,
@@ -63,6 +64,14 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
             testplanPath: () => this.getTestplanPath(),
             isTestplanEnabled: this.isTestplanTestEnabled(),
             testplanArguments: this.getTestplanArguments(),
+        };
+    }
+
+    public getBehaveConfiguration(): IBehaveConfiguration {
+        return {
+            behavePath: () => this.getBehavePath(),
+            isBehaveEnabled: this.isBehaveTestEnabled(),
+            behaveArguments: this.getBehaveArguments(),
         };
     }
 
@@ -141,6 +150,34 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
 
     private getTestplanArguments(): string[] {
         return this.testExplorerConfiguration.get<string[]>('testplanArgs', []);
+    }
+
+    private isBehaveTestEnabled(): boolean {
+        const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
+        if (overriddenTestFramework) {
+            return 'behave' === overriddenTestFramework;
+        }
+        return this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['testing.behaveEnabled'],
+            false
+        );
+    }
+
+    private getBehavePath(): string {
+        return this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['testing.behavePath'],
+            'behave'
+        );
+    }
+
+    private getBehaveArguments(): string[] {
+        return this.getConfigurationValueOrDefault(
+            this.pythonConfiguration,
+            ['testing.behaveArgs'],
+            []
+        );
     }
 
     private configureUnittestArgumentParser() {

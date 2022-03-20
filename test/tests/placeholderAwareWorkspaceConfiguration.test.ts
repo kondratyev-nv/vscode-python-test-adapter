@@ -5,6 +5,7 @@ import * as path from 'path';
 
 import { PlaceholderAwareWorkspaceConfiguration } from '../../src/configuration/placeholderAwareWorkspaceConfiguration';
 import {
+    IBehaveConfiguration,
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
@@ -62,6 +63,13 @@ suite('Placeholder aware workspace configuration', () => {
                     testplanArguments: [],
                 };
             },
+            getBehaveConfiguration(): IBehaveConfiguration {
+                return {
+                    behavePath: () => 'behave',
+                    isBehaveEnabled: true,
+                    behaveArguments: [],
+                };
+            },
         });
 
         const wfPath = getWorkspaceFolder().uri.fsPath;
@@ -113,6 +121,13 @@ suite('Placeholder aware workspace configuration', () => {
                     testplanPath: () => 'test_plan.py',
                     isTestplanEnabled: true,
                     testplanArguments: [],
+                };
+            },
+            getBehaveConfiguration(): IBehaveConfiguration {
+                return {
+                    behavePath: () => 'behave',
+                    isBehaveEnabled: true,
+                    behaveArguments: [],
                 };
             },
         });
@@ -168,6 +183,13 @@ suite('Placeholder aware workspace configuration', () => {
                     testplanArguments: [],
                 };
             },
+            getBehaveConfiguration(): IBehaveConfiguration {
+                return {
+                    behavePath: () => 'behave',
+                    isBehaveEnabled: true,
+                    behaveArguments: [],
+                };
+            },
         });
 
         const wfPath = getWorkspaceFolder().uri.fsPath;
@@ -210,6 +232,13 @@ suite('Placeholder aware workspace configuration', () => {
                     testplanPath: () => 'test_plan.py',
                     isTestplanEnabled: true,
                     testplanArguments: [],
+                };
+            },
+            getBehaveConfiguration(): IBehaveConfiguration {
+                return {
+                    behavePath: () => 'behave',
+                    isBehaveEnabled: true,
+                    behaveArguments: [],
                 };
             },
         });
@@ -262,6 +291,13 @@ suite('Placeholder aware workspace configuration', () => {
                     testplanArguments: [],
                 };
             },
+            getBehaveConfiguration(): IBehaveConfiguration {
+                return {
+                    behavePath: () => 'behave',
+                    isBehaveEnabled: true,
+                    behaveArguments: [],
+                };
+            },
         });
 
         const homePath = os.homedir();
@@ -311,6 +347,13 @@ suite('Placeholder aware workspace configuration', () => {
                         testplanArguments: [],
                     };
                 },
+                getBehaveConfiguration(): IBehaveConfiguration {
+                    return {
+                        behavePath: () => 'behave',
+                        isBehaveEnabled: true,
+                        behaveArguments: [],
+                    };
+                },
             });
 
             expect(configuration.pythonPath()).to.be.eq(path.resolve(expectedPath, 'some', 'local', 'python'));
@@ -356,6 +399,13 @@ suite('Placeholder aware workspace configuration', () => {
                         testplanPath: () => 'test_plan.py',
                         isTestplanEnabled: true,
                         testplanArguments: [],
+                    };
+                },
+                getBehaveConfiguration(): IBehaveConfiguration {
+                    return {
+                        behavePath: () => 'behave',
+                        isBehaveEnabled: true,
+                        behaveArguments: [],
                     };
                 },
             });

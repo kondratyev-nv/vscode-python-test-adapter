@@ -6,3 +6,6 @@ plotly
 
 # temporary fix for testplan
 markupsafe==2.0.1; python_version > '3.6'
+
+# behave test framework
+behave

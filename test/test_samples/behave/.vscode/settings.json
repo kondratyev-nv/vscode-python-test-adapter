@@ -1,0 +1,5 @@
+{
+   "python.envFile": "../.env",
+   "python.testing.behaveEnabled": true,
+   "python.testing.behaveArgs": []
+}

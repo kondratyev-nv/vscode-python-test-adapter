@@ -4,6 +4,7 @@ import { WorkspaceFolder } from 'vscode';
 
 import { ILogger } from '../logging/logger';
 import {
+    IBehaveConfiguration,
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
@@ -60,6 +61,19 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
             isTestplanEnabled: original.isTestplanEnabled,
             testplanArguments: original.testplanArguments.map(argument => this.resolvePlaceholders(argument)),
         };
+    }
+
+    public getBehaveConfiguration(): IBehaveConfiguration {
+        const original = this.configuration.getBehaveConfiguration();
+        return {
+            behavePath: () => this.getBehavePath(),
+            isBehaveEnabled: original.isBehaveEnabled,
+            behaveArguments: original.behaveArguments.map(argument => this.resolvePlaceholders(argument)),
+        };
+    }
+
+    private getBehavePath(): string {
+        return this.resolveExecutablePath(this.configuration.getBehaveConfiguration().behavePath());
     }
 
     private getPytestPath(): string {

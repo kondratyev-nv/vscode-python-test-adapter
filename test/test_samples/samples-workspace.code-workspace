@@ -10,6 +10,9 @@
             "path": "testplan"
         },
         {
+            "path": "behave"
+        },
+        {
             "path": "workspaces/empty_configuration"
         },
         {

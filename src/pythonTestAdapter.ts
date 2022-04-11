@@ -293,7 +293,7 @@ export class PythonTestAdapter implements TestAdapter {
         if (cfg.request === 'test') {
             return true;
         }
-        const purpose = cfg['purpose'] as string[] | undefined;
+        const purpose = cfg.purpose as string[] | undefined;
         return purpose?.includes('debug-test') ?? false;
     }
 }

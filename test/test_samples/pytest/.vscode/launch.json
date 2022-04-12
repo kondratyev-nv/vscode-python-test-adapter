@@ -7,10 +7,11 @@
         {
             "name": "Debug configuration",
             "type": "python",
-            "request": "test",
+            "request": "attach",
             "console": "externalTerminal",
             "justMyCode": false,
-            "stopOnEntry": true
+            "stopOnEntry": true,
+            "purpose": ["debug-test"]
         }
     ]
 }

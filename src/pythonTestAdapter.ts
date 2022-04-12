@@ -260,9 +260,7 @@ export class PythonTestAdapter implements TestAdapter {
             }
             return firstOrDefault(
                 (launchJsonConfiguration.configurations as DebugConfiguration[])
-                    .filter(cfg => cfg.name)
-                    .filter(cfg => cfg.type === 'python')
-                    .filter(cfg => cfg.request === 'test')
+                    .filter(cfg => this.isTestConfiguration(cfg))
                     .map(cfg => cfg as IPythonTestDebugConfig)
                     .map(cfg => <IPythonTestDebugConfig>({
                         env: EnvironmentVariablesLoader.merge(cfg.env || {}, globalEnvironment),
@@ -283,5 +281,19 @@ export class PythonTestAdapter implements TestAdapter {
             this.logger.log('crit', `Could not load debug configuration: ${error}`);
             return emptyJsonConfiguration;
         }
+    }
+
+    private isTestConfiguration(cfg: DebugConfiguration): boolean {
+        if (!cfg.name) {
+            return false;
+        }
+        if (cfg.type !== 'python') {
+            return false;
+        }
+        if (cfg.request === 'test') {
+            return true;
+        }
+        const purpose = cfg.purpose as string[] | undefined;
+        return purpose?.includes('debug-test') ?? false;
     }
 }

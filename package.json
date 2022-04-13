@@ -25,11 +25,6 @@
       "url": "https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_apis/build/status/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code%20CI?branchName=master",
       "href": "https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_build/latest?definitionId=1?branchName=master",
       "description": "Continuous integration (Azure Pipelines)"
-    },
-    {
-      "url": "https://david-dm.org/kondratyev-nv/vscode-python-unittest-adapter/status.svg",
-      "href": "https://david-dm.org/kondratyev-nv/vscode-python-unittest-adapter",
-      "description": "Dependencies status (David)"
     }
   ],
   "categories": [

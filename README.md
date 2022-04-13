@@ -2,10 +2,8 @@
 
 [![GitHub Actions CI](https://github.com/kondratyev-nv/vscode-python-test-adapter/workflows/GitHub%20Actions%20CI/badge.svg)](https://github.com/kondratyev-nv/vscode-python-test-adapter/actions?query=workflow%3A%22GitHub+Actions+CI%22+branch%3Amaster)
 [![Azure Pipelines CI](https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_apis/build/status/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code%20CI?branchName=master)](https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_build/latest?definitionId=1&branchName=master)
-[![Dependencies Status](https://david-dm.org/kondratyev-nv/vscode-python-unittest-adapter/status.svg)](https://david-dm.org/kondratyev-nv/vscode-python-unittest-adapter)
 
-This extension allows you to run your Python [Unittest](https://docs.python.org/3/library/unittest.html#module-unittest), [Pytest](https://docs.pytest.org/en/latest/) or [Testplan](https://testplan.readthedocs.io/)
-tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer).
+This extension allows you to run your Python [Unittest](https://docs.python.org/3/library/unittest.html#module-unittest), [Pytest](https://docs.pytest.org/en/latest/) or [Testplan](https://testplan.readthedocs.io/) tests with the [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer).
 
 ![Screenshot](img/screenshot.png)
 
@@ -95,7 +93,7 @@ See [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl
 
 ### Configuring debug
 
-The extension will look for a configuration in launch.json with `"type": "python"` and `"request": "test"` to load any of the following options during debugging
+The extension will look for a configuration in launch.json with `"type": "python"` and `"purpose": ["debug-test"]` (or `"request": "test"`) to load any of the following options during debugging
 
 * name
 * console
@@ -117,11 +115,12 @@ For example,
         {
             "name": "Debug test",
             "type": "python",
-            "request": "test",
+            "request": "attach",
             "console": "externalTerminal",
             "justMyCode": false,
             "stopOnEntry": true,
             "envFile": "${workspaceFolder}/.env.test",
+            "purpose": ["debug-test"]
         }
     ]
 }

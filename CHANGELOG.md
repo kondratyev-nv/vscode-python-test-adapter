@@ -1,9 +1,16 @@
+## 0.7.1
+
+* Add support for "purpose":["debug-test"] in debug configuration (Issue #280)
+* Add support for Python 3.9 and 3.10, remove support for Python 3.5 support to CI
+* Update dependencies
+* Update README, remove david-dm links, fixed typos and grammar issue (thanks to @Filimoa)
+
 ## 0.7.0
 
 * Support for testplan framework (thanks to @cnx-tcsikos)
 * Fix pytest returning empty output (Issue #245)
 * Update dependencies
-* Update README with FAQ, update lint rules.
+* Update README with FAQ, update lint rules
 
 ## 0.6.8
 

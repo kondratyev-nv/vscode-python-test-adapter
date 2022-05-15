@@ -11,7 +11,7 @@
  * @param offset The position in this string at which to begin searching for searchString. Defaults to 0.
  * @returns true if the given characters are found at the beginning of the string; otherwise, false.
  */
-export function startsWith(s: string, p: string, offset: number = 0): boolean {
+export function startsWith(s: string, p: string, offset = 0): boolean {
     return s.substring(offset).startsWith(p);
 }
 

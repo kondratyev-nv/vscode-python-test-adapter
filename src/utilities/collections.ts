@@ -22,12 +22,8 @@ export function firstOrDefault<T>(values: T[], defaultValue: T): T {
 
 export function groupBy<T, U>(values: T[], key: (v: T) => U) {
     return values.reduce((accumulator, x) => {
-        if (accumulator.has(key(x))) {
-            accumulator.get(key(x))!.push(x);
-        } else {
-            accumulator.set(key(x), [x]);
-        }
-        return accumulator;
+        const k = key(x);
+        return accumulator.set(k, (accumulator.get(k) ?? []).concat([x]));
     }, new Map<U, T[]>());
 }
 

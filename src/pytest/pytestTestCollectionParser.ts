@@ -28,7 +28,7 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
         .map(line => line!);
     const suites = Array.from(groupBy(allTests, t => t.modulePath).entries())
         .map(([modulePath, tests]) => <TestSuiteInfo | TestInfo>({
-            type: 'suite' as 'suite',
+            type: 'suite' as const,
             id: modulePath,
             label: path.basename(modulePath),
             file: modulePath,
@@ -48,7 +48,7 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
             message: messages.map(e => e.message).join(os.EOL),
         }));
     const discoveryErrorSuites = aggregatedErrors.map(({ file, message }) => <TestSuiteInfo | TestInfo>({
-        type: 'test' as 'test',
+        type: 'test' as const,
         id: file,
         file,
         label: `Error in ${path.basename(file)}`,
@@ -81,7 +81,7 @@ function toSuites(suites: ITestCaseSplit[] | undefined): TestSuiteInfo[] {
     }
     return Array.from(groupBy(suites.map(test => splitTest(test)), group => group.idHead).entries())
         .map(([suite, suiteTests]) => ({
-            type: 'suite' as 'suite',
+            type: 'suite' as const,
             id: suite,
             label: suiteTests[0].name,
             file: suiteTests[0].path,
@@ -101,7 +101,7 @@ function toFirstLevelTests(tests: ITestCaseSplit[] | undefined): (TestSuiteInfo 
         t => t.idTail.substring(0, t.idTail.indexOf('[')));
     const parameterizedSuites: (TestSuiteInfo | TestInfo)[] = Array.from(parameterizedTestsBySuite.entries())
         .map(([baseName, parameterizedTests]) => ({
-            type: 'suite' as 'suite',
+            type: 'suite' as const,
             id: `${parameterizedTests[0].idHead}::${baseName}`,
             label: baseName,
             file: parameterizedTests[0].path,
@@ -115,7 +115,7 @@ function toTest(test: ITestCaseSplit): TestInfo {
     return {
         id: testId,
         label: test.idTail,
-        type: 'test' as 'test',
+        type: 'test' as const,
         file: test.path,
         line: test.line,
         tooltip: testId,

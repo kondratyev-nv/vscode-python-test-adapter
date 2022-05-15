@@ -61,7 +61,7 @@ export function parseTestSuites(content: string): (TestSuiteInfo | TestInfo)[] {
 
 function newTest(data : string[]): TestInfo {
     return {
-        type: 'test' as 'test',
+        type: 'test' as const,
         id: data.join(':'), // Testplan can use this format to address a suite/test to run
         label: data[TestObjectType.TEST],
     };
@@ -69,7 +69,7 @@ function newTest(data : string[]): TestInfo {
 
 function newTestSuite(data : string[], testRank : TestObjectType): TestSuiteInfo {
     return {
-        type: 'suite' as 'suite',
+        type: 'suite' as const,
         id: data.join(':'), // Testplan can use this format to address a suite/test to run
         label: data[testRank],
         children: [],

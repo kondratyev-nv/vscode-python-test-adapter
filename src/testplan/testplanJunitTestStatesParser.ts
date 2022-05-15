@@ -98,7 +98,7 @@ function mapToTestState(testcase: ITestCaseResult): TestEvent | undefined {
     return {
         state,
         test: testId,
-        type: 'test' as 'test',
+        type: 'test' as const,
         message: concatNonEmpty(EOL + EOL, message, output),
         // decorations,
         description: time ? `(${time}s)` : undefined,
@@ -107,9 +107,9 @@ function mapToTestState(testcase: ITestCaseResult): TestEvent | undefined {
 
 function getTestState(testcase: ITestCaseResult): [TestState, string, string, number | undefined] {
     const output = concatNonEmpty(EOL, extractSystemOut(testcase), extractSystemErr(testcase));
-    const executionTime = testcase.$.time;
+    const executionTime = testcase.$.time
     if (testcase.error) {
-        return ['failed', output, extractErrorMessage(testcase.error), executionTime];
+        return ['failed',    output, extractErrorMessage(testcase.error), executionTime];
     }
     if (testcase.failure) {
         return ['failed', output, extractErrorMessage(testcase.failure), executionTime];

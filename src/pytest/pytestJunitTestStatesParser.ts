@@ -95,7 +95,7 @@ function mapToTestState(testcase: ITestCaseResult, cwd: string): TestEvent | und
     return {
         state,
         test: testId,
-        type: 'test' as 'test',
+        type: 'test' as const,
         message: concatNonEmpty(EOL + EOL, message, output),
         decorations,
         description: time ? `(${time}s)` : undefined,

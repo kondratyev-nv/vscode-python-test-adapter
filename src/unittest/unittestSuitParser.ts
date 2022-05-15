@@ -41,7 +41,7 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
             message: e.message,
         }));
     const discoveryErrorSuites = aggregatedErrors.map(({ id, file, message }) => <TestSuiteInfo | TestInfo>({
-        type: 'test' as 'test',
+        type: 'test' as const,
         id: id.testId,
         file,
         label: id.testLabel,
@@ -52,13 +52,13 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
         .map(([suiteId, tests]) => {
             const suiteFile = filePathBySuiteId(cwd, suiteId);
             return <TestSuiteInfo | TestInfo>{
-                type: 'suite' as 'suite',
+                type: 'suite' as const,
                 id: suiteId,
                 label: suiteId.substring(suiteId.lastIndexOf('.') + 1),
                 file: suiteFile,
                 tooltip: suiteId,
                 children: tests.map(test => ({
-                    type: 'test' as 'test',
+                    type: 'test' as const,
                     id: test.testId,
                     label: test.testLabel,
                     file: suiteFile,

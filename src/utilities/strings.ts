@@ -1,4 +1,3 @@
-
 /**
  * HACK: for #232.
  * For some <insert bad word here> reason String.startsWith method is being replaced in

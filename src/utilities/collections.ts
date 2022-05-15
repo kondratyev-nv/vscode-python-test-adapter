@@ -1,9 +1,11 @@
-
 export function empty<T>(x: T[]) {
     return !x || !x.length;
 }
 
-export function firstNotEmpty<T>(fns: (() => T | undefined)[], defaultValue: T): T {
+export function firstNotEmpty<T>(
+    fns: (() => T | undefined)[],
+    defaultValue: T
+): T {
     for (const fn of fns) {
         const result = fn();
         if (result) {

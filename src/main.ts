@@ -28,14 +28,35 @@ function registerTestAdapters(
     const testplanLogger = loggerFactory('testplan', wf);
     const testplanRunner = new TestplanTestRunner(nextId(), pytestLogger);
 
-    const unittestConfigurationFactory = new DefaultConfigurationFactory(unittestLogger);
-    const pytestConfigurationFactory = new DefaultConfigurationFactory(pytestLogger);
-    const testplantConfigurationFactory = new DefaultConfigurationFactory(testplanLogger);
+    const unittestConfigurationFactory = new DefaultConfigurationFactory(
+        unittestLogger
+    );
+    const pytestConfigurationFactory = new DefaultConfigurationFactory(
+        pytestLogger
+    );
+    const testplantConfigurationFactory = new DefaultConfigurationFactory(
+        testplanLogger
+    );
 
     const adapters = [
-        new PythonTestAdapter(wf, unittestRunner, unittestConfigurationFactory, unittestLogger),
-        new PythonTestAdapter(wf, pytestRunner, pytestConfigurationFactory, pytestLogger),
-        new PythonTestAdapter(wf, testplanRunner, testplantConfigurationFactory, testplanLogger)
+        new PythonTestAdapter(
+            wf,
+            unittestRunner,
+            unittestConfigurationFactory,
+            unittestLogger
+        ),
+        new PythonTestAdapter(
+            wf,
+            pytestRunner,
+            pytestConfigurationFactory,
+            pytestLogger
+        ),
+        new PythonTestAdapter(
+            wf,
+            testplanRunner,
+            testplantConfigurationFactory,
+            testplanLogger
+        ),
     ];
     adapters.forEach(adapter => extension.exports.registerTestAdapter(adapter));
     return adapters;
@@ -43,10 +64,16 @@ function registerTestAdapters(
 
 function configureLogging(context: vscode.ExtensionContext): LoggerFactory {
     try {
-        const channel = vscode.window.createOutputChannel('Python Test Adapter Log');
+        const channel = vscode.window.createOutputChannel(
+            'Python Test Adapter Log'
+        );
         context.subscriptions.push(channel);
         return (framework, wf) => {
-            return new DefaultLogger(new VscodeOutputChannel(channel), wf, framework);
+            return new DefaultLogger(
+                new VscodeOutputChannel(channel),
+                wf,
+                framework
+            );
         };
     } catch {
         return (framework, wf) => {
@@ -56,7 +83,9 @@ function configureLogging(context: vscode.ExtensionContext): LoggerFactory {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
-    const testExplorerExtension = vscode.extensions.getExtension<TestHub>(testExplorerExtensionId);
+    const testExplorerExtension = vscode.extensions.getExtension<TestHub>(
+        testExplorerExtensionId
+    );
     if (!testExplorerExtension) {
         return;
     }
@@ -66,30 +95,44 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
     const loggerFactory = configureLogging(context);
-    const registeredAdapters = new Map<vscode.WorkspaceFolder, PythonTestAdapter[]>();
+    const registeredAdapters = new Map<
+        vscode.WorkspaceFolder,
+        PythonTestAdapter[]
+    >();
     if (vscode.workspace.workspaceFolders) {
         for (const workspaceFolder of vscode.workspace.workspaceFolders) {
-            const adapters = registerTestAdapters(workspaceFolder, testExplorerExtension, loggerFactory);
+            const adapters = registerTestAdapters(
+                workspaceFolder,
+                testExplorerExtension,
+                loggerFactory
+            );
             registeredAdapters.set(workspaceFolder, adapters);
         }
     }
 
-    const workspaceFolderChangedSubscription = vscode.workspace.onDidChangeWorkspaceFolders(event => {
-        for (const workspaceFolder of event.removed) {
-            const adapters = registeredAdapters.get(workspaceFolder);
-            if (adapters) {
-                adapters.forEach(adapter => {
-                    testExplorerExtension.exports.unregisterTestAdapter(adapter);
-                    adapter.dispose();
-                });
-                registeredAdapters.delete(workspaceFolder);
+    const workspaceFolderChangedSubscription =
+        vscode.workspace.onDidChangeWorkspaceFolders(event => {
+            for (const workspaceFolder of event.removed) {
+                const adapters = registeredAdapters.get(workspaceFolder);
+                if (adapters) {
+                    adapters.forEach(adapter => {
+                        testExplorerExtension.exports.unregisterTestAdapter(
+                            adapter
+                        );
+                        adapter.dispose();
+                    });
+                    registeredAdapters.delete(workspaceFolder);
+                }
             }
-        }
 
-        for (const workspaceFolder of event.added) {
-            const adapters = registerTestAdapters(workspaceFolder, testExplorerExtension, loggerFactory);
-            registeredAdapters.set(workspaceFolder, adapters);
-        }
-    });
+            for (const workspaceFolder of event.added) {
+                const adapters = registerTestAdapters(
+                    workspaceFolder,
+                    testExplorerExtension,
+                    loggerFactory
+                );
+                registeredAdapters.set(workspaceFolder, adapters);
+            }
+        });
     context.subscriptions.push(workspaceFolderChangedSubscription);
 }

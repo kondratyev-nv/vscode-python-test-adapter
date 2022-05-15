@@ -1,4 +1,3 @@
-
 import { EOL } from 'os';
 import * as path from 'path';
 import { TestEvent } from 'vscode-test-adapter-api';
@@ -74,18 +73,26 @@ function parseTestResults(parserResult: any, cwd: string): TestEvent[] {
     if (!parserResult) {
         return [];
     }
-    const testSuiteResults: ITestSuiteResult[] = parserResult.testsuites ?
-        parserResult.testsuites.testsuite : // from pytest 5.1.0, see https://github.com/pytest-dev/pytest/issues/5477
-        [parserResult.testsuite];           // before pytest 5.1.0
-    return testSuiteResults.map(testSuiteResult => {
-        if (!Array.isArray(testSuiteResult.testcase)) {
-            return [];
-        }
-        return testSuiteResult.testcase.map(testcase => mapToTestState(testcase, cwd)).filter(x => x).map(x => x!);
-    }).reduce((r, x) => r.concat(x), []);
+    const testSuiteResults: ITestSuiteResult[] = parserResult.testsuites
+        ? parserResult.testsuites.testsuite // from pytest 5.1.0, see https://github.com/pytest-dev/pytest/issues/5477
+        : [parserResult.testsuite]; // before pytest 5.1.0
+    return testSuiteResults
+        .map(testSuiteResult => {
+            if (!Array.isArray(testSuiteResult.testcase)) {
+                return [];
+            }
+            return testSuiteResult.testcase
+                .map(testcase => mapToTestState(testcase, cwd))
+                .filter(x => x)
+                .map(x => x!);
+        })
+        .reduce((r, x) => r.concat(x), []);
 }
 
-function mapToTestState(testcase: ITestCaseResult, cwd: string): TestEvent | undefined {
+function mapToTestState(
+    testcase: ITestCaseResult,
+    cwd: string
+): TestEvent | undefined {
     const testId = buildTestName(cwd, testcase.$);
     if (!testId) {
         return undefined;
@@ -102,7 +109,11 @@ function mapToTestState(testcase: ITestCaseResult, cwd: string): TestEvent | und
     };
 }
 
-function getDecorations(state: TestState, line: string, message: string): { line: number, message: string }[] {
+function getDecorations(
+    state: TestState,
+    line: string,
+    message: string
+): { line: number; message: string }[] {
     if (state === 'passed') {
         return [];
     }
@@ -110,43 +121,78 @@ function getDecorations(state: TestState, line: string, message: string): { line
         return [];
     }
     const lineNumber = parseInt(line, 10);
-    return [{
-        line: lineNumber,
-        message,
-    }];
+    return [
+        {
+            line: lineNumber,
+            message,
+        },
+    ];
 }
 
-function getTestState(testcase: ITestCaseResult): [TestState, string, string, number | undefined] {
-    const output = concatNonEmpty(EOL, extractSystemOut(testcase), extractSystemErr(testcase));
+function getTestState(
+    testcase: ITestCaseResult
+): [TestState, string, string, number | undefined] {
+    const output = concatNonEmpty(
+        EOL,
+        extractSystemOut(testcase),
+        extractSystemErr(testcase)
+    );
     const executionTime = testcase.$.time;
     if (testcase.error) {
-        return ['failed', output, extractErrorMessage(testcase.error), executionTime];
+        return [
+            'failed',
+            output,
+            extractErrorMessage(testcase.error),
+            executionTime,
+        ];
     }
     if (testcase.failure) {
-        return ['failed', output, extractErrorMessage(testcase.failure), executionTime];
+        return [
+            'failed',
+            output,
+            extractErrorMessage(testcase.failure),
+            executionTime,
+        ];
     }
     if (testcase.skipped) {
-        return ['skipped', output, extractErrorMessage(testcase.skipped), executionTime];
+        return [
+            'skipped',
+            output,
+            extractErrorMessage(testcase.skipped),
+            executionTime,
+        ];
     }
     return ['passed', '', output, executionTime];
 }
 
 function extractSystemOut(testcase: ITestCaseResult) {
-    return empty(testcase['system-out']) ? '' : testcase['system-out'].join(EOL);
+    return empty(testcase['system-out'])
+        ? ''
+        : testcase['system-out'].join(EOL);
 }
 
 function extractSystemErr(testcase: ITestCaseResult) {
-    return empty(testcase['system-err']) ? '' : testcase['system-err'].join(EOL);
+    return empty(testcase['system-err'])
+        ? ''
+        : testcase['system-err'].join(EOL);
 }
 
-function extractErrorMessage(errors: { _: string, $: { message: string } }[]): string {
+function extractErrorMessage(
+    errors: { _: string; $: { message: string } }[]
+): string {
     if (!errors || !errors.length) {
         return '';
     }
-    return concatNonEmpty(EOL, ...errors.map(e => concatNonEmpty(EOL, e.$.message, e._)));
+    return concatNonEmpty(
+        EOL,
+        ...errors.map(e => concatNonEmpty(EOL, e.$.message, e._))
+    );
 }
 
-function buildTestName(cwd: string, test: ITestCaseDescription): string | undefined {
+function buildTestName(
+    cwd: string,
+    test: ITestCaseDescription
+): string | undefined {
     if (!test || !test.file || !test.name) {
         return undefined;
     }
@@ -154,13 +200,20 @@ function buildTestName(cwd: string, test: ITestCaseDescription): string | undefi
     if (!test.classname) {
         return `${module}`;
     }
-    const testClass = test.classname.split('.').filter(p => p).filter(p => p !== '()').join('.');
+    const testClass = test.classname
+        .split('.')
+        .filter(p => p)
+        .filter(p => p !== '()')
+        .join('.');
     const { matched, position } = matchModule(testClass, test.file);
     if (!matched) {
         return undefined;
     }
 
-    const testClassParts = testClass.substring(position).split('.').filter(p => p);
+    const testClassParts = testClass
+        .substring(position)
+        .split('.')
+        .filter(p => p);
     if (testClassParts.length > 0) {
         return `${module}::${testClassParts.join('::')}::${test.name}`;
     } else {
@@ -168,7 +221,10 @@ function buildTestName(cwd: string, test: ITestCaseDescription): string | undefi
     }
 }
 
-function matchModule(testClass: string, testFile: string): { matched: boolean, position: number } {
+function matchModule(
+    testClass: string,
+    testFile: string
+): { matched: boolean; position: number } {
     const { matched, position } = matchParentPath(testClass, testFile);
     if (!matched) {
         return { matched: false, position: -1 };
@@ -188,7 +244,10 @@ function matchModule(testClass: string, testFile: string): { matched: boolean, p
     return { matched: false, position: -1 };
 }
 
-function matchParentPath(testClass: string, testFile: string): { matched: boolean, position: number } {
+function matchParentPath(
+    testClass: string,
+    testFile: string
+): { matched: boolean; position: number } {
     const parentPathToMatch = path.parse(testFile).dir;
     if (!parentPathToMatch) {
         return { matched: true, position: 0 };

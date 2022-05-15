@@ -11,14 +11,22 @@ const DISCOVERED_TESTS_END_MARK = '==DISCOVERED TESTS END==';
 
 interface IDiscoveryResultJson {
     tests: { id: string }[];
-    errors: { class: string, message: number }[];
+    errors: { class: string; message: number }[];
 }
 
-export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | TestInfo)[] {
+export function parseTestSuites(
+    content: string,
+    cwd: string
+): (TestSuiteInfo | TestInfo)[] {
     const from = content.indexOf(DISCOVERED_TESTS_START_MARK);
     const to = content.indexOf(DISCOVERED_TESTS_END_MARK);
-    const discoveredTestsJson = content.substring(from + DISCOVERED_TESTS_START_MARK.length, to);
-    const discoveryResult = JSON.parse(discoveredTestsJson) as IDiscoveryResultJson;
+    const discoveredTestsJson = content.substring(
+        from + DISCOVERED_TESTS_START_MARK.length,
+        to
+    );
+    const discoveryResult = JSON.parse(
+        discoveredTestsJson
+    ) as IDiscoveryResultJson;
     if (!discoveryResult) {
         return [];
     }
@@ -29,7 +37,9 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
         .filter(id => id)
         .map(id => id!);
 
-    const aggregatedErrors = Array.from(groupBy((discoveryResult.errors || []), e => e.class).entries())
+    const aggregatedErrors = Array.from(
+        groupBy(discoveryResult.errors || [], e => e.class).entries()
+    )
         .map(([className, messages]) => ({
             id: splitTestId(className),
             message: messages.map(e => e.message).join(os.EOL),
@@ -40,16 +50,19 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
             file: errorSuiteFilePathBySuiteId(cwd, e.id!.testId),
             message: e.message,
         }));
-    const discoveryErrorSuites = aggregatedErrors.map(({ id, file, message }) => <TestSuiteInfo | TestInfo>({
-        type: 'test' as const,
-        id: id.testId,
-        file,
-        label: id.testLabel,
-        errored: true,
-        message,
-    }));
-    const suites = Array.from(groupBy(allTests, t => t.suiteId).entries())
-        .map(([suiteId, tests]) => {
+    const discoveryErrorSuites = aggregatedErrors.map(
+        ({ id, file, message }) =>
+            <TestSuiteInfo | TestInfo>{
+                type: 'test' as const,
+                id: id.testId,
+                file,
+                label: id.testLabel,
+                errored: true,
+                message,
+            }
+    );
+    const suites = Array.from(groupBy(allTests, t => t.suiteId).entries()).map(
+        ([suiteId, tests]) => {
             const suiteFile = filePathBySuiteId(cwd, suiteId);
             return <TestSuiteInfo | TestInfo>{
                 type: 'suite' as const,
@@ -65,7 +78,8 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
                     tooltip: test.testId,
                 })),
             };
-        });
+        }
+    );
 
     return suites.concat(discoveryErrorSuites);
 }
@@ -102,11 +116,15 @@ function tryParseTestState(line: string): TestEvent | undefined {
         type: 'test',
         test: testId.trim(),
         state,
-        message: base64Message ? Base64.decode(base64Message.trim()) : undefined,
+        message: base64Message
+            ? Base64.decode(base64Message.trim())
+            : undefined,
     };
 }
 
-function toState(value: string): 'running' | 'passed' | 'failed' | 'skipped' | undefined {
+function toState(
+    value: string
+): 'running' | 'passed' | 'failed' | 'skipped' | undefined {
     switch (value) {
         case 'running':
         case 'passed':
@@ -138,7 +156,10 @@ function errorSuiteFilePathBySuiteId(cwd: string, suiteId: string) {
     // <path>.<path>.<file>
     const relativePath = suiteId.split('.').join('/');
     const filePathCandidate = path.resolve(cwd, relativePath + '.py');
-    if (fs.existsSync(filePathCandidate) && fs.lstatSync(filePathCandidate).isFile()) {
+    if (
+        fs.existsSync(filePathCandidate) &&
+        fs.lstatSync(filePathCandidate).isFile()
+    ) {
         return filePathCandidate;
     }
     return undefined;
@@ -149,5 +170,8 @@ function filePathBySuiteId(cwd: string, suiteId: string) {
     if (separatorIndex < 0) {
         return undefined;
     }
-    return path.resolve(cwd, suiteId.substring(0, separatorIndex).split('.').join('/') + '.py');
+    return path.resolve(
+        cwd,
+        suiteId.substring(0, separatorIndex).split('.').join('/') + '.py'
+    );
 }

@@ -1,6 +1,6 @@
 /// <reference lib="es2017.string" />
 
-function* infiniteNumberGenerator() {
+function* infiniteNumberGenerator(): IterableIterator<number> {
     for (let i = 1; i < Number.MAX_SAFE_INTEGER; i++) {
         yield i++;
     }

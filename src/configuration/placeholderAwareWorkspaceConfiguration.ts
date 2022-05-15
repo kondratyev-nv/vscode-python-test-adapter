@@ -7,15 +7,17 @@ import {
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
-    IWorkspaceConfiguration
+    IWorkspaceConfiguration,
 } from './workspaceConfiguration';
 
-export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfiguration {
+export class PlaceholderAwareWorkspaceConfiguration
+    implements IWorkspaceConfiguration
+{
     constructor(
         private readonly configuration: IWorkspaceConfiguration,
         public readonly workspaceFolder: WorkspaceFolder,
         private readonly logger: ILogger
-    ) { }
+    ) {}
 
     public pythonPath(): string {
         return this.resolveExecutablePath(this.configuration.pythonPath());
@@ -38,8 +40,12 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         return {
             isUnittestEnabled: original.isUnittestEnabled,
             unittestArguments: {
-                pattern: this.resolvePlaceholders(original.unittestArguments.pattern),
-                startDirectory: this.resolvePath(original.unittestArguments.startDirectory),
+                pattern: this.resolvePlaceholders(
+                    original.unittestArguments.pattern
+                ),
+                startDirectory: this.resolvePath(
+                    original.unittestArguments.startDirectory
+                ),
             },
         };
     }
@@ -49,29 +55,48 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         return {
             pytestPath: () => this.getPytestPath(),
             isPytestEnabled: original.isPytestEnabled,
-            pytestArguments: original.pytestArguments.map(argument => this.resolvePlaceholders(argument)),
+            pytestArguments: original.pytestArguments.map(argument =>
+                this.resolvePlaceholders(argument)
+            ),
         };
     }
 
     public getTestplanConfiguration(): ITestplanConfiguration {
         const original = this.configuration.getTestplanConfiguration();
         return {
-            testplanPath: () => this.resolveExecutablePath(original.testplanPath()),
+            testplanPath: () =>
+                this.resolveExecutablePath(original.testplanPath()),
             isTestplanEnabled: original.isTestplanEnabled,
-            testplanArguments: original.testplanArguments.map(argument => this.resolvePlaceholders(argument)),
+            testplanArguments: original.testplanArguments.map(argument =>
+                this.resolvePlaceholders(argument)
+            ),
         };
     }
 
     private getPytestPath(): string {
-        return this.resolveExecutablePath(this.configuration.getPytestConfiguration().pytestPath());
+        return this.resolveExecutablePath(
+            this.configuration.getPytestConfiguration().pytestPath()
+        );
     }
 
     private resolvePlaceholders(rawValue: string): string {
         const availableReplacements = new Map<string, string>();
-        availableReplacements.set('workspaceFolder', this.workspaceFolder.uri.fsPath);
-        availableReplacements.set('workspaceRoot', this.workspaceFolder.uri.fsPath);
-        availableReplacements.set('workspaceFolderBasename', path.basename(this.workspaceFolder.uri.fsPath));
-        availableReplacements.set('workspaceRootFolderName', path.basename(this.workspaceFolder.uri.fsPath));
+        availableReplacements.set(
+            'workspaceFolder',
+            this.workspaceFolder.uri.fsPath
+        );
+        availableReplacements.set(
+            'workspaceRoot',
+            this.workspaceFolder.uri.fsPath
+        );
+        availableReplacements.set(
+            'workspaceFolderBasename',
+            path.basename(this.workspaceFolder.uri.fsPath)
+        );
+        availableReplacements.set(
+            'workspaceRootFolderName',
+            path.basename(this.workspaceFolder.uri.fsPath)
+        );
         availableReplacements.set('cwd', this.workspaceFolder.uri.fsPath);
         Object.keys(process.env)
             .filter(key => process.env[key])
@@ -85,7 +110,10 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
             if (replacement) {
                 return replacement;
             }
-            this.logger.log('warn', `Placeholder ${match} was not recognized and can not be replaced.`);
+            this.logger.log(
+                'warn',
+                `Placeholder ${match} was not recognized and can not be replaced.`
+            );
             return match;
         });
     }
@@ -105,9 +133,9 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
     private normalizeExecutablePath(originalValue: string): string {
         const value = untildify(originalValue);
         if (value.includes(path.posix.sep) || value.includes(path.win32.sep)) {
-            const absolutePath = path.isAbsolute(value) ?
-                path.resolve(value) :
-                path.resolve(this.workspaceFolder.uri.fsPath, value);
+            const absolutePath = path.isAbsolute(value)
+                ? path.resolve(value)
+                : path.resolve(this.workspaceFolder.uri.fsPath, value);
             return path.normalize(absolutePath);
         }
         return value;
@@ -121,9 +149,9 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
     // see https://github.com/kondratyev-nv/vscode-python-test-adapter/issues/158
     private normalizePath(originalValue: string): string {
         const value = untildify(originalValue);
-        const absolutePath = path.isAbsolute(value) ?
-            path.resolve(value) :
-            path.resolve(this.workspaceFolder.uri.fsPath, value);
+        const absolutePath = path.isAbsolute(value)
+            ? path.resolve(value)
+            : path.resolve(this.workspaceFolder.uri.fsPath, value);
         return path.normalize(absolutePath);
     }
 }

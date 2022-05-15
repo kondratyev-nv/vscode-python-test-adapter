@@ -6,7 +6,7 @@ import {
     ITestplanConfiguration,
     IUnittestArguments,
     IUnittestConfiguration,
-    IWorkspaceConfiguration
+    IWorkspaceConfiguration,
 } from './workspaceConfiguration';
 
 import { firstNotEmpty } from '../utilities/collections';
@@ -16,12 +16,11 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private readonly pythonConfiguration: WorkspaceConfiguration;
     private readonly testExplorerConfiguration: WorkspaceConfiguration;
 
-    constructor(
-        public readonly workspaceFolder: WorkspaceFolder
-    ) {
+    constructor(public readonly workspaceFolder: WorkspaceFolder) {
         this.unittestArgumentParser = this.configureUnittestArgumentParser();
         this.pythonConfiguration = this.getPythonConfiguration(workspaceFolder);
-        this.testExplorerConfiguration = this.getTestExplorerConfiguration(workspaceFolder);
+        this.testExplorerConfiguration =
+            this.getTestExplorerConfiguration(workspaceFolder);
     }
     public pythonPath() {
         return this.pythonConfiguration.get<string>('pythonPath', 'python');
@@ -36,11 +35,17 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     }
 
     public envFile(): string {
-        return this.pythonConfiguration.get<string>('envFile', '${workspaceFolder}/.env');
+        return this.pythonConfiguration.get<string>(
+            'envFile',
+            '${workspaceFolder}/.env'
+        );
     }
 
     public autoTestDiscoverOnSaveEnabled(): boolean {
-        return this.pythonConfiguration.get<boolean>('testing.autoTestDiscoverOnSaveEnabled', true);
+        return this.pythonConfiguration.get<boolean>(
+            'testing.autoTestDiscoverOnSaveEnabled',
+            true
+        );
     }
 
     public getUnittestConfiguration(): IUnittestConfiguration {
@@ -68,16 +73,19 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
 
     private getConfigurationValueOrDefault<T>(
         configuration: WorkspaceConfiguration,
-        keys: string[], defaultValue: T
+        keys: string[],
+        defaultValue: T
     ): T {
         return firstNotEmpty(
-            keys.map(key => (() => configuration.get<T>(key))),
+            keys.map(key => () => configuration.get<T>(key)),
             defaultValue
         );
     }
 
     private isUnitTestEnabled(): boolean {
-        const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
+        const overriddenTestFramework = this.testExplorerConfiguration.get<
+            string | null
+        >('testFramework', null);
         if (overriddenTestFramework) {
             return 'unittest' === overriddenTestFramework;
         }
@@ -100,13 +108,19 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     }
 
     private isPytestTestEnabled(): boolean {
-        const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
+        const overriddenTestFramework = this.testExplorerConfiguration.get<
+            string | null
+        >('testFramework', null);
         if (overriddenTestFramework) {
             return 'pytest' === overriddenTestFramework;
         }
         return this.getConfigurationValueOrDefault(
             this.pythonConfiguration,
-            ['unitTest.pyTestEnabled', 'testing.pyTestEnabled', 'testing.pytestEnabled'],
+            [
+                'unitTest.pyTestEnabled',
+                'testing.pyTestEnabled',
+                'testing.pytestEnabled',
+            ],
             false
         );
     }
@@ -128,15 +142,23 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     }
 
     private isTestplanTestEnabled(): boolean {
-        const overriddenTestFramework = this.testExplorerConfiguration.get<string | null>('testFramework', null);
+        const overriddenTestFramework = this.testExplorerConfiguration.get<
+            string | null
+        >('testFramework', null);
         if (overriddenTestFramework) {
             return 'testplan' === overriddenTestFramework;
         }
-        return this.testExplorerConfiguration.get<boolean>('testplanEnabled', false);
+        return this.testExplorerConfiguration.get<boolean>(
+            'testplanEnabled',
+            false
+        );
     }
 
     private getTestplanPath(): string {
-        return this.testExplorerConfiguration.get<string>('testplanPath', 'test_plan.py');
+        return this.testExplorerConfiguration.get<string>(
+            'testplanPath',
+            'test_plan.py'
+        );
     }
 
     private getTestplanArguments(): string[] {
@@ -158,15 +180,25 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
         return argumentParser;
     }
 
-    private getConfigurationByName(name: string, workspaceFolder: WorkspaceFolder): WorkspaceConfiguration {
+    private getConfigurationByName(
+        name: string,
+        workspaceFolder: WorkspaceFolder
+    ): WorkspaceConfiguration {
         return workspace.getConfiguration(name, workspaceFolder.uri);
     }
 
-    private getPythonConfiguration(workspaceFolder: WorkspaceFolder): WorkspaceConfiguration {
+    private getPythonConfiguration(
+        workspaceFolder: WorkspaceFolder
+    ): WorkspaceConfiguration {
         return this.getConfigurationByName('python', workspaceFolder);
     }
 
-    private getTestExplorerConfiguration(workspaceFolder: WorkspaceFolder): WorkspaceConfiguration {
-        return this.getConfigurationByName('pythonTestExplorer', workspaceFolder);
+    private getTestExplorerConfiguration(
+        workspaceFolder: WorkspaceFolder
+    ): WorkspaceConfiguration {
+        return this.getConfigurationByName(
+            'pythonTestExplorer',
+            workspaceFolder
+        );
     }
 }

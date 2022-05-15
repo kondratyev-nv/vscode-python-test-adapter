@@ -1,4 +1,11 @@
-import { debug, Event, EventEmitter, WorkspaceFolder, DebugConfiguration, workspace } from 'vscode';
+import {
+    debug,
+    Event,
+    EventEmitter,
+    WorkspaceFolder,
+    DebugConfiguration,
+    workspace,
+} from 'vscode';
 import {
     TestAdapter,
     TestEvent,
@@ -8,7 +15,7 @@ import {
     TestRunFinishedEvent,
     TestRunStartedEvent,
     TestSuiteEvent,
-    TestSuiteInfo
+    TestSuiteInfo,
 } from 'vscode-test-adapter-api';
 
 import { IConfigurationFactory } from './configuration/configurationFactory';
@@ -20,9 +27,16 @@ import { parse } from 'jsonc-parser';
 import { isFileExists, readFile } from './utilities/fs';
 import { empty, firstOrDefault } from './utilities/collections';
 import { concatNonEmpty } from './utilities/strings';
-import { IEnvironmentVariables, EnvironmentVariablesLoader } from './environmentVariablesLoader';
+import {
+    IEnvironmentVariables,
+    EnvironmentVariablesLoader,
+} from './environmentVariablesLoader';
 
-type TestRunEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent;
+type TestRunEvent =
+    | TestRunStartedEvent
+    | TestRunFinishedEvent
+    | TestSuiteEvent
+    | TestEvent;
 
 interface IPythonTestDebugConfig {
     env?: IEnvironmentVariables;
@@ -39,8 +53,9 @@ interface IPythonTestDebugConfig {
 }
 
 export class PythonTestAdapter implements TestAdapter {
-
-    get tests(): Event<TestLoadStartedEvent | TestLoadFinishedEvent> { return this.testsEmitter.event; }
+    get tests(): Event<TestLoadStartedEvent | TestLoadFinishedEvent> {
+        return this.testsEmitter.event;
+    }
 
     get testStates(): Event<TestRunEvent> {
         return this.testStatesEmitter.event;
@@ -51,12 +66,17 @@ export class PythonTestAdapter implements TestAdapter {
     }
 
     private disposables: { dispose(): void }[] = [];
-    private readonly testsEmitter = new EventEmitter<TestLoadStartedEvent | TestLoadFinishedEvent>();
+    private readonly testsEmitter = new EventEmitter<
+        TestLoadStartedEvent | TestLoadFinishedEvent
+    >();
     private readonly testStatesEmitter = new EventEmitter<TestRunEvent>();
     private readonly autorunEmitter = new EventEmitter<void>();
 
     private readonly testsById = new Map<string, TestSuiteInfo | TestInfo>();
-    private readonly testsByFsPath = new Map<string, TestSuiteInfo | TestInfo>();
+    private readonly testsByFsPath = new Map<
+        string,
+        TestSuiteInfo | TestInfo
+    >();
 
     constructor(
         public readonly workspaceFolder: WorkspaceFolder,
@@ -67,49 +87,64 @@ export class PythonTestAdapter implements TestAdapter {
         this.disposables = [
             this.testsEmitter,
             this.testStatesEmitter,
-            this.autorunEmitter
+            this.autorunEmitter,
         ];
         this.registerActions();
     }
 
     private registerActions() {
-        this.disposables.push(workspace.onDidChangeConfiguration(async configurationChange => {
-            const sectionsToReload = [
-                'python.pythonPath',
-                'python.envFile',
-                'python.testing.cwd',
-                'python.testing.unittestEnabled',
-                'python.testing.unittestArgs',
-                'python.testing.pytestEnabled',
-                'python.testing.pytestPath',
-                'python.testing.pytestArgs',
-                'pythonTestExplorer.testFramework'
-            ];
+        this.disposables.push(
+            workspace.onDidChangeConfiguration(async configurationChange => {
+                const sectionsToReload = [
+                    'python.pythonPath',
+                    'python.envFile',
+                    'python.testing.cwd',
+                    'python.testing.unittestEnabled',
+                    'python.testing.unittestArgs',
+                    'python.testing.pytestEnabled',
+                    'python.testing.pytestPath',
+                    'python.testing.pytestArgs',
+                    'pythonTestExplorer.testFramework',
+                ];
 
-            const needsReload = sectionsToReload.some(
-                section => configurationChange.affectsConfiguration(section, this.workspaceFolder.uri));
-            if (needsReload) {
-                this.logger.log('info', 'Configuration changed, reloading tests');
-                this.load();
-
-            }
-        }));
-
-        this.disposables.push(workspace.onDidSaveTextDocument(async document => {
-            const config = await this.configurationFactory.get(this.workspaceFolder);
-            if (config.autoTestDiscoverOnSaveEnabled()) {
-                const filename = document.fileName;
-                if (this.testsByFsPath.has(filename)) {
-                    this.logger.log('debug', 'Test file changed, reloading tests');
-                    await this.load();
-                    return; // In case autorun is enabled - execution will be triggered on load.
+                const needsReload = sectionsToReload.some(section =>
+                    configurationChange.affectsConfiguration(
+                        section,
+                        this.workspaceFolder.uri
+                    )
+                );
+                if (needsReload) {
+                    this.logger.log(
+                        'info',
+                        'Configuration changed, reloading tests'
+                    );
+                    this.load();
                 }
-                if (filename.startsWith(this.workspaceFolder.uri.fsPath)) {
-                    this.logger.log('debug', 'Sending autorun event');
-                    this.autorunEmitter.fire();
+            })
+        );
+
+        this.disposables.push(
+            workspace.onDidSaveTextDocument(async document => {
+                const config = await this.configurationFactory.get(
+                    this.workspaceFolder
+                );
+                if (config.autoTestDiscoverOnSaveEnabled()) {
+                    const filename = document.fileName;
+                    if (this.testsByFsPath.has(filename)) {
+                        this.logger.log(
+                            'debug',
+                            'Test file changed, reloading tests'
+                        );
+                        await this.load();
+                        return; // In case autorun is enabled - execution will be triggered on load.
+                    }
+                    if (filename.startsWith(this.workspaceFolder.uri.fsPath)) {
+                        this.logger.log('debug', 'Sending autorun event');
+                        this.autorunEmitter.fire();
+                    }
                 }
-            }
-        }));
+            })
+        );
     }
 
     public async load(): Promise<void> {
@@ -118,36 +153,58 @@ export class PythonTestAdapter implements TestAdapter {
 
             this.testsById.clear();
             this.testsByFsPath.clear();
-            const config = await this.configurationFactory.get(this.workspaceFolder);
+            const config = await this.configurationFactory.get(
+                this.workspaceFolder
+            );
             const suite = await this.testRunner.load(config);
             this.saveToMap(suite);
             this.sortTests(suite);
 
             this.testsEmitter.fire({ type: 'finished', suite });
         } catch (error: any) {
-            const errorMessage = `Test loading failed: ${concatNonEmpty(EOL, error, error.stack)}`;
+            const errorMessage = `Test loading failed: ${concatNonEmpty(
+                EOL,
+                error,
+                error.stack
+            )}`;
             this.logger.log('crit', errorMessage);
-            this.testsEmitter.fire({ type: 'finished', suite: undefined, errorMessage });
+            this.testsEmitter.fire({
+                type: 'finished',
+                suite: undefined,
+                errorMessage,
+            });
         }
     }
 
     public async run(tests: string[]): Promise<void> {
         try {
             this.testStatesEmitter.fire({ type: 'started', tests });
-            const config = await this.configurationFactory.get(this.workspaceFolder);
+            const config = await this.configurationFactory.get(
+                this.workspaceFolder
+            );
             const testRuns = tests.map(async test => {
                 try {
                     const states = await this.testRunner.run(config, test);
                     return states.forEach(state => {
                         const testId = state.test as string;
-                        if (this.testsById.has(testId) && this.testsById.get(testId)?.type === 'suite') {
-                            this.setTestStatesRecursive(testId, state.state, state.message);
+                        if (
+                            this.testsById.has(testId) &&
+                            this.testsById.get(testId)?.type === 'suite'
+                        ) {
+                            this.setTestStatesRecursive(
+                                testId,
+                                state.state,
+                                state.message
+                            );
                         } else {
                             this.testStatesEmitter.fire(state);
                         }
                     });
                 } catch (reason: any) {
-                    this.logger.log('crit', `Execution of the test "${test}" failed: ${reason}`);
+                    this.logger.log(
+                        'crit',
+                        `Execution of the test "${test}" failed: ${reason}`
+                    );
                     this.setTestStatesRecursive(test, 'failed', reason);
                 }
             });
@@ -158,25 +215,38 @@ export class PythonTestAdapter implements TestAdapter {
     }
 
     public async debug(tests: string[]): Promise<void> {
-        const config = await this.configurationFactory.get(this.workspaceFolder);
-        const debugConfiguration = await this.testRunner.debugConfiguration(config, tests[0]);
+        const config = await this.configurationFactory.get(
+            this.workspaceFolder
+        );
+        const debugConfiguration = await this.testRunner.debugConfiguration(
+            config,
+            tests[0]
+        );
         const launchJsonConfiguration = await this.detectDebugConfiguration(
             this.testsById.get(tests[0])?.label || tests[0],
             debugConfiguration.env
         );
         return new Promise<void>(() => {
-            debug.startDebugging(this.workspaceFolder, {
-                ...{
-                    type: 'python',
-                    request: 'launch',
-                    console: 'internalConsole',
-                },
-                ...debugConfiguration, // module, cwd, args, env,
-                ...launchJsonConfiguration,
-            }).then(
-                () => { /* intentionally omitted */ },
-                exception => this.logger.log('crit', `Failed to start debugging tests: ${exception}`)
-            );
+            debug
+                .startDebugging(this.workspaceFolder, {
+                    ...{
+                        type: 'python',
+                        request: 'launch',
+                        console: 'internalConsole',
+                    },
+                    ...debugConfiguration, // module, cwd, args, env,
+                    ...launchJsonConfiguration,
+                })
+                .then(
+                    () => {
+                        /* intentionally omitted */
+                    },
+                    exception =>
+                        this.logger.log(
+                            'crit',
+                            `Failed to start debugging tests: ${exception}`
+                        )
+                );
         });
     }
 
@@ -195,8 +265,14 @@ export class PythonTestAdapter implements TestAdapter {
         if (!test) {
             return;
         }
-        test.children.sort((x, y) => x.label.localeCompare(y.label, undefined, { sensitivity: 'base', numeric: true }));
-        test.children.filter(t => t)
+        test.children.sort((x, y) =>
+            x.label.localeCompare(y.label, undefined, {
+                sensitivity: 'base',
+                numeric: true,
+            })
+        );
+        test.children
+            .filter(t => t)
             .filter(t => t.type === 'suite')
             .map(t => t as TestSuiteInfo)
             .forEach(t => this.sortTests(t));
@@ -247,38 +323,60 @@ export class PythonTestAdapter implements TestAdapter {
             name: `Debug: ${test}`,
         };
 
-        const filename = path.join(this.workspaceFolder.uri.fsPath, '.vscode', 'launch.json');
+        const filename = path.join(
+            this.workspaceFolder.uri.fsPath,
+            '.vscode',
+            'launch.json'
+        );
         const launchJsonFileExists = await isFileExists(filename);
         if (!launchJsonFileExists) {
             return emptyJsonConfiguration;
         }
         try {
             const content = await readFile(filename);
-            const launchJsonConfiguration = parse(content, [], { allowTrailingComma: true, disallowComments: false });
-            if (!launchJsonConfiguration.version || empty(launchJsonConfiguration.configurations)) {
-                this.logger.log('warn', `No debug configurations in ${filename}`);
+            const launchJsonConfiguration = parse(content, [], {
+                allowTrailingComma: true,
+                disallowComments: false,
+            });
+            if (
+                !launchJsonConfiguration.version ||
+                empty(launchJsonConfiguration.configurations)
+            ) {
+                this.logger.log(
+                    'warn',
+                    `No debug configurations in ${filename}`
+                );
             }
             return firstOrDefault(
                 (launchJsonConfiguration.configurations as DebugConfiguration[])
                     .filter(cfg => this.isTestConfiguration(cfg))
                     .map(cfg => cfg as IPythonTestDebugConfig)
-                    .map(cfg => <IPythonTestDebugConfig>({
-                        env: EnvironmentVariablesLoader.merge(cfg.env || {}, globalEnvironment),
+                    .map(
+                        cfg =>
+                            <IPythonTestDebugConfig>{
+                                env: EnvironmentVariablesLoader.merge(
+                                    cfg.env || {},
+                                    globalEnvironment
+                                ),
 
-                        name: `${cfg.name}: ${test}`,
-                        console: cfg.console,
-                        stopOnEntry: cfg.stopOnEntry,
-                        showReturnValue: cfg.showReturnValue,
-                        redirectOutput: cfg.redirectOutput,
-                        debugStdLib: cfg.debugStdLib,
-                        justMyCode: cfg.justMyCode,
-                        subProcess: cfg.subProcess,
-                        envFile: cfg.envFile,
-                    })),
+                                name: `${cfg.name}: ${test}`,
+                                console: cfg.console,
+                                stopOnEntry: cfg.stopOnEntry,
+                                showReturnValue: cfg.showReturnValue,
+                                redirectOutput: cfg.redirectOutput,
+                                debugStdLib: cfg.debugStdLib,
+                                justMyCode: cfg.justMyCode,
+                                subProcess: cfg.subProcess,
+                                envFile: cfg.envFile,
+                            }
+                    ),
                 emptyJsonConfiguration
             );
         } catch (error) {
-            this.logger.log('crit', `Could not load debug configuration: ${error}`);
+            this.logger.log(
+                'crit',
+                `Could not load debug configuration: ${error}`
+            );
             return emptyJsonConfiguration;
         }
     }

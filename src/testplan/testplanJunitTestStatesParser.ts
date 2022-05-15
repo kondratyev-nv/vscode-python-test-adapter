@@ -1,4 +1,3 @@
-
 import { EOL } from 'os';
 import * as path from 'path';
 import { TestEvent } from 'vscode-test-adapter-api';
@@ -50,7 +49,6 @@ type TestState = 'passed' | 'failed' | 'skipped';
 export async function parseTestStates(
     outputXmlDir: string
 ): Promise<TestEvent[]> {
-
     const xmlDirContent = await readDir(outputXmlDir);
     let testResults: TestEvent[] = [];
 
@@ -79,13 +77,19 @@ function parseTestResults(parserResult: any): TestEvent[] {
     if (!parserResult) {
         return [];
     }
-    const testSuiteResults: ITestSuiteResult[] = parserResult.testsuites.testsuite;
-    return testSuiteResults.map(testSuiteResult => {
-        if (!Array.isArray(testSuiteResult.testcase)) {
-            return [];
-        }
-        return testSuiteResult.testcase.map(testcase => mapToTestState(testcase)).filter(x => x).map(x => x!);
-    }).reduce((r, x) => r.concat(x), []);
+    const testSuiteResults: ITestSuiteResult[] =
+        parserResult.testsuites.testsuite;
+    return testSuiteResults
+        .map(testSuiteResult => {
+            if (!Array.isArray(testSuiteResult.testcase)) {
+                return [];
+            }
+            return testSuiteResult.testcase
+                .map(testcase => mapToTestState(testcase))
+                .filter(x => x)
+                .map(x => x!);
+        })
+        .reduce((r, x) => r.concat(x), []);
 }
 
 function mapToTestState(testcase: ITestCaseResult): TestEvent | undefined {
@@ -105,32 +109,62 @@ function mapToTestState(testcase: ITestCaseResult): TestEvent | undefined {
     };
 }
 
-function getTestState(testcase: ITestCaseResult): [TestState, string, string, number | undefined] {
-    const output = concatNonEmpty(EOL, extractSystemOut(testcase), extractSystemErr(testcase));
-    const executionTime = testcase.$.time
+function getTestState(
+    testcase: ITestCaseResult
+): [TestState, string, string, number | undefined] {
+    const output = concatNonEmpty(
+        EOL,
+        extractSystemOut(testcase),
+        extractSystemErr(testcase)
+    );
+    const executionTime = testcase.$.time;
     if (testcase.error) {
-        return ['failed',    output, extractErrorMessage(testcase.error), executionTime];
+        return [
+            'failed',
+            output,
+            extractErrorMessage(testcase.error),
+            executionTime,
+        ];
     }
     if (testcase.failure) {
-        return ['failed', output, extractErrorMessage(testcase.failure), executionTime];
+        return [
+            'failed',
+            output,
+            extractErrorMessage(testcase.failure),
+            executionTime,
+        ];
     }
     if (testcase.skipped) {
-        return ['skipped', output, extractErrorMessage(testcase.skipped), executionTime];
+        return [
+            'skipped',
+            output,
+            extractErrorMessage(testcase.skipped),
+            executionTime,
+        ];
     }
     return ['passed', '', output, executionTime];
 }
 
 function extractSystemOut(testcase: ITestCaseResult) {
-    return empty(testcase['system-out']) ? '' : testcase['system-out'].join(EOL);
+    return empty(testcase['system-out'])
+        ? ''
+        : testcase['system-out'].join(EOL);
 }
 
 function extractSystemErr(testcase: ITestCaseResult) {
-    return empty(testcase['system-err']) ? '' : testcase['system-err'].join(EOL);
+    return empty(testcase['system-err'])
+        ? ''
+        : testcase['system-err'].join(EOL);
 }
 
-function extractErrorMessage(errors: { _: string, $: { message: string } }[]): string {
+function extractErrorMessage(
+    errors: { _: string; $: { message: string } }[]
+): string {
     if (!errors || !errors.length) {
         return '';
     }
-    return concatNonEmpty(EOL, ...errors.map(e => concatNonEmpty(EOL, e.$.message, e._)));
+    return concatNonEmpty(
+        EOL,
+        ...errors.map(e => concatNonEmpty(EOL, e.$.message, e._))
+    );
 }

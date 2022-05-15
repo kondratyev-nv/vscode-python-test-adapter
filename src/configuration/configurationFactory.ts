@@ -11,10 +11,15 @@ export interface IConfigurationFactory {
 }
 
 export class DefaultConfigurationFactory implements IConfigurationFactory {
-    constructor(private readonly logger: ILogger) { }
+    constructor(private readonly logger: ILogger) {}
 
-    public async get(workspaceFolder: WorkspaceFolder): Promise<IWorkspaceConfiguration> {
-        this.logger.log('info', `Reading configuration for workspace ${workspaceFolder.name}`);
+    public async get(
+        workspaceFolder: WorkspaceFolder
+    ): Promise<IWorkspaceConfiguration> {
+        this.logger.log(
+            'info',
+            `Reading configuration for workspace ${workspaceFolder.name}`
+        );
         return await PythonExtensionAwareWorkspaceConfiguration.for(
             new PlaceholderAwareWorkspaceConfiguration(
                 new VscodeWorkspaceConfiguration(workspaceFolder),

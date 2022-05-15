@@ -1,7 +1,4 @@
-import {
-    TestEvent,
-    TestSuiteInfo
-} from 'vscode-test-adapter-api';
+import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 import { IWorkspaceConfiguration } from './configuration/workspaceConfiguration';
 import { IEnvironmentVariables } from './environmentVariablesLoader';
 
@@ -22,5 +19,8 @@ export interface ITestRunner {
 
     cancel(): void;
 
-    debugConfiguration(config: IWorkspaceConfiguration, test: string): Promise<IDebugConfiguration>;
+    debugConfiguration(
+        config: IWorkspaceConfiguration,
+        test: string
+    ): Promise<IDebugConfiguration>;
 }

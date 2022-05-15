@@ -1,4 +1,3 @@
-
 import * as path from 'path';
 
 import { ILogger } from './logging/logger';
@@ -18,7 +17,6 @@ export interface IEnvironmentVariables {
 }
 
 export class EnvironmentVariablesLoader {
-
     public static async load(
         envFilePath: string,
         globalEnvironment: IEnvironmentVariables,
@@ -34,43 +32,63 @@ export class EnvironmentVariablesLoader {
             logger.log('info', `Loading environment variables file ${envPath}`);
             try {
                 const content = await readFile(envPath);
-                return EnvironmentVariablesLoader.parse(content, globalEnvironment);
+                return EnvironmentVariablesLoader.parse(
+                    content,
+                    globalEnvironment
+                );
             } catch {
-                logger.log('warn', `Could not read environment variables file ${envPath}`);
+                logger.log(
+                    'warn',
+                    `Could not read environment variables file ${envPath}`
+                );
                 return {};
             }
         } else {
-            logger.log('info', `Environment variables file ${envPath} does not exist`);
+            logger.log(
+                'info',
+                `Environment variables file ${envPath} does not exist`
+            );
             return {};
         }
     }
 
-    public static merge(localEnvironment: IEnvironmentVariables, globalEnvironment: IEnvironmentVariables) {
+    public static merge(
+        localEnvironment: IEnvironmentVariables,
+        globalEnvironment: IEnvironmentVariables
+    ) {
         const environmentVariables: IEnvironmentVariables = {};
 
         for (const [key, value] of Object.entries(localEnvironment)) {
-            environmentVariables[key] = EnvironmentVariablesLoader.resolveEnvironmentVariableValue(
-                value || '', environmentVariables, globalEnvironment
-            );
+            environmentVariables[key] =
+                EnvironmentVariablesLoader.resolveEnvironmentVariableValue(
+                    value || '',
+                    environmentVariables,
+                    globalEnvironment
+                );
         }
 
         return environmentVariables;
     }
 
-    private static parse(content: string, globalEnvironment: IEnvironmentVariables): IEnvironmentVariables {
+    private static parse(
+        content: string,
+        globalEnvironment: IEnvironmentVariables
+    ): IEnvironmentVariables {
         const environmentVariables: IEnvironmentVariables = {};
 
         content.split(NEWLINE).forEach(line => {
-
             const parsedKeyValue = EnvironmentVariablesLoader.parseLine(line);
             if (!parsedKeyValue) {
                 return;
             }
 
             const [key, value] = parsedKeyValue;
-            environmentVariables[key] = EnvironmentVariablesLoader.resolveEnvironmentVariableValue(
-                value, environmentVariables, globalEnvironment
-            );
+            environmentVariables[key] =
+                EnvironmentVariablesLoader.resolveEnvironmentVariableValue(
+                    value,
+                    environmentVariables,
+                    globalEnvironment
+                );
         });
 
         return environmentVariables;
@@ -83,19 +101,21 @@ export class EnvironmentVariablesLoader {
         }
 
         const key = matchedKeyValue[1];
-        const value = EnvironmentVariablesLoader.normalizeValue(matchedKeyValue[2] || '');
+        const value = EnvironmentVariablesLoader.normalizeValue(
+            matchedKeyValue[2] || ''
+        );
 
         return [key, value];
     }
 
     private static normalizeValue(value: string): string {
         const isDoubleQuoted = isEnclosedIn(value, '"');
-        const isSingleQuoted = isEnclosedIn(value, '\'');
+        const isSingleQuoted = isEnclosedIn(value, "'");
         if (isSingleQuoted || isDoubleQuoted) {
             const valueWithoutQuotes = value.substring(1, value.length - 1);
-            return isDoubleQuoted ?
-                valueWithoutQuotes.replace(ESCAPED_NEWLINE_REGEX, NEWLINE) :
-                valueWithoutQuotes;
+            return isDoubleQuoted
+                ? valueWithoutQuotes.replace(ESCAPED_NEWLINE_REGEX, NEWLINE)
+                : valueWithoutQuotes;
         }
         return value.trim();
     }
@@ -105,18 +125,27 @@ export class EnvironmentVariablesLoader {
         localEnvironment: IEnvironmentVariables,
         globalEnvironment: IEnvironmentVariables
     ): string {
-        const replacement = value.replace(VARIABLE_REFERENCE_REGEX, (match, variableReference) => {
-            if (!variableReference) {
-                return match;
-            }
+        const replacement = value.replace(
+            VARIABLE_REFERENCE_REGEX,
+            (match, variableReference) => {
+                if (!variableReference) {
+                    return match;
+                }
 
-            return localEnvironment[variableReference] || globalEnvironment[variableReference] || '';
-        });
+                return (
+                    localEnvironment[variableReference] ||
+                    globalEnvironment[variableReference] ||
+                    ''
+                );
+            }
+        );
         if (replacement === value) {
             return value;
         }
         return EnvironmentVariablesLoader.resolveEnvironmentVariableValue(
-            replacement.replace(/\\\$/g, '$'), localEnvironment, globalEnvironment
+            replacement.replace(/\\\$/g, '$'),
+            localEnvironment,
+            globalEnvironment
         );
     }
 }

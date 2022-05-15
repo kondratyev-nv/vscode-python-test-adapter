@@ -6,30 +6,35 @@ import {
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
-    IWorkspaceConfiguration
+    IWorkspaceConfiguration,
 } from './workspaceConfiguration';
 
 const MS_PYTHON_EXTENSION_ID = 'ms-python.python';
 
-export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceConfiguration {
+export class PythonExtensionAwareWorkspaceConfiguration
+    implements IWorkspaceConfiguration
+{
     private constructor(
         private readonly configuration: IWorkspaceConfiguration,
         public readonly workspaceFolder: WorkspaceFolder,
         private readonly detectedPythonPath?: string
-    ) {
-
-    }
+    ) {}
 
     public static async for(
         configuration: IWorkspaceConfiguration,
         workspaceFolder: WorkspaceFolder,
         logger: ILogger
     ): Promise<PythonExtensionAwareWorkspaceConfiguration> {
-        const detectedPythonPath = await PythonExtensionAwareWorkspaceConfiguration.detectPythonPath(
+        const detectedPythonPath =
+            await PythonExtensionAwareWorkspaceConfiguration.detectPythonPath(
+                workspaceFolder,
+                logger
+            );
+        return new PythonExtensionAwareWorkspaceConfiguration(
+            configuration,
             workspaceFolder,
-            logger
+            detectedPythonPath
         );
-        return new PythonExtensionAwareWorkspaceConfiguration(configuration, workspaceFolder, detectedPythonPath);
     }
 
     private static async detectPythonPath(
@@ -37,8 +42,10 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
         logger: ILogger
     ): Promise<string | undefined> {
         try {
-            return await PythonExtensionAwareWorkspaceConfiguration
-                .tryDetectPythonPath(workspaceFolder, logger);
+            return await PythonExtensionAwareWorkspaceConfiguration.tryDetectPythonPath(
+                workspaceFolder,
+                logger
+            );
         } catch (error: any) {
             logger.log(
                 'crit',
@@ -54,11 +61,18 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
     ): Promise<string | undefined> {
         const extension = extensions.getExtension(MS_PYTHON_EXTENSION_ID);
         if (!extension) {
-            logger.log('debug', `Extension ${MS_PYTHON_EXTENSION_ID} not found, skipping pythonPath auto-detection`);
+            logger.log(
+                'debug',
+                `Extension ${MS_PYTHON_EXTENSION_ID} not found, skipping pythonPath auto-detection`
+            );
             return undefined;
         }
-        const usingNewInterpreterStorage = extension.packageJSON?.featureFlags?.usingNewInterpreterStorage;
-        logger.log('debug', `usingNewInterpreterStorage feature flag is '${usingNewInterpreterStorage}'`);
+        const usingNewInterpreterStorage =
+            extension.packageJSON?.featureFlags?.usingNewInterpreterStorage;
+        logger.log(
+            'debug',
+            `usingNewInterpreterStorage feature flag is '${usingNewInterpreterStorage}'`
+        );
 
         if (usingNewInterpreterStorage) {
             if (!extension.isActive) {
@@ -66,7 +80,9 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
             }
             await extension.exports.ready;
 
-            const pythonPath = extension.exports.settings.getExecutionDetails(workspaceFolder.uri).execCommand[0];
+            const pythonPath = extension.exports.settings.getExecutionDetails(
+                workspaceFolder.uri
+            ).execCommand[0];
             logger.log('info', `Using auto-detected pythonPath ${pythonPath}`);
             return pythonPath;
         }

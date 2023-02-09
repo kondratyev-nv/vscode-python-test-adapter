@@ -12,6 +12,22 @@ import base64
 import json
 import traceback
 
+from pathlib import Path
+start_dir = sys.argv[2]
+if Path(start_dir + "/manage.py").is_file():
+    with open(start_dir + "/manage.py", "r") as management_file:
+        contents = management_file.readlines()
+        if any(True for line in contents if line.strip().replace('"""', '') == "Django\'s command-line utility for administrative tasks."):
+            print("django management file found!")
+            for line in contents:
+                if line.strip().startswith("os.environ.setdefault"):
+                    eval(line.strip()) # this is the not recommended part!!!
+                    try:
+                        import django
+                        django.setup()
+                    except ModuleNotFoundError:
+                        pass
+
 TEST_RESULT_PREFIX = '${TEST_RESULT_PREFIX}'
 
 STDOUT_LINE = '\\nStdout:\\n%s'

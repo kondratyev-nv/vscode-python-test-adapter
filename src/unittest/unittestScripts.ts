@@ -12,29 +12,13 @@ import base64
 import json
 import traceback
 
-def config_django_env(start_dir):
-    """This will try to set DJANGO_SETTINGS_MODULE and call django.setup in order to make it possible to locate/run django unittests"""
-    from ast import literal_eval
-    if os.path.isfile(start_dir + "/manage.py"):
-        with open(start_dir + "/manage.py", "r") as management_file:
-            contents = management_file.readlines()
-            if any(True for line in contents if line.strip().replace('"""', '').replace("'''", '') == "Django\'s command-line utility for administrative tasks."):
-                for line in contents:
-                    if line.strip().startswith("os.environ.setdefault"):
-                        try:
-                            literal_eval(line.strip().replace('os.environ.setdefault("DJANGO_SETTINGS_MODULE",', "", 1))
-                        except:
-                            # not a valid python expression and ignore the rest
-                            break
-                        else:
-                            eval(line.strip()) # this is the not recommended part!!!
-                            try:
-                                import django
-                                django.setup()
-                            except ModuleNotFoundError:
-                                # django is not installed fot current python interpereter
-                                pass
-                            break
+def discover_django(start_dir):
+    """Setting DJANGO_SETTINGS_MODULE and call django.setup to locate & run django unittests"""
+    import contextlib, os
+    with contextlib.suppress(Exception), open(start_dir + "/manage.py", "r") as management_file:
+        eval(next((line for line in management_file.readlines() if line.strip().startswith("os.environ.setdefault")), '').strip())
+        import django
+        django.setup()
 
 
 TEST_RESULT_PREFIX = '${ TEST_RESULT_PREFIX }'
@@ -225,7 +209,7 @@ def extract_errors(tests):
 action = sys.argv[1]
 start_directory = sys.argv[2]
 pattern = sys.argv[3]
-config_django_env(start_directory)
+discover_django(start_directory)
 if action == "discover":
     valid_tests, invalid_tests = discover_tests(start_directory, pattern)
     print('==DISCOVERED TESTS BEGIN==')

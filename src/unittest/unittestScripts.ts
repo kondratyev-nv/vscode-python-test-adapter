@@ -14,36 +14,29 @@ import traceback
 
 def setup_django_test_env(root):
     """Configure Django environment for running Django tests.
-
     It checks if Django is installed by attempting to import the django module.
     Looks for manage.py file to extract the value of DJANGO_SETTINGS_MODULE.
     Sets DJANGO_SETTINGS_MODULE environment variable and initializes Django setup.
     If any errors occur during this process, the function fails silently.
-
     Args:
         root (str): The root directory of the Django project.
-
     Returns:
         None.
     """
-    import os, re
+    import os
     try:
         # Check if Django is installed
         import django
         # Check if manage.py exists
         with open(os.path.join(root, "manage.py"), "r") as manage_py:
             # Look for a line that sets the DJANGO_SETTINGS_MODULE environment variable
-            pattern = r"^os\.environ\.setdefault\((\'|\")DJANGO_SETTINGS_MODULE(\'|\"), (\'|\")(?P<settings_path>[\w.]+)(\'|\")\)$"
             for line in manage_py.readlines():
-                pattern_matched = re.match(pattern, line.strip())
-                if pattern_matched is not None:
-                    # Set the DJANGO_SETTINGS_MODULE environment variable and initialize Django's settings
-                    os.environ.setdefault('DJANGO_SETTINGS_MODULE', pattern_matched.groupdict().get('settings_path'))
+                if line.strip().startswith("os.environ.setdefault"):
+                    eval(line.strip())
                     django.setup()
                     return
     except (ModuleNotFoundError, FileNotFoundError):
         return
-
 
 TEST_RESULT_PREFIX = '${ TEST_RESULT_PREFIX }'
 

@@ -172,7 +172,7 @@ export class TestplanTestRunner implements ITestRunner {
             junitReportPath: (knownArguments as { xmlpath?: string }).xmlpath,
             argumentsToPass: argumentsToPass.concat(
                 test !== this.adapterId ?
-                    ['--pattern', test] :
+                    ['--patterns', test] :
                     (knownArguments as { tests?: string[] }).tests || []
             ),
         };

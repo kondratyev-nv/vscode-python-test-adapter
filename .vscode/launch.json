@@ -6,12 +6,8 @@
       "request": "launch",
       "name": "Run extension",
       "runtimeExecutable": "${execPath}",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}"
-      ],
-      "outFiles": [
-        "${workspaceFolder}/out"
-      ],
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "outFiles": ["${workspaceFolder}/out"],
       "preLaunchTask": "npm: build",
       "env": {
         "SOME_PROCESS_VARIABLE": "HelloFromProcessEnv"
@@ -33,13 +29,11 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/mocha-runner"
       ],
-      "outFiles": [
-        "${workspaceFolder}/out/test/**/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
       "preLaunchTask": "npm: build",
       "env": {
         "SOME_PROCESS_VARIABLE": "HelloFromProcessEnv",
-        "VSCODE_PYTHON": "python3"
+        "VSCODE_PYTHON": "python"
       }
     }
   ]

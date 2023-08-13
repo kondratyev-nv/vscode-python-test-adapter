@@ -16,8 +16,6 @@ jobs:
     demands: npm
   strategy:
     matrix:
-      Python27:
-        python.version: '2.7'
       Python36:
         python.version: '3.6'
       Python37:
@@ -28,6 +26,8 @@ jobs:
         python.version: '3.9'
       Python310:
         python.version: '3.10'
+      Python311:
+        python.version: '3.11'
     maxParallel: 4
   steps:
   - task: UsePythonVersion@0
@@ -82,6 +82,8 @@ jobs:
         python.version: '3.9'
       Python310:
         python.version: '3.10'
+      Python311:
+        python.version: '3.11'
     maxParallel: 4
   steps:
   - task: UsePythonVersion@0
@@ -128,10 +130,6 @@ jobs:
     demands: npm
   strategy:
     matrix:
-      Python27:
-        python.version: '2.7'
-      Python36:
-        python.version: '3.6'
       Python37:
         python.version: '3.7'
       Python38:
@@ -140,6 +138,8 @@ jobs:
         python.version: '3.9'
       Python310:
         python.version: '3.10'
+      Python311:
+        python.version: '3.11'
     maxParallel: 4
   steps:
   - task: UsePythonVersion@0

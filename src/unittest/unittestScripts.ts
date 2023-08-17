@@ -1,5 +1,3 @@
-
-
 export const TEST_RESULT_PREFIX = 'TEST_EXECUTION_RESULT';
 
 export const UNITTEST_TEST_RUNNER_SCRIPT = `

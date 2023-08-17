@@ -1,8 +1,6 @@
 import * as path from 'path';
 import * as tmp from 'tmp';
-import {
-    TestEvent, TestSuiteInfo
-} from 'vscode-test-adapter-api';
+import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 
 import { ArgumentParser } from 'argparse';
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
@@ -37,13 +35,9 @@ interface IRunArguments {
 }
 
 export class PytestTestRunner implements ITestRunner {
-
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
 
-    constructor(
-        public readonly adapterId: string,
-        private readonly logger: ILogger
-    ) { }
+    constructor(public readonly adapterId: string, private readonly logger: ILogger) {}
 
     public cancel(): void {
         this.testExecutions.forEach((execution, test) => {
@@ -109,7 +103,8 @@ export class PytestTestRunner implements ITestRunner {
             // See https://docs.pytest.org/en/stable/customize.html#finding-the-rootdir
             `--rootdir=${config.getCwd()}`,
             `--junitxml=${file}`,
-            '--override-ini', 'junit_family=xunit1'
+            '--override-ini',
+            'junit_family=xunit1',
         ].concat(runArguments.argumentsToPass);
         this.logger.log('info', `Running pytest with arguments: ${testRunArguments.join(', ')}`);
 
@@ -140,14 +135,11 @@ export class PytestTestRunner implements ITestRunner {
         }
 
         this.logger.log('info', `Running ${pytestPath} as an executable`);
-        return runProcess(
-            pytestPath,
-            args,
-            {
-                cwd: config.getCwd(),
-                environment: env,
-                acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
-            });
+        return runProcess(pytestPath, args, {
+            cwd: config.getCwd(),
+            environment: env,
+            acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
+        });
     }
 
     private async loadEnvironmentVariables(config: IWorkspaceConfiguration): Promise<IEnvironmentVariables> {
@@ -157,13 +149,14 @@ export class PytestTestRunner implements ITestRunner {
             config.getCwd(),
             envFileEnvironment.PYTHONPATH,
             process.env.PYTHONPATH,
-            DISCOVERY_OUTPUT_PLUGIN_INFO.PACKAGE_PATH
-        ].filter(item => item).join(path.delimiter);
+            DISCOVERY_OUTPUT_PLUGIN_INFO.PACKAGE_PATH,
+        ]
+            .filter((item) => item)
+            .join(path.delimiter);
 
-        const updatedPytestPlugins = [
-            envFileEnvironment.PYTEST_PLUGINS,
-            DISCOVERY_OUTPUT_PLUGIN_INFO.MODULE_NAME
-        ].filter(item => item).join(',');
+        const updatedPytestPlugins = [envFileEnvironment.PYTEST_PLUGINS, DISCOVERY_OUTPUT_PLUGIN_INFO.MODULE_NAME]
+            .filter((item) => item)
+            .join(',');
 
         return {
             ...envFileEnvironment,
@@ -175,11 +168,13 @@ export class PytestTestRunner implements ITestRunner {
     private async getJunitReportPath(
         cwd: string,
         runArguments: IRunArguments
-    ): Promise<{ file: string, cleanupCallback: () => void }> {
+    ): Promise<{ file: string; cleanupCallback: () => void }> {
         if (runArguments.junitReportPath) {
             return Promise.resolve({
                 file: path.resolve(cwd, runArguments.junitReportPath),
-                cleanupCallback: () => { /* intentionally empty */ },
+                cleanupCallback: () => {
+                    /* intentionally empty */
+                },
             });
         }
         return await this.createTemporaryFile();
@@ -193,35 +188,21 @@ export class PytestTestRunner implements ITestRunner {
 
     private getRunArguments(test: string, rawPytestArguments: string[]): IRunArguments {
         const argumentParser = this.configureCommonArgumentParser();
-        argumentParser.add_argument(
-            '--setuponly', '--setup-only',
-            { action: 'store_true' });
-        argumentParser.add_argument(
-            '--setupshow', '--setup-show',
-            { action: 'store_true' });
-        argumentParser.add_argument(
-            '--setupplan', '--setup-plan',
-            { action: 'store_true' });
-        argumentParser.add_argument(
-            '--collectonly', '--collect-only',
-            { action: 'store_true' });
-        argumentParser.add_argument(
-            '--trace',
-            { dest: 'trace', action: 'store_true' });
+        argumentParser.add_argument('--setuponly', '--setup-only', { action: 'store_true' });
+        argumentParser.add_argument('--setupshow', '--setup-show', { action: 'store_true' });
+        argumentParser.add_argument('--setupplan', '--setup-plan', { action: 'store_true' });
+        argumentParser.add_argument('--collectonly', '--collect-only', { action: 'store_true' });
+        argumentParser.add_argument('--trace', { dest: 'trace', action: 'store_true' });
 
         // Handle positional arguments (list of tests to run).
         // We hande them only in 'Run' configuration, because they might be used as filter on discovery stage.
-        argumentParser.add_argument(
-            'tests',
-            { nargs: '*' });
+        argumentParser.add_argument('tests', { nargs: '*' });
 
         const [knownArguments, argumentsToPass] = argumentParser.parse_known_args(rawPytestArguments);
         return {
             junitReportPath: (knownArguments as { xmlpath?: string }).xmlpath,
             argumentsToPass: argumentsToPass.concat(
-                test !== this.adapterId ?
-                    [test] :
-                    (knownArguments as { tests?: string[] }).tests || []
+                test !== this.adapterId ? [test] : (knownArguments as { tests?: string[] }).tests || []
             ),
         };
     }
@@ -230,53 +211,38 @@ export class PytestTestRunner implements ITestRunner {
         const argumentParser = new ArgumentParser({
             exit_on_error: false,
         });
-        argumentParser.add_argument(
-            '--rootdir',
-            { action: 'store', dest: 'rootdir' });
-        argumentParser.add_argument(
-            '-x', '--exitfirst',
-            { dest: 'maxfail', action: 'store_const', const: 1 });
-        argumentParser.add_argument(
-            '--maxfail',
-            { dest: 'maxfail', action: 'store', default: 0 });
-        argumentParser.add_argument(
-            '--fixtures', '--funcargs',
-            { action: 'store_true', dest: 'showfixtures', default: false });
-        argumentParser.add_argument(
-            '--fixtures-per-test',
-            { action: 'store_true', dest: 'show_fixtures_per_test', default: false });
-        argumentParser.add_argument(
-            '--lf', '--last-failed',
-            { action: 'store_true', dest: 'lf' });
-        argumentParser.add_argument(
-            '--ff', '--failed-first',
-            { action: 'store_true', dest: 'failedfirst' });
-        argumentParser.add_argument(
-            '--nf', '--new-first',
-            { action: 'store_true', dest: 'newfirst' });
-        argumentParser.add_argument(
-            '--cache-show',
-            { action: 'store_true', dest: 'cacheshow' });
-        argumentParser.add_argument(
-            '--lfnf', '--last-failed-no-failures',
-            { action: 'store', dest: 'last_failed_no_failures', choices: ['all', 'none'], default: 'all' });
-        argumentParser.add_argument(
-            '--pdb',
-            { dest: 'usepdb', action: 'store_true' });
-        argumentParser.add_argument(
-            '--pdbcls',
-            { dest: 'usepdb_cls' });
-        argumentParser.add_argument(
-            '--junitxml', '--junit-xml',
-            { action: 'store', dest: 'xmlpath' });
-        argumentParser.add_argument(
-            '--junitprefix', '--junit-prefix',
-            { action: 'store' });
+        argumentParser.add_argument('--rootdir', { action: 'store', dest: 'rootdir' });
+        argumentParser.add_argument('-x', '--exitfirst', { dest: 'maxfail', action: 'store_const', const: 1 });
+        argumentParser.add_argument('--maxfail', { dest: 'maxfail', action: 'store', default: 0 });
+        argumentParser.add_argument('--fixtures', '--funcargs', {
+            action: 'store_true',
+            dest: 'showfixtures',
+            default: false,
+        });
+        argumentParser.add_argument('--fixtures-per-test', {
+            action: 'store_true',
+            dest: 'show_fixtures_per_test',
+            default: false,
+        });
+        argumentParser.add_argument('--lf', '--last-failed', { action: 'store_true', dest: 'lf' });
+        argumentParser.add_argument('--ff', '--failed-first', { action: 'store_true', dest: 'failedfirst' });
+        argumentParser.add_argument('--nf', '--new-first', { action: 'store_true', dest: 'newfirst' });
+        argumentParser.add_argument('--cache-show', { action: 'store_true', dest: 'cacheshow' });
+        argumentParser.add_argument('--lfnf', '--last-failed-no-failures', {
+            action: 'store',
+            dest: 'last_failed_no_failures',
+            choices: ['all', 'none'],
+            default: 'all',
+        });
+        argumentParser.add_argument('--pdb', { dest: 'usepdb', action: 'store_true' });
+        argumentParser.add_argument('--pdbcls', { dest: 'usepdb_cls' });
+        argumentParser.add_argument('--junitxml', '--junit-xml', { action: 'store', dest: 'xmlpath' });
+        argumentParser.add_argument('--junitprefix', '--junit-prefix', { action: 'store' });
         return argumentParser;
     }
 
-    private async createTemporaryFile(): Promise<{ file: string, cleanupCallback: () => void }> {
-        return new Promise<{ file: string, cleanupCallback: () => void }>((resolve, reject) => {
+    private async createTemporaryFile(): Promise<{ file: string; cleanupCallback: () => void }> {
+        return new Promise<{ file: string; cleanupCallback: () => void }>((resolve, reject) => {
             tmp.file((error, file, _, cleanupCallback) => {
                 if (error) {
                     reject(new Error(`Can not create temporary file ${file}: ${error}`));

@@ -1,4 +1,4 @@
 {
-   "python.pythonPath": "python",
-   "pythonTestExplorer.testplanEnabled": true
+    "python.pythonPath": "python",
+    "pythonTestExplorer.testplanEnabled": true
 }

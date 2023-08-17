@@ -13,7 +13,7 @@ suite('Description for equal labels', async () => {
             {
                 id: 'some.module2.SomeTest2',
                 label: 'SomeTest2',
-            }
+            },
         ];
 
         setDescriptionForEqualLabels(suites, '.');
@@ -25,7 +25,7 @@ suite('Description for equal labels', async () => {
             {
                 id: 'some.module2.SomeTest2',
                 label: 'SomeTest2',
-            }
+            },
         ]);
     });
 
@@ -38,7 +38,7 @@ suite('Description for equal labels', async () => {
             {
                 id: 'some.module2.SomeTest',
                 label: 'SomeTest',
-            }
+            },
         ];
 
         setDescriptionForEqualLabels(suites, '.');
@@ -52,7 +52,7 @@ suite('Description for equal labels', async () => {
                 id: 'some.module2.SomeTest',
                 label: 'SomeTest',
                 description: 'module2',
-            }
+            },
         ]);
     });
 
@@ -69,7 +69,7 @@ suite('Description for equal labels', async () => {
             {
                 id: 'some.module3.SomeTest',
                 label: 'Error in module3.py',
-            }
+            },
         ];
 
         setDescriptionForEqualLabels(suites, '.');
@@ -87,7 +87,7 @@ suite('Description for equal labels', async () => {
             {
                 id: 'some.module3.SomeTest',
                 label: 'Error in module3.py',
-            }
+            },
         ]);
     });
 });

@@ -1,4 +1,4 @@
 {
-   "python.testing.pyTestEnabled": true,
-   "python.testing.unittestEnabled": true
+    "python.testing.pyTestEnabled": true,
+    "python.testing.unittestEnabled": true
 }

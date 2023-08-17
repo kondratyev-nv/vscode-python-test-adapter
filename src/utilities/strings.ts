@@ -1,4 +1,3 @@
-
 /**
  * HACK: for #232.
  * For some <insert bad word here> reason String.startsWith method is being replaced in
@@ -23,5 +22,5 @@ export function startsWith(s: string, p: string, offset: number = 0): boolean {
  * @returns All non-empty strings of an array contatenated into a string, separated by the specified glue string.
  */
 export function concatNonEmpty(glue: string, ...s: string[]): string {
-    return s.filter(p => p).join(glue);
+    return s.filter((p) => p).join(glue);
 }

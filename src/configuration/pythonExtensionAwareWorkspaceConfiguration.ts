@@ -6,7 +6,7 @@ import {
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
-    IWorkspaceConfiguration
+    IWorkspaceConfiguration,
 } from './workspaceConfiguration';
 
 const MS_PYTHON_EXTENSION_ID = 'ms-python.python';
@@ -16,9 +16,7 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
         private readonly configuration: IWorkspaceConfiguration,
         public readonly workspaceFolder: WorkspaceFolder,
         private readonly detectedPythonPath?: string
-    ) {
-
-    }
+    ) {}
 
     public static async for(
         configuration: IWorkspaceConfiguration,
@@ -37,8 +35,7 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
         logger: ILogger
     ): Promise<string | undefined> {
         try {
-            return await PythonExtensionAwareWorkspaceConfiguration
-                .tryDetectPythonPath(workspaceFolder, logger);
+            return await PythonExtensionAwareWorkspaceConfiguration.tryDetectPythonPath(workspaceFolder, logger);
         } catch (error: any) {
             logger.log(
                 'crit',

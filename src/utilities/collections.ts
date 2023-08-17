@@ -1,4 +1,3 @@
-
 export function empty<T>(x: T[]) {
     return !x || !x.length;
 }
@@ -33,7 +32,7 @@ export function groupBy<T, U>(values: T[], key: (v: T) => U) {
 
 export function distinctBy<T, U>(values: T[], key: (v: T) => U): T[] {
     const byKey = new Map<U, T>();
-    values.forEach(x => {
+    values.forEach((x) => {
         byKey.set(key(x), x);
     });
     return Array.from(byKey.values());

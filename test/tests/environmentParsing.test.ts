@@ -2,7 +2,11 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 
-import { IPytestConfiguration, ITestplanConfiguration, IUnittestConfiguration } from '../../src/configuration/workspaceConfiguration';
+import {
+    IPytestConfiguration,
+    ITestplanConfiguration,
+    IUnittestConfiguration,
+} from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
 import { TestplanTestRunner } from '../../src/testplan/testplanTestRunner';
 import { UnittestTestRunner } from '../../src/unittest/unittestTestRunner';
@@ -21,7 +25,7 @@ import { getPythonExecutable } from '../utils/testConfiguration';
     {
         name: 'testplan',
         runner: new TestplanTestRunner('some-id', logger()),
-    }
+    },
 ].forEach(({ name, runner }) => {
     suite(`Environment variable parsing with ${name} runner`, () => {
         test('should not fail on bad .env file', async () => {

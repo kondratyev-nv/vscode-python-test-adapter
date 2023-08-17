@@ -1,4 +1,3 @@
-
 import * as path from 'path';
 
 import { ILogger } from './logging/logger';
@@ -18,7 +17,6 @@ export interface IEnvironmentVariables {
 }
 
 export class EnvironmentVariablesLoader {
-
     public static async load(
         envFilePath: string,
         globalEnvironment: IEnvironmentVariables,
@@ -50,7 +48,9 @@ export class EnvironmentVariablesLoader {
 
         for (const [key, value] of Object.entries(localEnvironment)) {
             environmentVariables[key] = EnvironmentVariablesLoader.resolveEnvironmentVariableValue(
-                value || '', environmentVariables, globalEnvironment
+                value || '',
+                environmentVariables,
+                globalEnvironment
             );
         }
 
@@ -60,8 +60,7 @@ export class EnvironmentVariablesLoader {
     private static parse(content: string, globalEnvironment: IEnvironmentVariables): IEnvironmentVariables {
         const environmentVariables: IEnvironmentVariables = {};
 
-        content.split(NEWLINE).forEach(line => {
-
+        content.split(NEWLINE).forEach((line) => {
             const parsedKeyValue = EnvironmentVariablesLoader.parseLine(line);
             if (!parsedKeyValue) {
                 return;
@@ -69,7 +68,9 @@ export class EnvironmentVariablesLoader {
 
             const [key, value] = parsedKeyValue;
             environmentVariables[key] = EnvironmentVariablesLoader.resolveEnvironmentVariableValue(
-                value, environmentVariables, globalEnvironment
+                value,
+                environmentVariables,
+                globalEnvironment
             );
         });
 
@@ -90,12 +91,10 @@ export class EnvironmentVariablesLoader {
 
     private static normalizeValue(value: string): string {
         const isDoubleQuoted = isEnclosedIn(value, '"');
-        const isSingleQuoted = isEnclosedIn(value, '\'');
+        const isSingleQuoted = isEnclosedIn(value, "'");
         if (isSingleQuoted || isDoubleQuoted) {
             const valueWithoutQuotes = value.substring(1, value.length - 1);
-            return isDoubleQuoted ?
-                valueWithoutQuotes.replace(ESCAPED_NEWLINE_REGEX, NEWLINE) :
-                valueWithoutQuotes;
+            return isDoubleQuoted ? valueWithoutQuotes.replace(ESCAPED_NEWLINE_REGEX, NEWLINE) : valueWithoutQuotes;
         }
         return value.trim();
     }
@@ -116,7 +115,9 @@ export class EnvironmentVariablesLoader {
             return value;
         }
         return EnvironmentVariablesLoader.resolveEnvironmentVariableValue(
-            replacement.replace(/\\\$/g, '$'), localEnvironment, globalEnvironment
+            replacement.replace(/\\\$/g, '$'),
+            localEnvironment,
+            globalEnvironment
         );
     }
 }

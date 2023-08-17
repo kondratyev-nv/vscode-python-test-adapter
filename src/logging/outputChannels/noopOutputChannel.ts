@@ -1,4 +1,3 @@
-
 import { ILogOutputChannel } from '../logOutputChannel';
 
 export class NoopOutputChannel implements ILogOutputChannel {

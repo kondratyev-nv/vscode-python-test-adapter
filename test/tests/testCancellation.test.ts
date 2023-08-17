@@ -14,7 +14,7 @@ import {
     extractErroredTests,
     findTestSuiteByLabel,
     logger,
-    sleep
+    sleep,
 } from '../utils/helpers';
 import { isTestplanPrerequisiteMet } from './utilities';
 
@@ -30,10 +30,9 @@ import { isTestplanPrerequisiteMet } from './utilities';
         runner: new PytestTestRunner('second-id', logger()),
         configuration: createPytestConfiguration('pytest_test_cancellation'),
         allowNoTestCompleted: os.platform() === 'win32',
-    }
+    },
 ].forEach(({ label, runner, configuration, allowNoTestCompleted }) => {
     suite(`Test cancellation with ${label}`, () => {
-
         test('should run and cancel all tests', async () => {
             const mainSuite = await runner.load(configuration);
             expect(mainSuite).to.be.not.undefined;
@@ -69,7 +68,7 @@ import { isTestplanPrerequisiteMet } from './utilities';
     });
 });
 
-isTestplanPrerequisiteMet().then(isTestplan => {
+isTestplanPrerequisiteMet().then((isTestplan) => {
     if (isTestplan) {
         // FIXME: These tests were instable (exceeding timeout of 60s) on macOS
         suite.skip('Test cancellation with testplan', async () => {

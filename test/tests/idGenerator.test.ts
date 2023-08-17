@@ -4,7 +4,7 @@ import 'mocha';
 import { nextId } from '../../src/idGenerator';
 
 function hasDuplicates<T>(values: T[]) {
-    return (new Set<T>(values)).size !== values.length;
+    return new Set<T>(values).size !== values.length;
 }
 
 suite('Id generator', () => {

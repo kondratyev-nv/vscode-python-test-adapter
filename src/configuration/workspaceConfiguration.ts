@@ -29,6 +29,10 @@ export interface IWorkspaceConfiguration {
 
     autoTestDiscoverOnSaveEnabled(): boolean;
 
+    collectOutputs(): boolean;
+
+    showOutputsOnRun(): boolean;
+
     getUnittestConfiguration(): IUnittestConfiguration;
 
     getPytestConfiguration(): IPytestConfiguration;

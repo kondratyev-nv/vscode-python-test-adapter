@@ -38,6 +38,12 @@ function createPytestConfiguration(args?: string[]): IWorkspaceConfiguration {
             autoTestDiscoverOnSaveEnabled(): boolean {
                 return true;
             },
+            collectOutputs() {
+                return false;
+            },
+            showOutputsOnRun() {
+                return false;
+            },
             getUnittestConfiguration(): IUnittestConfiguration {
                 throw new Error();
             },

@@ -85,35 +85,52 @@ export function findWorkspaceFolder(folder: string): vscode.WorkspaceFolder | un
     return vscode.workspace.workspaceFolders!.find((f) => f.name === folder);
 }
 
-export function createPytestConfiguration(folder: string, args?: string[], cwd?: string): IWorkspaceConfiguration {
+function getBaseConfigurationObject(folder: string, cwd?: string) {
     const python = getPythonExecutable();
+    const wf = findWorkspaceFolder(folder)!;
+
+    return <IWorkspaceConfiguration>{
+        pythonPath(): string {
+            return python;
+        },
+        getCwd(): string {
+            return cwd || wf.uri.fsPath;
+        },
+        envFile(): string {
+            return path.join(wf.uri.fsPath, '..', '.env');
+        },
+        collectOutputs() {
+            return false;
+        },
+        showOutputsOnRun() {
+            return false;
+        },
+        autoTestDiscoverOnSaveEnabled(): boolean {
+            return true;
+        },
+        getUnittestConfiguration(): IUnittestConfiguration {
+            throw new Error();
+        },
+        getPytestConfiguration(): IPytestConfiguration {
+            throw new Error();
+        },
+        getTestplanConfiguration(): ITestplanConfiguration {
+            throw new Error();
+        },
+    };
+}
+
+export function createPytestConfiguration(folder: string, args?: string[], cwd?: string): IWorkspaceConfiguration {
     const wf = findWorkspaceFolder(folder)!;
     return new PlaceholderAwareWorkspaceConfiguration(
         {
-            pythonPath(): string {
-                return python;
-            },
-            getCwd(): string {
-                return cwd || wf.uri.fsPath;
-            },
-            envFile(): string {
-                return path.join(wf.uri.fsPath, '..', '.env');
-            },
-            autoTestDiscoverOnSaveEnabled(): boolean {
-                return true;
-            },
-            getUnittestConfiguration(): IUnittestConfiguration {
-                throw new Error();
-            },
+            ...getBaseConfigurationObject(folder, cwd),
             getPytestConfiguration(): IPytestConfiguration {
                 return {
                     pytestPath: () => 'pytest',
                     isPytestEnabled: true,
                     pytestArguments: args || [],
                 };
-            },
-            getTestplanConfiguration(): ITestplanConfiguration {
-                throw new Error();
             },
         },
         wf,
@@ -122,21 +139,12 @@ export function createPytestConfiguration(folder: string, args?: string[], cwd?:
 }
 
 export function createUnittestConfiguration(folder: string): IWorkspaceConfiguration {
-    const python = getPythonExecutable();
     const wf = findWorkspaceFolder(folder)!;
     return new PlaceholderAwareWorkspaceConfiguration(
         {
-            pythonPath(): string {
-                return python;
-            },
-            getCwd(): string {
-                return wf.uri.fsPath;
-            },
+            ...getBaseConfigurationObject(folder),
             envFile(): string {
                 return path.join(wf.uri.fsPath, '.env');
-            },
-            autoTestDiscoverOnSaveEnabled(): boolean {
-                return true;
             },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
@@ -147,12 +155,6 @@ export function createUnittestConfiguration(folder: string): IWorkspaceConfigura
                     },
                 };
             },
-            getPytestConfiguration(): IPytestConfiguration {
-                throw new Error();
-            },
-            getTestplanConfiguration(): ITestplanConfiguration {
-                throw new Error();
-            },
         },
         wf,
         logger()
@@ -160,28 +162,10 @@ export function createUnittestConfiguration(folder: string): IWorkspaceConfigura
 }
 
 export function createTestplanConfiguration(folder: string, args?: string[], cwd?: string): IWorkspaceConfiguration {
-    const python = getPythonExecutable();
     const wf = findWorkspaceFolder(folder)!;
     return new PlaceholderAwareWorkspaceConfiguration(
         {
-            pythonPath(): string {
-                return python;
-            },
-            getCwd(): string {
-                return cwd || wf.uri.fsPath;
-            },
-            envFile(): string {
-                return path.join(wf.uri.fsPath, '..', '.env');
-            },
-            autoTestDiscoverOnSaveEnabled(): boolean {
-                return true;
-            },
-            getUnittestConfiguration(): IUnittestConfiguration {
-                throw new Error();
-            },
-            getPytestConfiguration(): IPytestConfiguration {
-                throw new Error();
-            },
+            ...getBaseConfigurationObject(folder, cwd),
             getTestplanConfiguration(): ITestplanConfiguration {
                 return {
                     testplanPath: () => 'test_plan.py',

@@ -184,7 +184,7 @@ suite('Run unittest tests', () => {
 });
 
 suite('Unittest run and discovery with start folder in config', () => {
-    const config = {
+    const config = <IWorkspaceConfiguration>{
         pythonPath(): string {
             return 'python';
         },
@@ -197,6 +197,12 @@ suite('Unittest run and discovery with start folder in config', () => {
         },
         autoTestDiscoverOnSaveEnabled(): boolean {
             return true;
+        },
+        collectOutputs() {
+            return false;
+        },
+        showOutputsOnRun() {
+            return false;
         },
         getUnittestConfiguration() {
             return {

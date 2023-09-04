@@ -148,13 +148,20 @@ export class PythonTestAdapter implements TestAdapter {
 
     public async run(tests: string[]): Promise<void> {
         try {
-            const outputChannel = this.getOutputChannel();
-            const collector = outputChannel ? new LoggingOutputCollector(outputChannel) : undefined;
-            outputChannel?.clear();
-            outputChannel?.show();
-
             this.testStatesEmitter.fire({ type: 'started', tests });
             const config = await this.configurationFactory.get(this.workspaceFolder);
+
+            let collector: LoggingOutputCollector | undefined;
+
+            if (config.collectOutputs()) {
+                const outputChannel = this.getOutputChannel();
+                collector = new LoggingOutputCollector(outputChannel);
+                outputChannel.clear();
+                if (config.showOutputsOnRun()) {
+                    outputChannel.show();
+                }
+            }
+
             const testRuns = tests.map(async (test) => {
                 try {
                     const states = await this.testRunner.run(config, test, collector);
@@ -323,7 +330,7 @@ export class PythonTestAdapter implements TestAdapter {
         return purpose?.includes('debug-test') ?? false;
     }
 
-    private getOutputChannel(): OutputChannel | undefined {
+    private getOutputChannel(): OutputChannel {
         if (!this.outputChannel) {
             this.outputChannel = window.createOutputChannel(
                 `${this.name} - ${this.workspaceFolder.name} - Execution`,

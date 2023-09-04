@@ -124,6 +124,16 @@
                     "description": "Test framework to use for Python Test Explorer (default is null and Python extension settings are used)",
                     "scope": "resource"
                 },
+                "pythonTestExplorer.outputs.collectOutputs": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Collect test run outputs in separate output channel"
+                },
+                "pythonTestExplorer.outputs.showOutputsOnRun": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Activate test outputs channel on run"
+                },
                 "pythonTestExplorer.testplanPath": {
                     "type": "string",
                     "default": "test_plan.py",

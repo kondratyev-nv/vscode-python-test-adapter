@@ -6,7 +6,7 @@ import { ArgumentParser } from 'argparse';
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { IEnvironmentVariables, EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
-import { IProcessExecution, runProcess } from '../processRunner';
+import { IProcessExecution, IProcessOutputCollector, runProcess } from '../processRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities/collections';
 import { setDescriptionForEqualLabels } from '../utilities/tests';
@@ -78,7 +78,11 @@ export class TestplanTestRunner implements ITestRunner {
         };
     }
 
-    public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
+    public async run(
+        config: IWorkspaceConfiguration,
+        test: string,
+        outputCollector: IProcessOutputCollector | undefined = undefined
+    ): Promise<TestEvent[]> {
         if (!config.getTestplanConfiguration().isTestplanEnabled) {
             this.logger.log('info', 'Testplan test execution is disabled');
             return [];
@@ -91,7 +95,7 @@ export class TestplanTestRunner implements ITestRunner {
         const testRunArguments = [`--xml=${dirName}`].concat(runArguments.argumentsToPass);
         this.logger.log('info', `Running testplan with arguments: ${testRunArguments.join(', ')}`);
 
-        const testExecution = this.runTestPlan(config, additionalEnvironment, testRunArguments);
+        const testExecution = this.runTestPlan(config, additionalEnvironment, testRunArguments, outputCollector);
 
         this.testExecutions.set(test, testExecution);
         await testExecution.complete();
@@ -107,7 +111,8 @@ export class TestplanTestRunner implements ITestRunner {
     private runTestPlan(
         config: IWorkspaceConfiguration,
         env: IEnvironmentVariables,
-        args: string[]
+        args: string[],
+        outputCollector: IProcessOutputCollector | undefined = undefined
     ): IProcessExecution {
         const testplanPath = config.getTestplanConfiguration().testplanPath();
 
@@ -116,6 +121,7 @@ export class TestplanTestRunner implements ITestRunner {
             cwd: config.getCwd(),
             environment: env,
             acceptedExitCodes: TESTPLAN_NON_ERROR_EXIT_CODES,
+            outputCollector,
         });
     }
 

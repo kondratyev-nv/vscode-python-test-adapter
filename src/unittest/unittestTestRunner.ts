@@ -4,7 +4,7 @@ import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
-import { IProcessExecution } from '../processRunner';
+import { IProcessExecution, IProcessOutputCollector } from '../processRunner';
 import { runScript } from '../pythonRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities/collections';
@@ -81,7 +81,11 @@ export class UnittestTestRunner implements ITestRunner {
         };
     }
 
-    public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
+    public async run(
+        config: IWorkspaceConfiguration,
+        test: string,
+        outputCollector: IProcessOutputCollector | undefined = undefined
+    ): Promise<TestEvent[]> {
         if (!config.getUnittestConfiguration().isUnittestEnabled) {
             this.logger.log('info', 'Unittest test execution is disabled');
             return [];
@@ -103,6 +107,7 @@ export class UnittestTestRunner implements ITestRunner {
                     ? ['run', unittestArguments.startDirectory, unittestArguments.pattern, test]
                     : ['run', unittestArguments.startDirectory, unittestArguments.pattern],
             environment: additionalEnvironment,
+            outputCollector,
         });
         this.testExecutions.set(test, testExecution);
         const result = await testExecution.complete();

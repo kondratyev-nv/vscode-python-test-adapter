@@ -58,7 +58,7 @@ import {
         };
 
         test('discovery events should be successfully fired', async () => {
-            const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+            const adapter = new PythonTestAdapter(label, workspaceFolder, runner, configurationFactory, logger());
             let startedNotifications = 0;
             let finishedNotifications = 0;
             let finishedEvent: TestLoadFinishedEvent | undefined;
@@ -81,7 +81,7 @@ import {
         });
 
         test(`test execution events should be successfully fired for ${label}`, async () => {
-            const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+            const adapter = new PythonTestAdapter(label, workspaceFolder, runner, configurationFactory, logger());
             const mainSuite = await runner.load(await configurationFactory.get(workspaceFolder));
             // expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
@@ -115,7 +115,7 @@ import {
         });
 
         test('discovered tests should be sorted alphabetically', async () => {
-            const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+            const adapter = new PythonTestAdapter(label, workspaceFolder, runner, configurationFactory, logger());
             let startedNotifications = 0;
             let finishedNotifications = 0;
             let finishedEvent: TestLoadFinishedEvent | undefined;
@@ -157,7 +157,7 @@ suite('Adapter events with pytest runner and invalid files during discovery', ()
         },
     };
     const runner = new PytestTestRunner('some-id', logger());
-    const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+    const adapter = new PythonTestAdapter('pytest', workspaceFolder, runner, configurationFactory, logger());
 
     test('discovery events should be successfully fired', async () => {
         let startedNotifications = 0;
@@ -230,7 +230,7 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
         },
     };
     const runner = new UnittestTestRunner('some-id', logger());
-    const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+    const adapter = new PythonTestAdapter('unittest', workspaceFolder, runner, configurationFactory, logger());
 
     test('discovery events should be successfully fired', async () => {
         let startedNotifications = 0;

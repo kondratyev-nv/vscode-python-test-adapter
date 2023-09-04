@@ -6,7 +6,7 @@ import { ArgumentParser } from 'argparse';
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { IEnvironmentVariables, EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
-import { IProcessExecution, runProcess } from '../processRunner';
+import { IProcessExecution, IProcessOutputCollector, runProcess } from '../processRunner';
 import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities/collections';
 import { setDescriptionForEqualLabels } from '../utilities/tests';
@@ -88,7 +88,11 @@ export class PytestTestRunner implements ITestRunner {
         };
     }
 
-    public async run(config: IWorkspaceConfiguration, test: string): Promise<TestEvent[]> {
+    public async run(
+        config: IWorkspaceConfiguration,
+        test: string,
+        outputCollector: IProcessOutputCollector | undefined = undefined
+    ): Promise<TestEvent[]> {
         if (!config.getPytestConfiguration().isPytestEnabled) {
             this.logger.log('info', 'Pytest test execution is disabled');
             return [];
@@ -108,7 +112,7 @@ export class PytestTestRunner implements ITestRunner {
         ].concat(runArguments.argumentsToPass);
         this.logger.log('info', `Running pytest with arguments: ${testRunArguments.join(', ')}`);
 
-        const testExecution = this.runPytest(config, additionalEnvironment, testRunArguments);
+        const testExecution = this.runPytest(config, additionalEnvironment, testRunArguments, outputCollector);
         this.testExecutions.set(test, testExecution);
         await testExecution.complete();
         this.testExecutions.delete(test);
@@ -120,7 +124,12 @@ export class PytestTestRunner implements ITestRunner {
         return states;
     }
 
-    private runPytest(config: IWorkspaceConfiguration, env: IEnvironmentVariables, args: string[]): IProcessExecution {
+    private runPytest(
+        config: IWorkspaceConfiguration,
+        env: IEnvironmentVariables,
+        args: string[],
+        outputCollector: IProcessOutputCollector | undefined = undefined
+    ): IProcessExecution {
         const pytestPath = config.getPytestConfiguration().pytestPath();
         if (pytestPath === path.basename(pytestPath)) {
             this.logger.log('info', `Running ${pytestPath} as a Python module`);
@@ -131,6 +140,7 @@ export class PytestTestRunner implements ITestRunner {
                 args,
                 cwd: config.getCwd(),
                 acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
+                outputCollector,
             });
         }
 
@@ -139,6 +149,7 @@ export class PytestTestRunner implements ITestRunner {
             cwd: config.getCwd(),
             environment: env,
             acceptedExitCodes: PYTEST_NON_ERROR_EXIT_CODES,
+            outputCollector,
         });
     }
 

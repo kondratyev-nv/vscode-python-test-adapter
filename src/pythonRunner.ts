@@ -1,12 +1,8 @@
-import { IProcessExecution, runProcess } from './processRunner';
+import { IProcessExecution, IProcessRunConfiguration, runProcess } from './processRunner';
 
-interface ICommonPythonRunConfiguration {
+interface ICommonPythonRunConfiguration extends IProcessRunConfiguration {
     pythonPath: string;
     args?: string[];
-
-    environment: { [key: string]: string | undefined };
-    cwd?: string;
-    acceptedExitCodes?: readonly number[];
 }
 
 class PythonProcessExecution implements IProcessExecution {
@@ -16,13 +12,11 @@ class PythonProcessExecution implements IProcessExecution {
 
     constructor(args: string[], configuration: ICommonPythonRunConfiguration) {
         this.pythonProcess = runProcess(configuration.pythonPath, args, {
-            cwd: configuration.cwd,
+            ...configuration,
             environment: {
-                ...process.env,
                 ...configuration.environment,
                 PYTHONUNBUFFERED: '1',
             },
-            acceptedExitCodes: configuration.acceptedExitCodes,
         });
         this.pid = this.pythonProcess.pid;
     }

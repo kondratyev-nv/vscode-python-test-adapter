@@ -91,7 +91,7 @@ export class PytestTestRunner implements ITestRunner {
     public async run(
         config: IWorkspaceConfiguration,
         test: string,
-        outputCollector: IProcessOutputCollector | undefined = undefined
+        outputCollector?: IProcessOutputCollector
     ): Promise<TestEvent[]> {
         if (!config.getPytestConfiguration().isPytestEnabled) {
             this.logger.log('info', 'Pytest test execution is disabled');
@@ -128,7 +128,7 @@ export class PytestTestRunner implements ITestRunner {
         config: IWorkspaceConfiguration,
         env: IEnvironmentVariables,
         args: string[],
-        outputCollector: IProcessOutputCollector | undefined = undefined
+        outputCollector?: IProcessOutputCollector
     ): IProcessExecution {
         const pytestPath = config.getPytestConfiguration().pytestPath();
         if (pytestPath === path.basename(pytestPath)) {

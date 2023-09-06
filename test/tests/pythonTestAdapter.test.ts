@@ -18,6 +18,9 @@ import {
     findWorkspaceFolder,
     logger,
 } from '../utils/helpers';
+import { ITestRunner } from '../../src/testRunner';
+import sinon, { SinonSpy } from 'sinon';
+import { LoggingOutputCollector } from '../../src/loggingOutputCollector';
 
 [
     {
@@ -295,5 +298,55 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
                 id: 'test_invalid_import_failed',
             },
         ]);
+    });
+});
+
+suite('Runner Output', () => {
+    const runner = <ITestRunner>{};
+    let collectOutputs = false;
+    let run: SinonSpy;
+    const testNames = ['Test1', 'Test2'];
+
+    setup('setup run spy', () => {
+        run = sinon.spy();
+        runner.run = run;
+    });
+
+    const workspaceFolder = findWorkspaceFolder('unittest')!;
+    const configurationFactory: IConfigurationFactory = {
+        get(_: vscode.WorkspaceFolder): Promise<IWorkspaceConfiguration> {
+            return Promise.resolve(<IWorkspaceConfiguration>{
+                collectOutputs: () => collectOutputs,
+                showOutputsOnRun: () => false,
+            });
+        },
+    };
+
+    test('should be collected when configured to collect', async () => {
+        // Given
+        collectOutputs = true;
+
+        // When
+        const adapter = new PythonTestAdapter('unittest', workspaceFolder, runner, configurationFactory, logger());
+        await adapter.run(testNames);
+
+        // Then
+        expect(run.calledTwice).is.true;
+        const collector = run.lastCall.lastArg;
+        expect(collector).is.not.undefined;
+        expect(collector).is.an.instanceOf(LoggingOutputCollector);
+    });
+
+    test('should not be collected when configured not to collect', async () => {
+        // Given
+        collectOutputs = false;
+
+        // When
+        const adapter = new PythonTestAdapter('unittest', workspaceFolder, runner, configurationFactory, logger());
+        await adapter.run(testNames);
+
+        // Then
+        expect(run.calledTwice).is.true;
+        expect(run.lastCall.lastArg).is.undefined;
     });
 });

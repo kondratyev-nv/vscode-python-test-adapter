@@ -84,7 +84,7 @@ export class UnittestTestRunner implements ITestRunner {
     public async run(
         config: IWorkspaceConfiguration,
         test: string,
-        outputCollector: IProcessOutputCollector | undefined = undefined
+        outputCollector?: IProcessOutputCollector
     ): Promise<TestEvent[]> {
         if (!config.getUnittestConfiguration().isUnittestEnabled) {
             this.logger.log('info', 'Unittest test execution is disabled');

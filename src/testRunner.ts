@@ -16,11 +16,7 @@ export interface ITestRunner {
 
     load(config: IWorkspaceConfiguration): Promise<TestSuiteInfo | undefined>;
 
-    run(
-        config: IWorkspaceConfiguration,
-        test: string,
-        outputCollector: IProcessOutputCollector | undefined
-    ): Promise<TestEvent[]>;
+    run(config: IWorkspaceConfiguration, test: string, outputCollector?: IProcessOutputCollector): Promise<TestEvent[]>;
 
     cancel(): void;
 

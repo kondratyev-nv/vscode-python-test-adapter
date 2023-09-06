@@ -30,8 +30,7 @@ import { isFileExists, readFile } from './utilities/fs';
 import { empty, firstOrDefault } from './utilities/collections';
 import { concatNonEmpty } from './utilities/strings';
 import { IEnvironmentVariables, EnvironmentVariablesLoader } from './environmentVariablesLoader';
-import { IProcessOutputCollector } from './processRunner';
-import { ChildProcess } from 'child_process';
+import { LoggingOutputCollector } from './loggingOutputCollector';
 
 type TestRunEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent;
 
@@ -338,17 +337,5 @@ export class PythonTestAdapter implements TestAdapter {
             );
         }
         return this.outputChannel;
-    }
-}
-
-class LoggingOutputCollector implements IProcessOutputCollector {
-    constructor(private outputChannel: OutputChannel) {}
-    attach(process: ChildProcess): void {
-        process.stderr?.on('data', (chunk) => this.write(`${chunk}`));
-        process.stdout?.on('data', (chunk) => this.write(`${chunk}`));
-    }
-
-    private write(message: string): void {
-        this.outputChannel.append(message);
     }
 }

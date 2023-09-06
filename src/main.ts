@@ -14,9 +14,7 @@ import { UnittestTestRunner } from './unittest/unittestTestRunner';
 import { ITestRunner } from './testRunner';
 
 type LoggerFactory = (framework: string, wf: vscode.WorkspaceFolder) => ILogger;
-interface TestRunnerClass {
-    new (adapterId: string, logger: ILogger): ITestRunner;
-}
+type TestRunnerClass = new (adapterId: string, logger: ILogger) => ITestRunner;
 
 function registerTestAdapters(
     wf: vscode.WorkspaceFolder,

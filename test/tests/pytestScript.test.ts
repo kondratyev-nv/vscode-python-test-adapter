@@ -21,6 +21,7 @@ import {
     extractTopLevelLablesAndDescription,
 } from '../utils/helpers';
 import { PYTEST_EXPECTED_SUITES_LIST_WITH_ERRORS } from '../utils/pytest';
+import { TestOutputCollector } from './utilities';
 
 function createPytestConfiguration(args?: string[]): IWorkspaceConfiguration {
     const wf = findWorkspaceFolder('pytest')!;
@@ -87,12 +88,14 @@ suite('Pytest test execution with a script', () => {
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
         expect(mainSuite!.label).to.be.eq('Pytest tests');
-        const states = await runner.run(config, runner.adapterId);
+        const collector = new TestOutputCollector();
+        const states = await runner.run(config, runner.adapterId, collector);
         expect(states).to.be.not.empty;
         states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
+        expect(collector.output).length.to.not.eq(0);
     }).timeout(60000);
 
     [

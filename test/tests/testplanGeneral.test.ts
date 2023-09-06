@@ -11,7 +11,7 @@ import {
     findTestSuiteByLabel,
     logger,
 } from '../utils/helpers';
-import { isTestplanPrerequisiteMet } from './utilities';
+import { TestOutputCollector, isTestplanPrerequisiteMet } from './utilities';
 
 isTestplanPrerequisiteMet().then((isTestplan) => {
     if (!isTestplan) {
@@ -106,12 +106,14 @@ isTestplanPrerequisiteMet().then((isTestplan) => {
             const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
             expect(mainSuite!.label).to.be.eq('Testplan tests');
-            const states = await runner.run(config, runner.adapterId);
+            const collector = new TestOutputCollector();
+            const states = await runner.run(config, runner.adapterId, collector);
             expect(states).to.be.not.empty;
             states.forEach((state) => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
             });
+            expect(collector.output).length.to.not.eq(0);
         });
 
         [

@@ -11,6 +11,7 @@ import {
     findTestSuiteByLabel,
     logger,
 } from '../utils/helpers';
+import { TestOutputCollector } from './utilities';
 
 suite('Unittest test discovery', () => {
     const config: IWorkspaceConfiguration = createUnittestConfiguration('unittest');
@@ -95,12 +96,14 @@ suite('Run unittest tests', () => {
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.not.empty;
         expect(mainSuite!.label).to.be.eq('Unittest tests');
-        const states = await runner.run(config, mainSuite!.id);
+        const collector = new TestOutputCollector();
+        const states = await runner.run(config, mainSuite!.id, collector);
         expect(states).to.be.not.empty;
         states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
+        expect(collector.output).length.to.not.eq(0);
     });
 
     [

@@ -81,7 +81,7 @@ export class TestplanTestRunner implements ITestRunner {
     public async run(
         config: IWorkspaceConfiguration,
         test: string,
-        outputCollector: IProcessOutputCollector | undefined = undefined
+        outputCollector?: IProcessOutputCollector
     ): Promise<TestEvent[]> {
         if (!config.getTestplanConfiguration().isTestplanEnabled) {
             this.logger.log('info', 'Testplan test execution is disabled');
@@ -112,7 +112,7 @@ export class TestplanTestRunner implements ITestRunner {
         config: IWorkspaceConfiguration,
         env: IEnvironmentVariables,
         args: string[],
-        outputCollector: IProcessOutputCollector | undefined = undefined
+        outputCollector?: IProcessOutputCollector
     ): IProcessExecution {
         const testplanPath = config.getTestplanConfiguration().testplanPath();
 

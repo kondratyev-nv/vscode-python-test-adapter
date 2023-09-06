@@ -335,6 +335,7 @@ export class PythonTestAdapter implements TestAdapter {
                 `${this.name} - ${this.workspaceFolder.name} - Execution`,
                 'Log'
             );
+            this.disposables.push(this.outputChannel);
         }
         return this.outputChannel;
     }

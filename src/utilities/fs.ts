@@ -1,11 +1,10 @@
-
 import * as fs from 'fs';
 import util = require('util');
 export const readDir = util.promisify(fs.readdir);
 
 export function isFileExists(file: fs.PathLike): Promise<boolean> {
     return new Promise<boolean>((resolve, _) => {
-        fs.exists(file, exist => {
+        fs.exists(file, (exist) => {
             resolve(exist);
         });
     });

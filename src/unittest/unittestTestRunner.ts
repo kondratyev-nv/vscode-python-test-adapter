@@ -1,7 +1,5 @@
 import * as path from 'path';
-import {
-    TestEvent, TestSuiteInfo
-} from 'vscode-test-adapter-api';
+import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { EnvironmentVariablesLoader } from '../environmentVariablesLoader';
@@ -17,10 +15,7 @@ import { parseTestStates, parseTestSuites } from './unittestSuitParser';
 export class UnittestTestRunner implements ITestRunner {
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
 
-    constructor(
-        public readonly adapterId: string,
-        private readonly logger: ILogger
-    ) { }
+    constructor(public readonly adapterId: string, private readonly logger: ILogger) {}
 
     public cancel(): void {
         this.testExecutions.forEach((execution, test) => {
@@ -37,7 +32,10 @@ export class UnittestTestRunner implements ITestRunner {
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
         const testId = this.normalizeDebugTestId(unittestArguments.startDirectory, config.getCwd(), test);
-        this.logger.log('info', `Debugging test "${testId}" using python path "${config.pythonPath()}" in ${config.getCwd()}`);
+        this.logger.log(
+            'info',
+            `Debugging test "${testId}" using python path "${config.pythonPath()}" in ${config.getCwd()}`
+        );
         return {
             module: 'unittest',
             cwd: config.getCwd(),
@@ -54,8 +52,11 @@ export class UnittestTestRunner implements ITestRunner {
 
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
-        this.logger.log('info', `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
-            `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);
+        this.logger.log(
+            'info',
+            `Discovering tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
+                `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`
+        );
 
         const result = await runScript({
             pythonPath: config.pythonPath(),
@@ -65,10 +66,7 @@ export class UnittestTestRunner implements ITestRunner {
             environment: additionalEnvironment,
         }).complete();
 
-        const tests = parseTestSuites(
-            result.output,
-            path.resolve(config.getCwd(), unittestArguments.startDirectory)
-        );
+        const tests = parseTestSuites(result.output, path.resolve(config.getCwd(), unittestArguments.startDirectory));
         if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
@@ -90,16 +88,20 @@ export class UnittestTestRunner implements ITestRunner {
         }
 
         const unittestArguments = config.getUnittestConfiguration().unittestArguments;
-        this.logger.log('info', `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
-            `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`);
+        this.logger.log(
+            'info',
+            `Running tests using python path "${config.pythonPath()}" in ${config.getCwd()} ` +
+                `with pattern ${unittestArguments.pattern} and start directory ${unittestArguments.startDirectory}`
+        );
         const additionalEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
         const testExecution = runScript({
             pythonPath: config.pythonPath(),
             script: UNITTEST_TEST_RUNNER_SCRIPT,
             cwd: config.getCwd(),
-            args: test !== this.adapterId ?
-                ['run', unittestArguments.startDirectory, unittestArguments.pattern, test] :
-                ['run', unittestArguments.startDirectory, unittestArguments.pattern],
+            args:
+                test !== this.adapterId
+                    ? ['run', unittestArguments.startDirectory, unittestArguments.pattern, test]
+                    : ['run', unittestArguments.startDirectory, unittestArguments.pattern],
             environment: additionalEnvironment,
         });
         this.testExecutions.set(test, testExecution);
@@ -109,9 +111,9 @@ export class UnittestTestRunner implements ITestRunner {
     }
 
     private normalizeDebugTestId(startDirectory: string, cwd: string, relativeTestId: string): string {
-        const relativeStartDirectory = path.isAbsolute(startDirectory) ?
-            path.relative(cwd, startDirectory) :
-            startDirectory;
+        const relativeStartDirectory = path.isAbsolute(startDirectory)
+            ? path.relative(cwd, startDirectory)
+            : startDirectory;
         if (relativeStartDirectory === '.') {
             return relativeTestId;
         }

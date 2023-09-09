@@ -7,7 +7,7 @@ import {
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
-    IWorkspaceConfiguration
+    IWorkspaceConfiguration,
 } from './workspaceConfiguration';
 
 export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfiguration {
@@ -15,7 +15,7 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         private readonly configuration: IWorkspaceConfiguration,
         public readonly workspaceFolder: WorkspaceFolder,
         private readonly logger: ILogger
-    ) { }
+    ) {}
 
     public pythonPath(): string {
         return this.resolveExecutablePath(this.configuration.pythonPath());
@@ -49,7 +49,7 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         return {
             pytestPath: () => this.getPytestPath(),
             isPytestEnabled: original.isPytestEnabled,
-            pytestArguments: original.pytestArguments.map(argument => this.resolvePlaceholders(argument)),
+            pytestArguments: original.pytestArguments.map((argument) => this.resolvePlaceholders(argument)),
         };
     }
 
@@ -58,7 +58,7 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         return {
             testplanPath: () => this.resolveExecutablePath(original.testplanPath()),
             isTestplanEnabled: original.isTestplanEnabled,
-            testplanArguments: original.testplanArguments.map(argument => this.resolvePlaceholders(argument)),
+            testplanArguments: original.testplanArguments.map((argument) => this.resolvePlaceholders(argument)),
         };
     }
 
@@ -74,8 +74,8 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         availableReplacements.set('workspaceRootFolderName', path.basename(this.workspaceFolder.uri.fsPath));
         availableReplacements.set('cwd', this.workspaceFolder.uri.fsPath);
         Object.keys(process.env)
-            .filter(key => process.env[key])
-            .forEach(key => {
+            .filter((key) => process.env[key])
+            .forEach((key) => {
                 availableReplacements.set(`env:${key}`, process.env[key]!);
             });
 
@@ -105,9 +105,9 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
     private normalizeExecutablePath(originalValue: string): string {
         const value = untildify(originalValue);
         if (value.includes(path.posix.sep) || value.includes(path.win32.sep)) {
-            const absolutePath = path.isAbsolute(value) ?
-                path.resolve(value) :
-                path.resolve(this.workspaceFolder.uri.fsPath, value);
+            const absolutePath = path.isAbsolute(value)
+                ? path.resolve(value)
+                : path.resolve(this.workspaceFolder.uri.fsPath, value);
             return path.normalize(absolutePath);
         }
         return value;
@@ -121,9 +121,9 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
     // see https://github.com/kondratyev-nv/vscode-python-test-adapter/issues/158
     private normalizePath(originalValue: string): string {
         const value = untildify(originalValue);
-        const absolutePath = path.isAbsolute(value) ?
-            path.resolve(value) :
-            path.resolve(this.workspaceFolder.uri.fsPath, value);
+        const absolutePath = path.isAbsolute(value)
+            ? path.resolve(value)
+            : path.resolve(this.workspaceFolder.uri.fsPath, value);
         return path.normalize(absolutePath);
     }
 }

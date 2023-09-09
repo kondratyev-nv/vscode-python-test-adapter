@@ -17,9 +17,7 @@ suite('VSCode workspace configuration', () => {
         expect(configuration.getUnittestConfiguration().isUnittestEnabled).to.be.eq(
             defaults.get<boolean>('python.unitTest.unittestEnabled', false)
         );
-        expect(configuration.pythonPath()).to.be.eq(
-            defaults.get<string>('python.pythonPath', 'python')
-        );
+        expect(configuration.pythonPath()).to.be.eq(defaults.get<string>('python.pythonPath', 'python'));
         expect(configuration.getCwd()).to.be.eq(
             defaults.get<string>('python.unitTest.cwd') || findWorkspaceFolder('empty_configuration')!.uri.fsPath
         );

@@ -1,7 +1,4 @@
-import {
-    TestEvent,
-    TestSuiteInfo
-} from 'vscode-test-adapter-api';
+import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 import { IWorkspaceConfiguration } from './configuration/workspaceConfiguration';
 import { IEnvironmentVariables } from './environmentVariablesLoader';
 

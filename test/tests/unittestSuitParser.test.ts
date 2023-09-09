@@ -42,13 +42,15 @@ suite('Unittest suite parser', () => {
             label: expectedSuitLabel,
             file: path.join(prefixPath, 'some_test_module.py'),
             tooltip: expectedSuitId,
-            children: [{
-                type: 'test',
-                id: expectedTestId,
-                file: path.join(prefixPath, 'some_test_module.py'),
-                label: expectedTestLabel,
-                tooltip: expectedTestId,
-            }],
+            children: [
+                {
+                    type: 'test',
+                    id: expectedTestId,
+                    file: path.join(prefixPath, 'some_test_module.py'),
+                    label: expectedTestLabel,
+                    tooltip: expectedTestId,
+                },
+            ],
         });
     });
 
@@ -56,13 +58,15 @@ suite('Unittest suite parser', () => {
         const prefixPath = path.resolve('/some/prefix/path');
         const expectedSuitLabel = 'TestCase1';
         const expectedSuitId = 'some_test_module.' + expectedSuitLabel;
-        const expectedTests = ['test_function1', 'test_function1'].map(label => ({
+        const expectedTests = ['test_function1', 'test_function1'].map((label) => ({
             id: expectedSuitId + '.' + label,
             label,
         }));
 
         const suites = parseTestSuites(
-            '==DISCOVERED TESTS BEGIN=={ "tests": [' + expectedTests.map(t => (`{ "id": "${t.id}" }`)).join(',\n') + '], "errors": [] }==DISCOVERED TESTS END==',
+            '==DISCOVERED TESTS BEGIN=={ "tests": [' +
+                expectedTests.map((t) => `{ "id": "${t.id}" }`).join(',\n') +
+                '], "errors": [] }==DISCOVERED TESTS END==',
             prefixPath
         );
         expect(suites).to.have.length(1);
@@ -77,7 +81,7 @@ suite('Unittest suite parser', () => {
             label: expectedSuitLabel,
             file: path.join(prefixPath, 'some_test_module.py'),
             tooltip: expectedSuitId,
-            children: expectedTests.map(test => ({
+            children: expectedTests.map((test) => ({
                 type: 'test',
                 id: test.id,
                 file: path.join(prefixPath, 'some_test_module.py'),
@@ -91,13 +95,15 @@ suite('Unittest suite parser', () => {
         const prefixPath = '/some/prefix/path';
         const expectedSuitLabel = 'TestCase1';
         const expectedSuitId = expectedSuitLabel;
-        const expectedTests = ['test_function1', 'test_function1'].map(label => ({
+        const expectedTests = ['test_function1', 'test_function1'].map((label) => ({
             id: expectedSuitId + '.' + label,
             label,
         }));
 
         const suites = parseTestSuites(
-            '==DISCOVERED TESTS BEGIN=={ "tests": [' + expectedTests.map(t => (`{ "id": "${t.id}" }`)).join(',\n') + '], "errors": [] }==DISCOVERED TESTS END==',
+            '==DISCOVERED TESTS BEGIN=={ "tests": [' +
+                expectedTests.map((t) => `{ "id": "${t.id}" }`).join(',\n') +
+                '], "errors": [] }==DISCOVERED TESTS END==',
             prefixPath
         );
         expect(extractErroredTestsFromArray(suites)).to.be.empty;
@@ -112,7 +118,7 @@ suite('Unittest suite parser', () => {
             label: expectedSuitLabel,
             file: undefined,
             tooltip: expectedSuitId,
-            children: expectedTests.map(test => ({
+            children: expectedTests.map((test) => ({
                 type: 'test',
                 id: test.id,
                 file: undefined,
@@ -132,48 +138,44 @@ suite('Unittest test states parser', () => {
     test('should return events for different states', () => {
         const testOutput = [
             'TEST_EXECUTION_RESULT:failed:' +
-            'some_module.TestCase1.test_function1:c29tZSBtdWx0aWxpbmUKZXJyb3IgbWVzc2FnZQ==',
+                'some_module.TestCase1.test_function1:c29tZSBtdWx0aWxpbmUKZXJyb3IgbWVzc2FnZQ==',
             'TEST_EXECUTION_RESULT:passed:some_module.TestCase1.test_function2',
             'TEST_EXECUTION_RESULT:skipped:some_module.TestCase1.test_function3',
-            'TEST_EXECUTION_RESULT:passed:some_other_module.TestCase2.test_function'
+            'TEST_EXECUTION_RESULT:passed:some_other_module.TestCase2.test_function',
         ];
         const states = parseTestStates(testOutput.join('\n'));
         expect(states).to.be.not.empty;
-        expect(states).to.have.deep.members(
-            [
-                {
-                    type: 'test',
-                    state: 'failed',
-                    test: 'some_module.TestCase1.test_function1',
-                    message: `some multiline
+        expect(states).to.have.deep.members([
+            {
+                type: 'test',
+                state: 'failed',
+                test: 'some_module.TestCase1.test_function1',
+                message: `some multiline
 error message`,
-                },
-                {
-                    type: 'test',
-                    state: 'passed',
-                    test: 'some_module.TestCase1.test_function2',
-                    message: undefined,
-                },
-                {
-                    type: 'test',
-                    state: 'skipped',
-                    test: 'some_module.TestCase1.test_function3',
-                    message: undefined,
-                },
-                {
-                    type: 'test',
-                    state: 'passed',
-                    test: 'some_other_module.TestCase2.test_function',
-                    message: undefined,
-                }
-            ]
-        );
+            },
+            {
+                type: 'test',
+                state: 'passed',
+                test: 'some_module.TestCase1.test_function2',
+                message: undefined,
+            },
+            {
+                type: 'test',
+                state: 'skipped',
+                test: 'some_module.TestCase1.test_function3',
+                message: undefined,
+            },
+            {
+                type: 'test',
+                state: 'passed',
+                test: 'some_other_module.TestCase2.test_function',
+                message: undefined,
+            },
+        ]);
     });
 
     test('should not fail when output is not formatted', () => {
-        const testOutput = [
-            'Error! Some severe error occurred and output is not readable!'
-        ];
+        const testOutput = ['Error! Some severe error occurred and output is not readable!'];
         const states = parseTestStates(testOutput.join('\n'));
         expect(states).to.be.empty;
     });

@@ -8,7 +8,7 @@ import {
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
-    IWorkspaceConfiguration
+    IWorkspaceConfiguration,
 } from '../../src/configuration/workspaceConfiguration';
 import { ILogger } from '../../src/logging/logger';
 import { empty } from '../../src/utilities/collections';
@@ -58,7 +58,6 @@ export function findTestSuiteByLabel(
     label: string,
     description?: string
 ): TestSuiteInfo | TestInfo | undefined {
-
     if (suite.label === label) {
         if (description) {
             if (suite.description === description) {
@@ -83,105 +82,117 @@ export function findTestSuiteByLabel(
 }
 
 export function findWorkspaceFolder(folder: string): vscode.WorkspaceFolder | undefined {
-    return vscode.workspace.workspaceFolders!.find(f => f.name === folder);
+    return vscode.workspace.workspaceFolders!.find((f) => f.name === folder);
 }
 
 export function createPytestConfiguration(folder: string, args?: string[], cwd?: string): IWorkspaceConfiguration {
     const python = getPythonExecutable();
     const wf = findWorkspaceFolder(folder)!;
-    return new PlaceholderAwareWorkspaceConfiguration({
-        pythonPath(): string {
-            return python;
+    return new PlaceholderAwareWorkspaceConfiguration(
+        {
+            pythonPath(): string {
+                return python;
+            },
+            getCwd(): string {
+                return cwd || wf.uri.fsPath;
+            },
+            envFile(): string {
+                return path.join(wf.uri.fsPath, '..', '.env');
+            },
+            autoTestDiscoverOnSaveEnabled(): boolean {
+                return true;
+            },
+            getUnittestConfiguration(): IUnittestConfiguration {
+                throw new Error();
+            },
+            getPytestConfiguration(): IPytestConfiguration {
+                return {
+                    pytestPath: () => 'pytest',
+                    isPytestEnabled: true,
+                    pytestArguments: args || [],
+                };
+            },
+            getTestplanConfiguration(): ITestplanConfiguration {
+                throw new Error();
+            },
         },
-        getCwd(): string {
-            return cwd || wf.uri.fsPath;
-        },
-        envFile(): string {
-            return path.join(wf.uri.fsPath, '..', '.env');
-        },
-        autoTestDiscoverOnSaveEnabled(): boolean {
-            return true;
-        },
-        getUnittestConfiguration(): IUnittestConfiguration {
-            throw new Error();
-        },
-        getPytestConfiguration(): IPytestConfiguration {
-            return {
-                pytestPath: () => 'pytest',
-                isPytestEnabled: true,
-                pytestArguments: args || [],
-            };
-        },
-        getTestplanConfiguration(): ITestplanConfiguration {
-            throw new Error();
-        },
-    }, wf, logger());
+        wf,
+        logger()
+    );
 }
 
 export function createUnittestConfiguration(folder: string): IWorkspaceConfiguration {
     const python = getPythonExecutable();
     const wf = findWorkspaceFolder(folder)!;
-    return new PlaceholderAwareWorkspaceConfiguration({
-        pythonPath(): string {
-            return python;
+    return new PlaceholderAwareWorkspaceConfiguration(
+        {
+            pythonPath(): string {
+                return python;
+            },
+            getCwd(): string {
+                return wf.uri.fsPath;
+            },
+            envFile(): string {
+                return path.join(wf.uri.fsPath, '.env');
+            },
+            autoTestDiscoverOnSaveEnabled(): boolean {
+                return true;
+            },
+            getUnittestConfiguration(): IUnittestConfiguration {
+                return {
+                    isUnittestEnabled: true,
+                    unittestArguments: {
+                        startDirectory: '.',
+                        pattern: 'test_*.py',
+                    },
+                };
+            },
+            getPytestConfiguration(): IPytestConfiguration {
+                throw new Error();
+            },
+            getTestplanConfiguration(): ITestplanConfiguration {
+                throw new Error();
+            },
         },
-        getCwd(): string {
-            return wf.uri.fsPath;
-        },
-        envFile(): string {
-            return path.join(wf.uri.fsPath, '.env');
-        },
-        autoTestDiscoverOnSaveEnabled(): boolean {
-            return true;
-        },
-        getUnittestConfiguration(): IUnittestConfiguration {
-            return {
-                isUnittestEnabled: true,
-                unittestArguments: {
-                    startDirectory: '.',
-                    pattern: 'test_*.py',
-                },
-            };
-        },
-        getPytestConfiguration(): IPytestConfiguration {
-            throw new Error();
-        },
-        getTestplanConfiguration(): ITestplanConfiguration {
-            throw new Error();
-        },
-    }, wf, logger());
+        wf,
+        logger()
+    );
 }
 
 export function createTestplanConfiguration(folder: string, args?: string[], cwd?: string): IWorkspaceConfiguration {
     const python = getPythonExecutable();
     const wf = findWorkspaceFolder(folder)!;
-    return new PlaceholderAwareWorkspaceConfiguration({
-        pythonPath(): string {
-            return python;
+    return new PlaceholderAwareWorkspaceConfiguration(
+        {
+            pythonPath(): string {
+                return python;
+            },
+            getCwd(): string {
+                return cwd || wf.uri.fsPath;
+            },
+            envFile(): string {
+                return path.join(wf.uri.fsPath, '..', '.env');
+            },
+            autoTestDiscoverOnSaveEnabled(): boolean {
+                return true;
+            },
+            getUnittestConfiguration(): IUnittestConfiguration {
+                throw new Error();
+            },
+            getPytestConfiguration(): IPytestConfiguration {
+                throw new Error();
+            },
+            getTestplanConfiguration(): ITestplanConfiguration {
+                return {
+                    testplanPath: () => 'test_plan.py',
+                    isTestplanEnabled: true,
+                    testplanArguments: args || [],
+                };
+            },
         },
-        getCwd(): string {
-            return cwd || wf.uri.fsPath;
-        },
-        envFile(): string {
-            return path.join(wf.uri.fsPath, '..', '.env');
-        },
-        autoTestDiscoverOnSaveEnabled(): boolean {
-            return true;
-        },
-        getUnittestConfiguration(): IUnittestConfiguration {
-            throw new Error();
-        },
-        getPytestConfiguration(): IPytestConfiguration {
-            throw new Error();
-        },
-        getTestplanConfiguration(): ITestplanConfiguration {
-            return {
-                testplanPath: () => 'test_plan.py',
-                isTestplanEnabled: true,
-                testplanArguments: args || [],
-            };
-        },
-    }, wf, logger());
+        wf,
+        logger()
+    );
 }
 
 export async function sleep(ms: number): Promise<void> {
@@ -190,40 +201,43 @@ export async function sleep(ms: number): Promise<void> {
     });
 }
 
-export function extractTopLevelLablesAndDescription(suite: TestSuiteInfo): { label: string, description?: string }[] {
-    return suite.children.map(t => {
+export function extractTopLevelLablesAndDescription(suite: TestSuiteInfo): { label: string; description?: string }[] {
+    return suite.children.map((t) => {
         return { label: t.label, description: t.description };
     });
 }
 
 export function expectLabelsAreSameRecursive(expected: ITreeNode, actual: TestSuiteInfo): void {
     const expectedLabels = Object.keys(expected);
-    const actualLabels = actual.children.map(t => t.label);
+    const actualLabels = actual.children.map((t) => t.label);
     expect(actualLabels).to.have.members(expectedLabels);
 
     for (const [label, expectedChild] of Object.entries(expected)) {
-        const actualChild = actual.children.find(t => t.label === label);
+        const actualChild = actual.children.find((t) => t.label === label);
         expect(actualChild).to.be.not.undefined;
         if (empty(Object.keys(expectedChild))) {
             expect(actualChild!.type).to.be.eq(
                 'test',
-                `Invalid node type for ${actualChild!.label} (${actualChild!.id}) ${Object.keys(expectedChild)}`);
+                `Invalid node type for ${actualChild!.label} (${actualChild!.id}) ${Object.keys(expectedChild)}`
+            );
         } else {
             expect(actualChild!.type).to.be.eq(
                 'suite',
-                `Invalid node type for ${actualChild!.label} (${actualChild!.id}) ${Object.keys(expectedChild)}`);
+                `Invalid node type for ${actualChild!.label} (${actualChild!.id}) ${Object.keys(expectedChild)}`
+            );
             expectLabelsAreSameRecursive(expectedChild, actualChild as TestSuiteInfo);
         }
     }
 }
 
 export function extractAllIds(suite: TestSuiteInfo): string[] {
-    return suite.children.map(t => {
-        if ((t as TestSuiteInfo).children) {
-            return [t.id].concat(extractAllIds(t as TestSuiteInfo));
-        }
-        else {
-            return [t.id];
-        }
-    }).reduce((r, x) => r.concat(x), []);
+    return suite.children
+        .map((t) => {
+            if ((t as TestSuiteInfo).children) {
+                return [t.id].concat(extractAllIds(t as TestSuiteInfo));
+            } else {
+                return [t.id];
+            }
+        })
+        .reduce((r, x) => r.concat(x), []);
 }

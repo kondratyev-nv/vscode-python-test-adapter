@@ -1,14 +1,12 @@
 {
-    "extends": [
-        "tslint:recommended"
-    ],
+    "extends": ["tslint:recommended", "tslint-config-prettier"],
+    "rulesDirectory": ["tslint-plugin-prettier"],
     "rules": {
+        "prettier": true,
         "curly": true,
         "semicolon": [true, "always"],
         "max-line-length": {
-            "options": [
-                120
-            ]
+            "options": [120]
         },
         "new-parens": true,
         "no-arg": true,
@@ -17,28 +15,12 @@
         "no-consecutive-blank-lines": false,
         "no-console": {
             "severity": "warning",
-            "options": [
-                "debug",
-                "info",
-                "log",
-                "time",
-                "timeEnd",
-                "trace"
-            ]
+            "options": ["debug", "info", "log", "time", "timeEnd", "trace"]
         },
-        "quotemark": [
-            true,
-            "single",
-            "avoid-template"
-        ],
+        "quotemark": [true, "single", "avoid-escape", "avoid-template"],
         "no-angle-bracket-type-assertion": false,
-        "arrow-parens": [
-            true,
-            "ban-single-arg-parens"
-        ],
-        "object-literal-sort-keys": [
-            false
-        ],
+        "arrow-parens": [true],
+        "object-literal-sort-keys": [false],
         "whitespace": [
             true,
             "check-branch",
@@ -56,7 +38,7 @@
             {
                 "multiline": {
                     "objects": "always",
-                    "arrays": "never",
+                    "arrays": "always",
                     "functions": "never",
                     "typeLiterals": "ignore"
                 },
@@ -67,12 +49,8 @@
     },
     "jsRules": {
         "max-line-length": {
-            "options": [
-                120
-            ]
+            "options": [120]
         },
-        "object-literal-sort-keys": [
-            false
-        ]
+        "object-literal-sort-keys": [false]
     }
 }

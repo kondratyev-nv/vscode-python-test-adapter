@@ -4,7 +4,13 @@ import * as vscode from 'vscode';
 
 import { IWorkspaceConfiguration } from '../../src/configuration/workspaceConfiguration';
 import { UnittestTestRunner } from '../../src/unittest/unittestTestRunner';
-import { createUnittestConfiguration, extractExpectedState, extractErroredTests, findTestSuiteByLabel, logger } from '../utils/helpers';
+import {
+    createUnittestConfiguration,
+    extractExpectedState,
+    extractErroredTests,
+    findTestSuiteByLabel,
+    logger,
+} from '../utils/helpers';
 
 suite('Unittest test discovery', () => {
     const config: IWorkspaceConfiguration = createUnittestConfiguration('unittest');
@@ -47,9 +53,9 @@ suite('Unittest test discovery', () => {
             'InvalidTestIdTests_failed',
             'test_invalid_import_failed',
             'test_invalid_syntax_failed',
-            'StringTestWithSimilarNames'
+            'StringTestWithSimilarNames',
         ];
-        const labels = mainSuite!.children.map(x => x.label);
+        const labels = mainSuite!.children.map((x) => x.label);
         expect(labels).to.have.members(expectedSuites);
     });
 
@@ -65,7 +71,7 @@ suite('Unittest test discovery', () => {
         {
             testId: 'invalid_tests.test_invalid_test_id.InvalidTestIdTests_failed',
             error: /Failed to get test id: invalid_tests.test_invalid_test_id.InvalidTestIdTests_failed/,
-        }
+        },
     ].forEach(({ testId, error }) => {
         test(`should show errors for invalid test ${testId}`, async () => {
             const mainSuite = await runner.load(config);
@@ -73,8 +79,8 @@ suite('Unittest test discovery', () => {
 
             const errors = extractErroredTests(mainSuite!);
             expect(errors).to.be.not.empty;
-            expect(errors.map(x => x.id)).to.contain(testId);
-            const invalidTest = errors.filter(x => x.id === testId)[0];
+            expect(errors.map((x) => x.id)).to.contain(testId);
+            const invalidTest = errors.filter((x) => x.id === testId)[0];
             expect(invalidTest.message).to.match(error);
         });
     });
@@ -91,7 +97,7 @@ suite('Run unittest tests', () => {
         expect(mainSuite!.label).to.be.eq('Unittest tests');
         const states = await runner.run(config, mainSuite!.id);
         expect(states).to.be.not.empty;
-        states.forEach(state => {
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
@@ -100,7 +106,7 @@ suite('Run unittest tests', () => {
     [
         { testCase: 'TestWithOutputBeforeImport' },
         { testCase: 'TestWithSetUpClassMethod' },
-        { testCase: 'AddTests', description: 'basic_tests.test_add' }
+        { testCase: 'AddTests', description: 'basic_tests.test_add' },
     ].forEach(({ testCase, description }) => {
         test(`should run ${testCase} suite`, async () => {
             const mainSuite = await runner.load(config);
@@ -110,7 +116,7 @@ suite('Run unittest tests', () => {
             expect(suite).to.be.not.undefined;
             const states = await runner.run(config, suite!.id);
             expect(states).to.be.not.empty;
-            states.forEach(state => {
+            states.forEach((state) => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
             });
@@ -122,8 +128,8 @@ suite('Run unittest tests', () => {
         'test_basic_two_plus_two_is_five_failed',
         'test_basic_two_plus_zero_is_two_skipped',
         'test_set_up_called_before_test_case1_passed',
-        'test_set_up_called_before_test_case2_passed'
-    ].forEach(testMethod => {
+        'test_set_up_called_before_test_case2_passed',
+    ].forEach((testMethod) => {
         test(`should run ${testMethod} test`, async () => {
             const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
@@ -132,17 +138,14 @@ suite('Run unittest tests', () => {
             expect(suite).to.be.not.undefined;
             const states = await runner.run(config, suite!.id);
             expect(states).to.be.not.empty;
-            states.forEach(state => {
+            states.forEach((state) => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
             });
         });
     });
 
-    [
-        'test_basic_two_plus_one_is_three_passed',
-        'test_basic_two_plus_two_is_five_failed'
-    ].forEach(testMethod => {
+    ['test_basic_two_plus_one_is_three_passed', 'test_basic_two_plus_two_is_five_failed'].forEach((testMethod) => {
         test(`should capture output from ${testMethod} test`, async () => {
             const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
@@ -151,7 +154,7 @@ suite('Run unittest tests', () => {
             expect(suite).to.be.not.undefined;
             const states = await runner.run(config, suite!.id);
             expect(states).to.be.not.empty;
-            states.forEach(state => {
+            states.forEach((state) => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
                 expect(state.message).to.be.not.empty;
@@ -186,8 +189,7 @@ suite('Unittest run and discovery with start folder in config', () => {
             return 'python';
         },
         getCwd(): string {
-            const folders = vscode.workspace.workspaceFolders!
-                .filter(f => f.name === 'unittest');
+            const folders = vscode.workspace.workspaceFolders!.filter((f) => f.name === 'unittest');
             return folders[0].uri.fsPath;
         },
         envFile(): string {
@@ -218,10 +220,8 @@ suite('Unittest run and discovery with start folder in config', () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
-        const expectedSuites = [
-            'AddTestsWithoutInit'
-        ];
-        const labels = mainSuite!.children.map(x => x.label);
+        const expectedSuites = ['AddTestsWithoutInit'];
+        const labels = mainSuite!.children.map((x) => x.label);
         expect(labels).to.have.members(expectedSuites);
     });
 
@@ -232,7 +232,7 @@ suite('Unittest run and discovery with start folder in config', () => {
         expect(mainSuite!.label).to.be.eq('Unittest tests');
         const states = await runner.run(config, mainSuite!.id);
         expect(states).to.be.not.empty;
-        states.forEach(state => {
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
@@ -246,7 +246,7 @@ suite('Unittest run and discovery with start folder in config', () => {
         expect(suite).to.be.not.undefined;
         const states = await runner.run(config, suite!.id);
         expect(states).to.be.not.empty;
-        states.forEach(state => {
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
@@ -260,7 +260,7 @@ suite('Unittest run and discovery with start folder in config', () => {
         expect(suite).to.be.not.undefined;
         const states = await runner.run(config, suite!.id);
         expect(states).to.be.not.empty;
-        states.forEach(state => {
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });

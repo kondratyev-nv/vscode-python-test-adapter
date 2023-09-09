@@ -10,7 +10,7 @@ export function run(): Promise<void> {
     // Create the mocha test
     const mochaRunner = new Mocha({
         ...{
-            ui: 'tdd',   // the TDD UI is being used in extension.test.ts (suite, test, etc.)
+            ui: 'tdd', // the TDD UI is being used in extension.test.ts (suite, test, etc.)
             color: true, // colored output from test results
             slow: 1000,
             timeout: 10000,
@@ -27,11 +27,11 @@ export function run(): Promise<void> {
             }
 
             // Add files to the test suite
-            files.forEach(f => mochaRunner.addFile(path.resolve(testsRoot, f)));
+            files.forEach((f) => mochaRunner.addFile(path.resolve(testsRoot, f)));
 
             try {
                 // Run the mocha test
-                mochaRunner.run(failures => {
+                mochaRunner.run((failures) => {
                     if (failures > 0) {
                         reject(new Error(`${failures} tests failed.`));
                     } else {

@@ -16,7 +16,7 @@ import {
     extractErroredTests,
     findTestSuiteByLabel,
     findWorkspaceFolder,
-    logger
+    logger,
 } from '../utils/helpers';
 
 [
@@ -27,38 +27,27 @@ import {
         testsToRun: [
             'test_basic_two_plus_one_is_three_passed',
             'test_basic_two_plus_two_is_five_failed',
-            'test_basic_two_plus_zero_is_two_skipped'
+            'test_basic_two_plus_zero_is_two_skipped',
         ],
         suiteToSort: {
             suite: { label: 'AddTests', description: 'basic_tests.test_add' },
             sortedTests: [
                 'test_basic_two_plus_one_is_three_passed',
                 'test_basic_two_plus_two_is_five_failed',
-                'test_basic_two_plus_zero_is_two_skipped'
+                'test_basic_two_plus_zero_is_two_skipped',
             ],
         },
     },
     {
         label: 'pytest',
         runner: new PytestTestRunner('second-id', logger()),
-        configuration: createPytestConfiguration(
-            'pytest',
-            ['--ignore=test/import_error_tests']
-        ),
-        testsToRun: [
-            'test_one_plus_two_is_three_passed',
-            'test_two_plus_two_is_five_failed',
-            'test_capitalize_passed'
-        ],
+        configuration: createPytestConfiguration('pytest', ['--ignore=test/import_error_tests']),
+        testsToRun: ['test_one_plus_two_is_three_passed', 'test_two_plus_two_is_five_failed', 'test_capitalize_passed'],
         suiteToSort: {
             suite: { label: 'TestSampleWithScenarios' },
-            sortedTests: [
-                'test_demo1_passed',
-                'test_demo2_passed',
-                'test_demo10_passed'
-            ],
+            sortedTests: ['test_demo1_passed', 'test_demo2_passed', 'test_demo10_passed'],
         },
-    }
+    },
 ].forEach(({ label, runner, configuration, testsToRun, suiteToSort }) => {
     suite(`Adapter events with ${label} runner`, () => {
         const workspaceFolder = findWorkspaceFolder(label)!;
@@ -73,7 +62,7 @@ import {
             let startedNotifications = 0;
             let finishedNotifications = 0;
             let finishedEvent: TestLoadFinishedEvent | undefined;
-            adapter.tests(event => {
+            adapter.tests((event) => {
                 if (event.type === 'started') {
                     startedNotifications++;
                 } else {
@@ -96,12 +85,12 @@ import {
             const mainSuite = await runner.load(await configurationFactory.get(workspaceFolder));
             // expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
-            const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);
+            const suites = testsToRun.map((t) => findTestSuiteByLabel(mainSuite!, t)!);
 
             let startedNotifications = 0;
             let finishedNotifications = 0;
             const states: TestEvent[] = [];
-            adapter.testStates(event => {
+            adapter.testStates((event) => {
                 if (event.type === 'started') {
                     startedNotifications++;
                 } else if (event.type === 'finished') {
@@ -112,14 +101,14 @@ import {
                     /* */
                 }
             });
-            await adapter.run(suites.map(s => s.id));
+            await adapter.run(suites.map((s) => s.id));
 
             expect(startedNotifications).to.be.eq(1);
             expect(startedNotifications).to.be.eq(finishedNotifications);
 
             expect(states).to.be.not.empty;
             expect(states).to.have.length(testsToRun.length);
-            states.forEach(state => {
+            states.forEach((state) => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
             });
@@ -130,7 +119,7 @@ import {
             let startedNotifications = 0;
             let finishedNotifications = 0;
             let finishedEvent: TestLoadFinishedEvent | undefined;
-            adapter.tests(event => {
+            adapter.tests((event) => {
                 if (event.type === 'started') {
                     startedNotifications++;
                 } else {
@@ -150,42 +139,31 @@ import {
             const suiteToCheck = findTestSuiteByLabel(
                 finishedEvent!.suite!,
                 suiteToSort.suite.label,
-                suiteToSort.suite.description)! as TestSuiteInfo;
+                suiteToSort.suite.description
+            )! as TestSuiteInfo;
             expect(suiteToCheck.type).to.be.eq('suite');
             expect(suiteToCheck.children).to.be.not.empty;
-            expect(suiteToCheck.children.map(t => t.label)).to.have.ordered.members(suiteToSort.sortedTests);
+            expect(suiteToCheck.children.map((t) => t.label)).to.have.ordered.members(suiteToSort.sortedTests);
         });
     });
 });
 
 suite('Adapter events with pytest runner and invalid files during discovery', () => {
-    const testsToRun = [
-        'Error in invalid_syntax_test.py',
-        'Error in non_existing_module_test.py'
-    ];
+    const testsToRun = ['Error in invalid_syntax_test.py', 'Error in non_existing_module_test.py'];
     const workspaceFolder = findWorkspaceFolder('pytest')!;
     const configurationFactory: IConfigurationFactory = {
         get(_: vscode.WorkspaceFolder): Promise<IWorkspaceConfiguration> {
-            return Promise.resolve(
-                createPytestConfiguration(
-                    'pytest'
-                )
-            );
+            return Promise.resolve(createPytestConfiguration('pytest'));
         },
     };
     const runner = new PytestTestRunner('some-id', logger());
-    const adapter = new PythonTestAdapter(
-        workspaceFolder,
-        runner,
-        configurationFactory,
-        logger()
-    );
+    const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
 
     test('discovery events should be successfully fired', async () => {
         let startedNotifications = 0;
         let finishedNotifications = 0;
         let finishedEvent: TestLoadFinishedEvent | undefined;
-        adapter.tests(event => {
+        adapter.tests((event) => {
             if (event.type === 'started') {
                 startedNotifications++;
             } else {
@@ -207,12 +185,12 @@ suite('Adapter events with pytest runner and invalid files during discovery', ()
         const mainSuite = await runner.load(await configurationFactory.get(workspaceFolder));
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.have.length(2);
-        const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);
+        const suites = testsToRun.map((t) => findTestSuiteByLabel(mainSuite!, t)!);
 
         let startedNotifications = 0;
         let finishedNotifications = 0;
         const states: TestEvent[] = [];
-        adapter.testStates(event => {
+        adapter.testStates((event) => {
             if (event.type === 'started') {
                 startedNotifications++;
             } else if (event.type === 'finished') {
@@ -223,14 +201,14 @@ suite('Adapter events with pytest runner and invalid files during discovery', ()
                 /* */
             }
         });
-        await adapter.run(suites.map(s => s.id));
+        await adapter.run(suites.map((s) => s.id));
 
         expect(startedNotifications).to.be.eq(1);
         expect(startedNotifications).to.be.eq(finishedNotifications);
 
         expect(states).to.be.not.empty;
         expect(states).to.have.length(testsToRun.length);
-        expect(states.map(s => ({ state: s.state, id: s.test }))).to.have.deep.members([
+        expect(states.map((s) => ({ state: s.state, id: s.test }))).to.have.deep.members([
             {
                 state: 'failed',
                 id: path.join(workspaceFolder.uri.fsPath, 'test', 'import_error_tests', 'invalid_syntax_test.py'),
@@ -238,40 +216,27 @@ suite('Adapter events with pytest runner and invalid files during discovery', ()
             {
                 state: 'failed',
                 id: path.join(workspaceFolder.uri.fsPath, 'test', 'import_error_tests', 'non_existing_module_test.py'),
-            }
+            },
         ]);
     });
 });
 
 suite('Adapter events with unittest runner and invalid files during discovery', () => {
-    const testsToRun = [
-        'test_invalid_syntax_failed',
-        'InvalidTestIdTests_failed',
-        'test_invalid_import_failed'
-    ];
+    const testsToRun = ['test_invalid_syntax_failed', 'InvalidTestIdTests_failed', 'test_invalid_import_failed'];
     const workspaceFolder = findWorkspaceFolder('unittest')!;
     const configurationFactory: IConfigurationFactory = {
         get(_: vscode.WorkspaceFolder): Promise<IWorkspaceConfiguration> {
-            return Promise.resolve(
-                createUnittestConfiguration(
-                    'unittest'
-                )
-            );
+            return Promise.resolve(createUnittestConfiguration('unittest'));
         },
     };
     const runner = new UnittestTestRunner('some-id', logger());
-    const adapter = new PythonTestAdapter(
-        workspaceFolder,
-        runner,
-        configurationFactory,
-        logger()
-    );
+    const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
 
     test('discovery events should be successfully fired', async () => {
         let startedNotifications = 0;
         let finishedNotifications = 0;
         let finishedEvent: TestLoadFinishedEvent | undefined;
-        adapter.tests(event => {
+        adapter.tests((event) => {
             if (event.type === 'started') {
                 startedNotifications++;
             } else {
@@ -293,12 +258,12 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
         const mainSuite = await runner.load(await configurationFactory.get(workspaceFolder));
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.have.length(3);
-        const suites = testsToRun.map(t => findTestSuiteByLabel(mainSuite!, t)!);
+        const suites = testsToRun.map((t) => findTestSuiteByLabel(mainSuite!, t)!);
 
         let startedNotifications = 0;
         let finishedNotifications = 0;
         const states: TestEvent[] = [];
-        adapter.testStates(event => {
+        adapter.testStates((event) => {
             if (event.type === 'started') {
                 startedNotifications++;
             } else if (event.type === 'finished') {
@@ -309,14 +274,14 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
                 /* */
             }
         });
-        await adapter.run(suites.map(s => s.id));
+        await adapter.run(suites.map((s) => s.id));
 
         expect(startedNotifications).to.be.eq(1);
         expect(startedNotifications).to.be.eq(finishedNotifications);
 
         expect(states).to.be.not.empty;
         expect(states).to.have.length(testsToRun.length);
-        expect(states.map(s => ({ state: s.state, id: s.test }))).to.have.deep.members([
+        expect(states.map((s) => ({ state: s.state, id: s.test }))).to.have.deep.members([
             {
                 state: 'failed',
                 id: 'invalid_tests.test_invalid_syntax_failed',
@@ -328,7 +293,7 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
             {
                 state: 'failed',
                 id: 'test_invalid_import_failed',
-            }
+            },
         ]);
     });
 });

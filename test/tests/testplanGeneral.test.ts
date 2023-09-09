@@ -9,18 +9,16 @@ import {
     extractAllIds,
     extractExpectedState,
     findTestSuiteByLabel,
-    logger
+    logger,
 } from '../utils/helpers';
 import { isTestplanPrerequisiteMet } from './utilities';
 
-isTestplanPrerequisiteMet().then(isTestplan => {
+isTestplanPrerequisiteMet().then((isTestplan) => {
     if (!isTestplan) {
         return;
     }
     suite('Testplan test discovery', async () => {
-        const config: IWorkspaceConfiguration = createTestplanConfiguration(
-            'testplan'
-        );
+        const config: IWorkspaceConfiguration = createTestplanConfiguration('testplan');
         const runner = new TestplanTestRunner('some-id', logger());
 
         test('should set runner id on initialization', () => {
@@ -49,20 +47,20 @@ isTestplanPrerequisiteMet().then(isTestplan => {
             expect(mainSuite).to.be.not.undefined;
 
             const expectedHierarchy = {
-                'Primary': {
-                    'AlphaSuite': {
-                        'test_equality_passed': {},
-                        'test_equality_failed': {},
-                        'test_membership_passed': {},
-                        'test_membership_failed': {},
-                        'test_regex_passed': {},
-                        'test_regex_failed': {},
+                Primary: {
+                    AlphaSuite: {
+                        test_equality_passed: {},
+                        test_equality_failed: {},
+                        test_membership_passed: {},
+                        test_membership_failed: {},
+                        test_regex_passed: {},
+                        test_regex_failed: {},
                     },
                 },
-                'Secondary': {
-                    'BetaSuite': {
-                        'testcase_one_passed': {},
-                        'testcase_two_passed': {},
+                Secondary: {
+                    BetaSuite: {
+                        testcase_one_passed: {},
+                        testcase_two_passed: {},
                     },
                 },
             };
@@ -81,37 +79,27 @@ isTestplanPrerequisiteMet().then(isTestplan => {
                 'Secondary',
                 'Secondary:BetaSuite',
                 'Secondary:BetaSuite:testcase_one_passed',
-                'Secondary:BetaSuite:testcase_two_passed'
+                'Secondary:BetaSuite:testcase_two_passed',
             ]);
         });
     }).timeout(60000);
 
     suite('Testplan test discovery with relative cwd folder', async () => {
-        const config: IWorkspaceConfiguration = createTestplanConfiguration(
-            'testplan',
-            [],
-            'basic'
-        );
+        const config: IWorkspaceConfiguration = createTestplanConfiguration('testplan', [], 'basic');
         const runner = new TestplanTestRunner('some-id', logger());
 
         test('should discover tests', async () => {
             const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
-            expectLabelsAreSameRecursive(
-                { 'TestEcho': { 'MyTestsuite': { 'my_testcase': {} } } },
-                mainSuite!);
+            expectLabelsAreSameRecursive({ TestEcho: { MyTestsuite: { my_testcase: {} } } }, mainSuite!);
 
             const ids = extractAllIds(mainSuite!);
-            expect(ids).to.have.deep.members(
-                ['TestEcho', 'TestEcho:MyTestsuite', 'TestEcho:MyTestsuite:my_testcase']
-            );
+            expect(ids).to.have.deep.members(['TestEcho', 'TestEcho:MyTestsuite', 'TestEcho:MyTestsuite:my_testcase']);
         });
     }).timeout(60000);
 
     suite('Run testplan tests', () => {
-        const config: IWorkspaceConfiguration = createTestplanConfiguration(
-            'testplan'
-        );
+        const config: IWorkspaceConfiguration = createTestplanConfiguration('testplan');
         const runner = new TestplanTestRunner('some-id', logger());
 
         test('should run all tests', async () => {
@@ -120,7 +108,7 @@ isTestplanPrerequisiteMet().then(isTestplan => {
             expect(mainSuite!.label).to.be.eq('Testplan tests');
             const states = await runner.run(config, runner.adapterId);
             expect(states).to.be.not.empty;
-            states.forEach(state => {
+            states.forEach((state) => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
             });
@@ -135,16 +123,16 @@ isTestplanPrerequisiteMet().then(isTestplan => {
                     { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_membership_passed' },
                     { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_membership_failed' },
                     { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_regex_passed' },
-                    { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_regex_failed' }
+                    { file: 'test/test_plan.py', case: 'Primary:AlphaSuite:test_regex_failed' },
                 ],
             },
             {
                 suite: { label: 'BetaSuite', description: undefined },
                 cases: [
                     { file: 'test/test_plan.py', case: 'Secondary:BetaSuite:testcase_one_passed' },
-                    { file: 'test/test_plan.py', case: 'Secondary:BetaSuite:testcase_two_passed' }
+                    { file: 'test/test_plan.py', case: 'Secondary:BetaSuite:testcase_two_passed' },
                 ],
-            }
+            },
         ].forEach(({ suite, cases }) => {
             test(`should run ${suite.label} suite`, async () => {
                 const mainSuite = await runner.load(config);
@@ -153,10 +141,8 @@ isTestplanPrerequisiteMet().then(isTestplan => {
                 expect(suiteToRun).to.be.not.undefined;
                 const states = await runner.run(config, suiteToRun!.id);
                 expect(states).to.be.not.empty;
-                expect(states.map(s => s.test)).to.have.deep.members(
-                    cases.map(c => c.case)
-                );
-                states.forEach(state => {
+                expect(states.map((s) => s.test)).to.have.deep.members(cases.map((c) => c.case));
+                states.forEach((state) => {
                     const expectedState = extractExpectedState(state.test as string);
                     expect(state.state).to.be.eq(expectedState);
                 });

@@ -6,7 +6,7 @@ import {
     ITestplanConfiguration,
     IUnittestArguments,
     IUnittestConfiguration,
-    IWorkspaceConfiguration
+    IWorkspaceConfiguration,
 } from './workspaceConfiguration';
 
 import { firstNotEmpty } from '../utilities/collections';
@@ -16,9 +16,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     private readonly pythonConfiguration: WorkspaceConfiguration;
     private readonly testExplorerConfiguration: WorkspaceConfiguration;
 
-    constructor(
-        public readonly workspaceFolder: WorkspaceFolder
-    ) {
+    constructor(public readonly workspaceFolder: WorkspaceFolder) {
         this.unittestArgumentParser = this.configureUnittestArgumentParser();
         this.pythonConfiguration = this.getPythonConfiguration(workspaceFolder);
         this.testExplorerConfiguration = this.getTestExplorerConfiguration(workspaceFolder);
@@ -68,10 +66,11 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
 
     private getConfigurationValueOrDefault<T>(
         configuration: WorkspaceConfiguration,
-        keys: string[], defaultValue: T
+        keys: string[],
+        defaultValue: T
     ): T {
         return firstNotEmpty(
-            keys.map(key => (() => configuration.get<T>(key))),
+            keys.map((key) => () => configuration.get<T>(key)),
             defaultValue
         );
     }

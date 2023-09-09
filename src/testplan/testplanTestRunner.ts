@@ -1,8 +1,6 @@
 import * as path from 'path';
 import * as tmp from 'tmp';
-import {
-    TestEvent, TestSuiteInfo
-} from 'vscode-test-adapter-api';
+import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 
 import { ArgumentParser } from 'argparse';
 import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
@@ -21,20 +19,15 @@ import { parseTestSuites } from './testplanTestCollectionParser';
 // 2: Test file was not found, however discovery was successful with empty result
 const TESTPLAN_NON_ERROR_EXIT_CODES = [0, 1, 2];
 
-
 interface IRunArguments {
     junitReportPath?: string;
     argumentsToPass: string[];
 }
 
 export class TestplanTestRunner implements ITestRunner {
-
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
 
-    constructor(
-        public readonly adapterId: string,
-        private readonly logger: ILogger
-    ) { }
+    constructor(public readonly adapterId: string, private readonly logger: ILogger) {}
 
     public cancel(): void {
         this.testExecutions.forEach((execution, test) => {
@@ -95,9 +88,7 @@ export class TestplanTestRunner implements ITestRunner {
         const additionalEnvironment = await this.loadEnvironmentVariables(config);
         const runArguments = this.getRunArguments(test, config.getTestplanConfiguration().testplanArguments);
         const { dirName, cleanupCallback } = await this.getJunitReportPath(config.getCwd(), runArguments);
-        const testRunArguments = [
-            `--xml=${dirName}`
-        ].concat(runArguments.argumentsToPass);
+        const testRunArguments = [`--xml=${dirName}`].concat(runArguments.argumentsToPass);
         this.logger.log('info', `Running testplan with arguments: ${testRunArguments.join(', ')}`);
 
         const testExecution = this.runTestPlan(config, additionalEnvironment, testRunArguments);
@@ -113,30 +104,27 @@ export class TestplanTestRunner implements ITestRunner {
         return states;
     }
 
-    private runTestPlan(config: IWorkspaceConfiguration, env: IEnvironmentVariables, args: string[])
-    : IProcessExecution
-    {
+    private runTestPlan(
+        config: IWorkspaceConfiguration,
+        env: IEnvironmentVariables,
+        args: string[]
+    ): IProcessExecution {
         const testplanPath = config.getTestplanConfiguration().testplanPath();
 
         this.logger.log('info', `Running ${testplanPath} as an executable`);
-        return runProcess(
-            config.pythonPath(),
-            [testplanPath].concat(args),
-            {
-                cwd: config.getCwd(),
-                environment: env,
-                acceptedExitCodes: TESTPLAN_NON_ERROR_EXIT_CODES,
-            });
+        return runProcess(config.pythonPath(), [testplanPath].concat(args), {
+            cwd: config.getCwd(),
+            environment: env,
+            acceptedExitCodes: TESTPLAN_NON_ERROR_EXIT_CODES,
+        });
     }
 
     private async loadEnvironmentVariables(config: IWorkspaceConfiguration): Promise<IEnvironmentVariables> {
         const envFileEnvironment = await EnvironmentVariablesLoader.load(config.envFile(), process.env, this.logger);
 
-        const updatedPythonPath = [
-            config.getCwd(),
-            envFileEnvironment.PYTHONPATH,
-            process.env.PYTHONPATH
-        ].filter(item => item).join(path.delimiter);
+        const updatedPythonPath = [config.getCwd(), envFileEnvironment.PYTHONPATH, process.env.PYTHONPATH]
+            .filter((item) => item)
+            .join(path.delimiter);
 
         return {
             ...envFileEnvironment,
@@ -148,11 +136,13 @@ export class TestplanTestRunner implements ITestRunner {
     private async getJunitReportPath(
         cwd: string,
         runArguments: IRunArguments
-    ): Promise<{ dirName: string, cleanupCallback: () => void }> {
+    ): Promise<{ dirName: string; cleanupCallback: () => void }> {
         if (runArguments.junitReportPath) {
             return Promise.resolve({
                 dirName: path.resolve(cwd, runArguments.junitReportPath),
-                cleanupCallback: () => { /* intentionally empty */ },
+                cleanupCallback: () => {
+                    /* intentionally empty */
+                },
             });
         }
         return await this.createTemporaryDirectory();
@@ -171,9 +161,7 @@ export class TestplanTestRunner implements ITestRunner {
         return {
             junitReportPath: (knownArguments as { xmlpath?: string }).xmlpath,
             argumentsToPass: argumentsToPass.concat(
-                test !== this.adapterId ?
-                    ['--patterns', test] :
-                    (knownArguments as { tests?: string[] }).tests || []
+                test !== this.adapterId ? ['--patterns', test] : (knownArguments as { tests?: string[] }).tests || []
             ),
         };
     }
@@ -182,20 +170,14 @@ export class TestplanTestRunner implements ITestRunner {
         const argumentParser = new ArgumentParser({
             exit_on_error: false,
         });
-        argumentParser.add_argument(
-            '--runpath',
-            { action: 'store', dest: 'runpath'});
-        argumentParser.add_argument(
-            '--stdout-style',
-            { action: 'store', dest: 'stdout_style'});
-        argumentParser.add_argument(
-            '--xml',
-            { action: 'store', dest: 'xmlpath' });
+        argumentParser.add_argument('--runpath', { action: 'store', dest: 'runpath' });
+        argumentParser.add_argument('--stdout-style', { action: 'store', dest: 'stdout_style' });
+        argumentParser.add_argument('--xml', { action: 'store', dest: 'xmlpath' });
         return argumentParser;
     }
 
-    private async createTemporaryDirectory(): Promise<{ dirName: string, cleanupCallback: () => void }> {
-        return new Promise<{ dirName: string, cleanupCallback: () => void }>((resolve, reject) => {
+    private async createTemporaryDirectory(): Promise<{ dirName: string; cleanupCallback: () => void }> {
+        return new Promise<{ dirName: string; cleanupCallback: () => void }>((resolve, reject) => {
             tmp.dir((error, dirName, cleanupCallback) => {
                 if (error) {
                     reject(new Error(`Can not create temporary directory ${dirName}: ${error}`));

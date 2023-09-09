@@ -1,6 +1,6 @@
 import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
 
-enum TestObjectType{
+enum TestObjectType {
     APP = 0,
     SUITE = 1,
     TEST = 2,
@@ -18,14 +18,14 @@ enum TestObjectType{
 //     Secondary::BetaSuite::passing_testcase_one
 //     Secondary::BetaSuite::passing_testcase_two
 export function parseTestSuites(content: string): (TestSuiteInfo | TestInfo)[] {
-
     const suites: (TestSuiteInfo | TestInfo)[] = [];
     const parentStack: TestSuiteInfo[] = [];
-    content.split(/[\r\n]+/)
-        .map(line => line.trim())
-        .filter(line => line)
-        .map(line => line!)
-        .forEach(line => {
+    content
+        .split(/[\r\n]+/)
+        .map((line) => line.trim())
+        .filter((line) => line)
+        .map((line) => line!)
+        .forEach((line) => {
             const data = line.split('::');
             const testRank = data.length - 1;
 
@@ -59,7 +59,7 @@ export function parseTestSuites(content: string): (TestSuiteInfo | TestInfo)[] {
     return suites;
 }
 
-function newTest(data : string[]): TestInfo {
+function newTest(data: string[]): TestInfo {
     return {
         type: 'test' as 'test',
         id: data.join(':'), // Testplan can use this format to address a suite/test to run
@@ -67,7 +67,7 @@ function newTest(data : string[]): TestInfo {
     };
 }
 
-function newTestSuite(data : string[], testRank : TestObjectType): TestSuiteInfo {
+function newTestSuite(data: string[], testRank: TestObjectType): TestSuiteInfo {
     return {
         type: 'suite' as 'suite',
         id: data.join(':'), // Testplan can use this format to address a suite/test to run

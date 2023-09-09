@@ -1,4 +1,3 @@
-
 import { EOL } from 'os';
 import * as path from 'path';
 import { TestEvent } from 'vscode-test-adapter-api';
@@ -47,10 +46,7 @@ interface ITestCaseResult {
 
 type TestState = 'passed' | 'failed' | 'skipped';
 
-export async function parseTestStates(
-    outputXmlDir: string
-): Promise<TestEvent[]> {
-
+export async function parseTestStates(outputXmlDir: string): Promise<TestEvent[]> {
     const xmlDirContent = await readDir(outputXmlDir);
     let testResults: TestEvent[] = [];
 
@@ -80,12 +76,17 @@ function parseTestResults(parserResult: any): TestEvent[] {
         return [];
     }
     const testSuiteResults: ITestSuiteResult[] = parserResult.testsuites.testsuite;
-    return testSuiteResults.map(testSuiteResult => {
-        if (!Array.isArray(testSuiteResult.testcase)) {
-            return [];
-        }
-        return testSuiteResult.testcase.map(testcase => mapToTestState(testcase)).filter(x => x).map(x => x!);
-    }).reduce((r, x) => r.concat(x), []);
+    return testSuiteResults
+        .map((testSuiteResult) => {
+            if (!Array.isArray(testSuiteResult.testcase)) {
+                return [];
+            }
+            return testSuiteResult.testcase
+                .map((testcase) => mapToTestState(testcase))
+                .filter((x) => x)
+                .map((x) => x!);
+        })
+        .reduce((r, x) => r.concat(x), []);
 }
 
 function mapToTestState(testcase: ITestCaseResult): TestEvent | undefined {
@@ -128,9 +129,9 @@ function extractSystemErr(testcase: ITestCaseResult) {
     return empty(testcase['system-err']) ? '' : testcase['system-err'].join(EOL);
 }
 
-function extractErrorMessage(errors: { _: string, $: { message: string } }[]): string {
+function extractErrorMessage(errors: { _: string; $: { message: string } }[]): string {
     if (!errors || !errors.length) {
         return '';
     }
-    return concatNonEmpty(EOL, ...errors.map(e => concatNonEmpty(EOL, e.$.message, e._)));
+    return concatNonEmpty(EOL, ...errors.map((e) => concatNonEmpty(EOL, e.$.message, e._)));
 }

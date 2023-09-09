@@ -11,7 +11,7 @@ const DISCOVERED_TESTS_END_MARK = '==DISCOVERED TESTS END==';
 
 interface IDiscoveryResultJson {
     tests: { id: string }[];
-    errors: { class: string, message: number }[];
+    errors: { class: string; message: number }[];
 }
 
 export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | TestInfo)[] {
@@ -23,49 +23,51 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
         return [];
     }
     const allTests = (discoveryResult.tests || [])
-        .map(line => line.id.trim())
-        .filter(id => id)
-        .map(id => splitTestId(id))
-        .filter(id => id)
-        .map(id => id!);
+        .map((line) => line.id.trim())
+        .filter((id) => id)
+        .map((id) => splitTestId(id))
+        .filter((id) => id)
+        .map((id) => id!);
 
-    const aggregatedErrors = Array.from(groupBy((discoveryResult.errors || []), e => e.class).entries())
+    const aggregatedErrors = Array.from(groupBy(discoveryResult.errors || [], (e) => e.class).entries())
         .map(([className, messages]) => ({
             id: splitTestId(className),
-            message: messages.map(e => e.message).join(os.EOL),
+            message: messages.map((e) => e.message).join(os.EOL),
         }))
-        .filter(e => e.id)
-        .map(e => ({
+        .filter((e) => e.id)
+        .map((e) => ({
             id: e.id!,
             file: errorSuiteFilePathBySuiteId(cwd, e.id!.testId),
             message: e.message,
         }));
-    const discoveryErrorSuites = aggregatedErrors.map(({ id, file, message }) => <TestSuiteInfo | TestInfo>({
-        type: 'test' as 'test',
-        id: id.testId,
-        file,
-        label: id.testLabel,
-        errored: true,
-        message,
-    }));
-    const suites = Array.from(groupBy(allTests, t => t.suiteId).entries())
-        .map(([suiteId, tests]) => {
-            const suiteFile = filePathBySuiteId(cwd, suiteId);
-            return <TestSuiteInfo | TestInfo>{
-                type: 'suite' as 'suite',
-                id: suiteId,
-                label: suiteId.substring(suiteId.lastIndexOf('.') + 1),
+    const discoveryErrorSuites = aggregatedErrors.map(
+        ({ id, file, message }) =>
+            <TestSuiteInfo | TestInfo>{
+                type: 'test' as 'test',
+                id: id.testId,
+                file,
+                label: id.testLabel,
+                errored: true,
+                message,
+            }
+    );
+    const suites = Array.from(groupBy(allTests, (t) => t.suiteId).entries()).map(([suiteId, tests]) => {
+        const suiteFile = filePathBySuiteId(cwd, suiteId);
+        return <TestSuiteInfo | TestInfo>{
+            type: 'suite' as 'suite',
+            id: suiteId,
+            label: suiteId.substring(suiteId.lastIndexOf('.') + 1),
+            file: suiteFile,
+            tooltip: suiteId,
+            children: tests.map((test) => ({
+                type: 'test' as 'test',
+                id: test.testId,
+                label: test.testLabel,
                 file: suiteFile,
-                tooltip: suiteId,
-                children: tests.map(test => ({
-                    type: 'test' as 'test',
-                    id: test.testId,
-                    label: test.testLabel,
-                    file: suiteFile,
-                    tooltip: test.testId,
-                })),
-            };
-        });
+                tooltip: test.testId,
+            })),
+        };
+    });
 
     return suites.concat(discoveryErrorSuites);
 }
@@ -73,14 +75,14 @@ export function parseTestSuites(content: string, cwd: string): (TestSuiteInfo | 
 export function parseTestStates(output: string): TestEvent[] {
     const testEvents = output
         .split(/\r?\n/g)
-        .map(line => line.trim())
-        .map(line => tryParseTestState(line))
-        .filter(line => line)
-        .map(line => line!);
+        .map((line) => line.trim())
+        .map((line) => tryParseTestState(line))
+        .filter((line) => line)
+        .map((line) => line!);
 
     // HACK: Remove duplicates by id so it does not appear in the debug console more than once,
     // because right now script is printing test results multiple times.
-    return distinctBy(testEvents, e => e.test);
+    return distinctBy(testEvents, (e) => e.test);
 }
 
 function tryParseTestState(line: string): TestEvent | undefined {

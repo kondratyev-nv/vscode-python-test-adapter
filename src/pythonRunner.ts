@@ -14,26 +14,20 @@ class PythonProcessExecution implements IProcessExecution {
 
     private readonly pythonProcess: IProcessExecution;
 
-    constructor(
-        args: string[],
-        configuration: ICommonPythonRunConfiguration
-    ) {
-        this.pythonProcess = runProcess(
-            configuration.pythonPath,
-            args,
-            {
-                cwd: configuration.cwd,
-                environment: {
-                    ...process.env,
-                    ...configuration.environment,
-                    PYTHONUNBUFFERED: '1',
-                },
-                acceptedExitCodes: configuration.acceptedExitCodes,
-            });
+    constructor(args: string[], configuration: ICommonPythonRunConfiguration) {
+        this.pythonProcess = runProcess(configuration.pythonPath, args, {
+            cwd: configuration.cwd,
+            environment: {
+                ...process.env,
+                ...configuration.environment,
+                PYTHONUNBUFFERED: '1',
+            },
+            acceptedExitCodes: configuration.acceptedExitCodes,
+        });
         this.pid = this.pythonProcess.pid;
     }
 
-    public async complete(): Promise<{ exitCode: number; output: string; }> {
+    public async complete(): Promise<{ exitCode: number; output: string }> {
         return this.pythonProcess.complete();
     }
 

@@ -8,7 +8,7 @@ import {
     IPytestConfiguration,
     ITestplanConfiguration,
     IUnittestConfiguration,
-    IWorkspaceConfiguration
+    IWorkspaceConfiguration,
 } from '../../src/configuration/workspaceConfiguration';
 import { findWorkspaceFolder, logger } from '../utils/helpers';
 
@@ -67,9 +67,7 @@ suite('Placeholder aware workspace configuration', () => {
         const wfPath = getWorkspaceFolder().uri.fsPath;
         expect(configuration.pythonPath()).to.be.eq(path.resolve(wfPath, 'some', 'local', 'python'));
         expect(configuration.getCwd()).to.be.eq(path.resolve('/some', 'prefix', 'some', 'cwd', 'suffix'));
-        expect(
-            configuration.getUnittestConfiguration().unittestArguments.startDirectory
-        ).to.be.eq(wfPath);
+        expect(configuration.getUnittestConfiguration().unittestArguments.startDirectory).to.be.eq(wfPath);
     });
 
     test('should resolve values from configuration without placeholders', () => {
@@ -103,9 +101,7 @@ suite('Placeholder aware workspace configuration', () => {
                 return {
                     pytestPath: () => 'pytest',
                     isPytestEnabled: true,
-                    pytestArguments: [
-                        '--result-log=${workspaceFolder}/${env:RELATIVE_PYTEST_LOG_PATH}'
-                    ],
+                    pytestArguments: ['--result-log=${workspaceFolder}/${env:RELATIVE_PYTEST_LOG_PATH}'],
                 };
             },
             getTestplanConfiguration(): ITestplanConfiguration {
@@ -120,12 +116,10 @@ suite('Placeholder aware workspace configuration', () => {
         const wfPath = getWorkspaceFolder().uri.fsPath;
         expect(configuration.pythonPath()).to.be.eq('python');
         expect(configuration.getCwd()).to.be.eq(path.resolve(wfPath, '..', 'some', 'prefix', 'some', 'cwd', 'suffix'));
-        expect(
-            configuration.getUnittestConfiguration().unittestArguments.startDirectory
-        ).to.be.eq(wfPath);
-        expect(
-            configuration.getPytestConfiguration().pytestArguments
-        ).to.have.members([`--result-log=${wfPath + '/some/path/to/log'}`]);
+        expect(configuration.getUnittestConfiguration().unittestArguments.startDirectory).to.be.eq(wfPath);
+        expect(configuration.getPytestConfiguration().pytestArguments).to.have.members([
+            `--result-log=${wfPath + '/some/path/to/log'}`,
+        ]);
     });
 
     test('should resolve relative path placeholders from configuration', () => {
@@ -217,9 +211,9 @@ suite('Placeholder aware workspace configuration', () => {
         const wfPath = getWorkspaceFolder().uri.fsPath;
         expect(configuration.pythonPath()).to.be.eq('python');
         expect(configuration.getCwd()).to.be.eq(path.normalize(path.resolve(wfPath, 'some_cwd')));
-        expect(
-            configuration.getUnittestConfiguration().unittestArguments.startDirectory
-        ).to.be.eq(path.normalize(path.resolve(wfPath, 'test')));
+        expect(configuration.getUnittestConfiguration().unittestArguments.startDirectory).to.be.eq(
+            path.normalize(path.resolve(wfPath, 'test'))
+        );
     });
 
     test('should resolve home path from configuration', () => {
@@ -272,7 +266,7 @@ suite('Placeholder aware workspace configuration', () => {
     [
         ['${workspaceFolder}', getWorkspaceFolder().uri.fsPath],
         ['${workspaceRoot}', getWorkspaceFolder().uri.fsPath],
-        ['${cwd}', getWorkspaceFolder().uri.fsPath]
+        ['${cwd}', getWorkspaceFolder().uri.fsPath],
     ].forEach(([placeholder, expectedPath]) => {
         test(`should resolve placeholder ${placeholder} from configuration`, () => {
             const configuration = getConfiguration({
@@ -319,7 +313,7 @@ suite('Placeholder aware workspace configuration', () => {
 
     [
         ['${workspaceFolderBasename}', getWorkspaceFolder().name],
-        ['${workspaceRootFolderName}', getWorkspaceFolder().name]
+        ['${workspaceRootFolderName}', getWorkspaceFolder().name],
     ].forEach(([placeholder, expectedPath]) => {
         test(`should resolve placeholder ${placeholder} from configuration`, () => {
             const configuration = getConfiguration({
@@ -361,7 +355,7 @@ suite('Placeholder aware workspace configuration', () => {
             });
 
             expect(configuration.pythonPath()).to.be.eq(
-                path.normalize(path.resolve('/some', 'prefix' , expectedPath, 'some', 'local', 'python'))
+                path.normalize(path.resolve('/some', 'prefix', expectedPath, 'some', 'local', 'python'))
             );
         });
     });

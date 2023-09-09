@@ -35,9 +35,9 @@ function registerTestAdapters(
     const adapters = [
         new PythonTestAdapter(wf, unittestRunner, unittestConfigurationFactory, unittestLogger),
         new PythonTestAdapter(wf, pytestRunner, pytestConfigurationFactory, pytestLogger),
-        new PythonTestAdapter(wf, testplanRunner, testplantConfigurationFactory, testplanLogger)
+        new PythonTestAdapter(wf, testplanRunner, testplantConfigurationFactory, testplanLogger),
     ];
-    adapters.forEach(adapter => extension.exports.registerTestAdapter(adapter));
+    adapters.forEach((adapter) => extension.exports.registerTestAdapter(adapter));
     return adapters;
 }
 
@@ -74,11 +74,11 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     }
 
-    const workspaceFolderChangedSubscription = vscode.workspace.onDidChangeWorkspaceFolders(event => {
+    const workspaceFolderChangedSubscription = vscode.workspace.onDidChangeWorkspaceFolders((event) => {
         for (const workspaceFolder of event.removed) {
             const adapters = registeredAdapters.get(workspaceFolder);
             if (adapters) {
-                adapters.forEach(adapter => {
+                adapters.forEach((adapter) => {
                     testExplorerExtension.exports.unregisterTestAdapter(adapter);
                     adapter.dispose();
                 });

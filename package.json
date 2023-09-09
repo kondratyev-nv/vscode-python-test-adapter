@@ -1,147 +1,151 @@
 {
-  "name": "vscode-python-test-adapter",
-  "displayName": "Python Test Explorer for Visual Studio Code",
-  "description": "Run your Python tests in the Sidebar of Visual Studio Code",
-  "icon": "img/icon.png",
-  "author": "Nikolay Kondratyev",
-  "publisher": "littlefoxteam",
-  "version": "0.7.1",
-  "license": "MIT",
-  "homepage": "https://github.com/kondratyev-nv/vscode-python-test-adapter",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kondratyev-nv/vscode-python-test-adapter.git"
-  },
-  "bugs": {
-    "url": "https://github.com/kondratyev-nv/vscode-python-test-adapter/issues"
-  },
-  "badges": [
-    {
-      "url": "https://github.com/kondratyev-nv/vscode-python-test-adapter/workflows/GitHub%20Actions%20CI/badge.svg",
-      "href": "https://github.com/kondratyev-nv/vscode-python-test-adapter/actions?query=workflow%3A%22GitHub+Actions+CI%22+branch%3Amaster",
-      "description": "Continuous integration (Travis)"
+    "name": "vscode-python-test-adapter",
+    "displayName": "Python Test Explorer for Visual Studio Code",
+    "description": "Run your Python tests in the Sidebar of Visual Studio Code",
+    "icon": "img/icon.png",
+    "author": "Nikolay Kondratyev",
+    "publisher": "littlefoxteam",
+    "version": "0.7.1",
+    "license": "MIT",
+    "homepage": "https://github.com/kondratyev-nv/vscode-python-test-adapter",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kondratyev-nv/vscode-python-test-adapter.git"
     },
-    {
-      "url": "https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_apis/build/status/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code%20CI?branchName=master",
-      "href": "https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_build/latest?definitionId=1?branchName=master",
-      "description": "Continuous integration (Azure Pipelines)"
-    }
-  ],
-  "categories": [
-    "Other"
-  ],
-  "keywords": [
-    "python",
-    "test",
-    "testing",
-    "unittest",
-    "pytest"
-  ],
-  "scripts": {
-    "clean": "rimraf out *.vsix **/*.pyc **/__pycache__ **/.pytest_cache **/.some_venv **/.venv",
-    "build": "tsc",
-    "postbuild": "copyfiles \"resources/python/**/*.py\" out",
-    "watch": "tsc -w",
-    "lint": "tslint --project tsconfig.json",
-    "pretest": "npm run build",
-    "test": "cross-env SOME_PROCESS_VARIABLE=HelloFromProcessEnv cross-env CODE_TESTS_WORKSPACE=./test/test_samples/samples-workspace.code-workspace node ./out/test/vscode-runner.js",
-    "prepackage": "npm run build",
-    "package": "vsce package"
-  },
-  "extensionDependencies": [
-    "ms-python.python",
-    "hbenl.vscode-test-explorer"
-  ],
-  "dependencies": {
-    "argparse": "^2.0.1",
-    "dotenv": "^16.0.0",
-    "iconv-lite": "^0.6.3",
-    "js-base64": "^3.7.2",
-    "jsonc-parser": "3.0.0",
-    "tmp": "^0.2.1",
-    "tslib": "^2.3.1",
-    "untildify": "^4.0.0",
-    "vscode-test-adapter-api": "^1.9.0",
-    "xml2js": "^0.6.2"
-  },
-  "devDependencies": {
-    "@types/argparse": "^2.0.10",
-    "@types/chai": "^4.3.0",
-    "@types/glob": "^7.2.0",
-    "@types/mocha": "^9.1.0",
-    "@types/node": "^17.0.23",
-    "@types/semver": "^7.3.9",
-    "@types/tmp": "^0.2.3",
-    "@types/vscode": "^1.59.0",
-    "@types/xml2js": "^0.4.9",
-    "chai": "^4.3.6",
-    "copyfiles": "2.4.1",
-    "cross-env": "^7.0.3",
-    "glob": "^7.2.0",
-    "mocha": "^9.2.2",
-    "rimraf": "^3.0.2",
-    "tslint": "^6.1.3",
-    "typescript": "^4.6.3",
-    "@vscode/vsce": "^2.15.0",
-    "vscode-test": "^1.6.1"
-  },
-  "main": "out/src/main.js",
-  "engines": {
-    "vscode": "^1.59.0"
-  },
-  "activationEvents": [
-    "onLanguage:python",
-    "onView:test-explorer",
-    "onCommand:test-explorer.reload",
-    "onCommand:test-explorer.run-all",
-    "onCommand:test-explorer.run-file",
-    "onCommand:test-explorer.run-test-at-cursor",
-    "onCommand:test-explorer.rerun",
-    "onCommand:test-explorer.debug-test-at-cursor",
-    "onCommand:test-explorer.redebug",
-    "onCommand:test-explorer.cancel",
-    "onStartupFinished"
-  ],
-  "contributes": {
-    "configuration": {
-      "properties": {
-        "pythonTestExplorer.testFramework": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "enum": [
-            "unittest",
-            "pytest",
-            "testplan",
-            null
-          ],
-          "default": null,
-          "description": "Test framework to use for Python Test Explorer (default is null and Python extension settings are used)",
-          "scope": "resource"
+    "bugs": {
+        "url": "https://github.com/kondratyev-nv/vscode-python-test-adapter/issues"
+    },
+    "badges": [
+        {
+            "url": "https://github.com/kondratyev-nv/vscode-python-test-adapter/workflows/GitHub%20Actions%20CI/badge.svg",
+            "href": "https://github.com/kondratyev-nv/vscode-python-test-adapter/actions?query=workflow%3A%22GitHub+Actions+CI%22+branch%3Amaster",
+            "description": "Continuous integration (Travis)"
         },
-        "pythonTestExplorer.testplanPath": {
-          "type": "string",
-          "default": "test_plan.py",
-          "description": "Relative path to testplan main suite.",
-          "scope": "resource"
-        },
-        "pythonTestExplorer.testplanArgs": {
-          "type": "array",
-          "description": "Arguments passed in. Each argument is a separate item in the array.",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "scope": "resource"
-        },
-        "pythonTestExplorer.testplanEnabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable testing using Testplan. Note that Testplan is only supported for Python 3.7+.",
-          "scope": "resource"
+        {
+            "url": "https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_apis/build/status/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code%20CI?branchName=master",
+            "href": "https://dev.azure.com/kondratyev-nv/Python%20Test%20Explorer%20for%20Visual%20Studio%20Code/_build/latest?definitionId=1?branchName=master",
+            "description": "Continuous integration (Azure Pipelines)"
         }
-      }
+    ],
+    "categories": [
+        "Other"
+    ],
+    "keywords": [
+        "python",
+        "test",
+        "testing",
+        "unittest",
+        "pytest"
+    ],
+    "scripts": {
+        "clean": "rimraf out *.vsix **/*.pyc **/__pycache__ **/.pytest_cache **/.some_venv **/.venv",
+        "build": "tsc",
+        "postbuild": "copyfiles \"resources/python/**/*.py\" out",
+        "watch": "tsc -w",
+        "lint": "tslint --project tsconfig.json",
+        "format": "prettier --write src test",
+        "pretest": "npm run build",
+        "test": "cross-env SOME_PROCESS_VARIABLE=HelloFromProcessEnv cross-env CODE_TESTS_WORKSPACE=./test/test_samples/samples-workspace.code-workspace node ./out/test/vscode-runner.js",
+        "prepackage": "npm run build",
+        "package": "vsce package"
+    },
+    "extensionDependencies": [
+        "ms-python.python",
+        "hbenl.vscode-test-explorer"
+    ],
+    "dependencies": {
+        "argparse": "^2.0.1",
+        "dotenv": "^16.0.0",
+        "iconv-lite": "^0.6.3",
+        "js-base64": "^3.7.2",
+        "jsonc-parser": "3.0.0",
+        "tmp": "^0.2.1",
+        "tslib": "^2.3.1",
+        "untildify": "^4.0.0",
+        "vscode-test-adapter-api": "^1.9.0",
+        "xml2js": "^0.6.2"
+    },
+    "devDependencies": {
+        "@types/argparse": "^2.0.10",
+        "@types/chai": "^4.3.0",
+        "@types/glob": "^7.2.0",
+        "@types/mocha": "^9.1.0",
+        "@types/node": "^17.0.23",
+        "@types/semver": "^7.3.9",
+        "@types/tmp": "^0.2.3",
+        "@types/vscode": "^1.59.0",
+        "@types/xml2js": "^0.4.9",
+        "@vscode/vsce": "^2.15.0",
+        "chai": "^4.3.6",
+        "copyfiles": "2.4.1",
+        "cross-env": "^7.0.3",
+        "glob": "^7.2.0",
+        "mocha": "^9.2.2",
+        "prettier": "^2.8.8",
+        "rimraf": "^3.0.2",
+        "tslint": "^6.1.3",
+        "tslint-config-prettier": "^1.18.0",
+        "tslint-plugin-prettier": "^2.3.0",
+        "typescript": "^4.6.3",
+        "vscode-test": "^1.6.1"
+    },
+    "main": "out/src/main.js",
+    "engines": {
+        "vscode": "^1.59.0"
+    },
+    "activationEvents": [
+        "onLanguage:python",
+        "onView:test-explorer",
+        "onCommand:test-explorer.reload",
+        "onCommand:test-explorer.run-all",
+        "onCommand:test-explorer.run-file",
+        "onCommand:test-explorer.run-test-at-cursor",
+        "onCommand:test-explorer.rerun",
+        "onCommand:test-explorer.debug-test-at-cursor",
+        "onCommand:test-explorer.redebug",
+        "onCommand:test-explorer.cancel",
+        "onStartupFinished"
+    ],
+    "contributes": {
+        "configuration": {
+            "properties": {
+                "pythonTestExplorer.testFramework": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "enum": [
+                        "unittest",
+                        "pytest",
+                        "testplan",
+                        null
+                    ],
+                    "default": null,
+                    "description": "Test framework to use for Python Test Explorer (default is null and Python extension settings are used)",
+                    "scope": "resource"
+                },
+                "pythonTestExplorer.testplanPath": {
+                    "type": "string",
+                    "default": "test_plan.py",
+                    "description": "Relative path to testplan main suite.",
+                    "scope": "resource"
+                },
+                "pythonTestExplorer.testplanArgs": {
+                    "type": "array",
+                    "description": "Arguments passed in. Each argument is a separate item in the array.",
+                    "default": [],
+                    "items": {
+                        "type": "string"
+                    },
+                    "scope": "resource"
+                },
+                "pythonTestExplorer.testplanEnabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable testing using Testplan. Note that Testplan is only supported for Python 3.7+.",
+                    "scope": "resource"
+                }
+            }
+        }
     }
-  }
 }

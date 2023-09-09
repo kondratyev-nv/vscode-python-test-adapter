@@ -2,51 +2,51 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 import * as fs from 'fs';
-import {
-    TestSuiteInfo
-} from 'vscode-test-adapter-api';
+import { TestSuiteInfo } from 'vscode-test-adapter-api';
 import { isFileExists } from '../../src/utilities/fs';
 import { IWorkspaceConfiguration } from '../../src/configuration/workspaceConfiguration';
 import { PytestTestRunner } from '../../src/pytest/pytestTestRunner';
-import { createPytestConfiguration, extractExpectedState, extractErroredTests, findTestSuiteByLabel, logger } from '../utils/helpers';
+import {
+    createPytestConfiguration,
+    extractExpectedState,
+    extractErroredTests,
+    findTestSuiteByLabel,
+    logger,
+} from '../utils/helpers';
 import { PYTEST_EXPECTED_SUITES_LIST_WITHOUT_ERRORS } from '../utils/pytest';
 
 suite('Pytest test discovery with additional arguments', async () => {
-    const config: IWorkspaceConfiguration = createPytestConfiguration(
-        'pytest',
-        [
-            '--rootdir=test/inner_tests',
-            '--trace',
-            '--cache-show',
-            '--doctest-modules',
-            '--collect-only',
-            '--junitxml=sample.xml',
-            '--ignore=test/import_error_tests'
-        ]);
+    const config: IWorkspaceConfiguration = createPytestConfiguration('pytest', [
+        '--rootdir=test/inner_tests',
+        '--trace',
+        '--cache-show',
+        '--doctest-modules',
+        '--collect-only',
+        '--junitxml=sample.xml',
+        '--ignore=test/import_error_tests',
+    ]);
     const runner = new PytestTestRunner('some-id', logger());
 
     test('should discover tests', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
-        const labels = mainSuite!.children.map(x => x.label);
+        const labels = mainSuite!.children.map((x) => x.label);
         expect(labels).to.have.members(PYTEST_EXPECTED_SUITES_LIST_WITHOUT_ERRORS);
     });
 });
 
 suite('Run pytest tests with additional arguments', () => {
-    const config: IWorkspaceConfiguration = createPytestConfiguration(
-        'pytest',
-        [
-            '--rootdir',
-            'test/inner_tests',
-            '--trace',
-            '--doctest-modules',
-            '--collect-only',
-            '--junitxml=sample.xml',
-            '--exitfirst',
-            '--ignore=test/import_error_tests'
-        ]);
+    const config: IWorkspaceConfiguration = createPytestConfiguration('pytest', [
+        '--rootdir',
+        'test/inner_tests',
+        '--trace',
+        '--doctest-modules',
+        '--collect-only',
+        '--junitxml=sample.xml',
+        '--exitfirst',
+        '--ignore=test/import_error_tests',
+    ]);
     const runner = new PytestTestRunner('some-id', logger());
 
     test('should run all tests', async () => {
@@ -56,7 +56,7 @@ suite('Run pytest tests with additional arguments', () => {
         expect(mainSuite!.label).to.be.eq('Pytest tests');
         const states = await runner.run(config, runner.adapterId);
         expect(states).to.be.not.empty;
-        states.forEach(state => {
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
@@ -67,9 +67,9 @@ suite('Run pytest tests with additional arguments', () => {
             suite: 'arithmetic.py',
             cases: [
                 { file: 'src/arithmetic.py', case: '::arithmetic.add_failed' },
-                { file: 'src/arithmetic.py', case: '::arithmetic.mul_passed' }
+                { file: 'src/arithmetic.py', case: '::arithmetic.mul_passed' },
             ],
-        }
+        },
     ].forEach(({ suite, cases }) => {
         test(`should run doctest ${suite} suite`, async () => {
             const mainSuite = await runner.load(config);
@@ -80,20 +80,17 @@ suite('Run pytest tests with additional arguments', () => {
             const states = await runner.run(config, suiteToRun!.id);
             expect(states).to.be.not.empty;
             const cwd = config.getCwd();
-            expect(states.map(s => s.test)).to.have.deep.members(
-                cases.map(c => path.resolve(cwd, c.file) + c.case)
+            expect(states.map((s) => s.test)).to.have.deep.members(
+                cases.map((c) => path.resolve(cwd, c.file) + c.case)
             );
-            states.forEach(state => {
+            states.forEach((state) => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
             });
         });
     });
 
-    [
-        'arithmetic.mul_passed',
-        'arithmetic.add_failed'
-    ].forEach(testMethod => {
+    ['arithmetic.mul_passed', 'arithmetic.add_failed'].forEach((testMethod) => {
         test(`should run doctest ${testMethod} test`, async () => {
             const mainSuite = await runner.load(config);
             expect(mainSuite).to.be.not.undefined;
@@ -102,7 +99,7 @@ suite('Run pytest tests with additional arguments', () => {
             expect(suite).to.be.not.undefined;
             const states = await runner.run(config, suite!.id);
             expect(states).to.be.not.empty;
-            states.forEach(state => {
+            states.forEach((state) => {
                 const expectedState = extractExpectedState(state.test as string);
                 expect(state.state).to.be.eq(expectedState);
             });
@@ -114,64 +111,61 @@ suite('Filter pytest tests by mark arguments', () => {
     const runner = new PytestTestRunner('some-id', logger());
     const markedTests = [
         { module: path.join('test', 'inner_tests', 'add_test.py'), case: '::test_one_plus_two_is_three_passed' },
-        { module: path.join('test', 'other_tests', 'add_test.py'), case: '::test_same_filename_one_plus_two_is_three_passed' }
+        {
+            module: path.join('test', 'other_tests', 'add_test.py'),
+            case: '::test_same_filename_one_plus_two_is_three_passed',
+        },
     ];
 
     test('should discover only tests with specific mark', async () => {
-        const config: IWorkspaceConfiguration = createPytestConfiguration(
-            'pytest',
-            [
-                '--ignore=test/import_error_tests',
-                '-m',
-                'add_test_passed'
-            ]);
+        const config: IWorkspaceConfiguration = createPytestConfiguration('pytest', [
+            '--ignore=test/import_error_tests',
+            '-m',
+            'add_test_passed',
+        ]);
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
         expect(mainSuite!.label).to.be.eq('Pytest tests');
-        const labels = mainSuite!.children.map(x => x.file);
-        expect(labels).to.have.members(markedTests.map(t => path.join(config.getCwd(), t.module)));
+        const labels = mainSuite!.children.map((x) => x.file);
+        expect(labels).to.have.members(markedTests.map((t) => path.join(config.getCwd(), t.module)));
     });
 
     test('should run only tests with specific mark', async () => {
-        const config: IWorkspaceConfiguration = createPytestConfiguration(
-            'pytest',
-            [
-                '--ignore=test/import_error_tests',
-                '-m',
-                'add_test_passed'
-            ]);
+        const config: IWorkspaceConfiguration = createPytestConfiguration('pytest', [
+            '--ignore=test/import_error_tests',
+            '-m',
+            'add_test_passed',
+        ]);
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
         expect(mainSuite!.label).to.be.eq('Pytest tests');
         const states = await runner.run(config, runner.adapterId);
         expect(states).to.be.not.empty;
-        const labels = states.map(x => x.test);
-        expect(labels).to.have.members(markedTests.map(t => path.join(config.getCwd(), t.module) + t.case));
-        states.forEach(state => {
+        const labels = states.map((x) => x.test);
+        expect(labels).to.have.members(markedTests.map((t) => path.join(config.getCwd(), t.module) + t.case));
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
     });
 
     test('should not run tests with specific mark', async () => {
-        const config: IWorkspaceConfiguration = createPytestConfiguration(
-            'pytest',
-            [
-                '--ignore=test/import_error_tests',
-                '-m',
-                'not add_test_passed'
-            ]);
+        const config: IWorkspaceConfiguration = createPytestConfiguration('pytest', [
+            '--ignore=test/import_error_tests',
+            '-m',
+            'not add_test_passed',
+        ]);
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
         expect(mainSuite!.label).to.be.eq('Pytest tests');
         const states = await runner.run(config, runner.adapterId);
         expect(states).to.be.not.empty;
-        const labels = states.map(x => x.test);
-        expect(labels).not.to.have.members(markedTests.map(t => path.join(config.getCwd(), t.module) + t.case));
-        states.forEach(state => {
+        const labels = states.map((x) => x.test);
+        expect(labels).not.to.have.members(markedTests.map((t) => path.join(config.getCwd(), t.module) + t.case));
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
@@ -179,25 +173,20 @@ suite('Filter pytest tests by mark arguments', () => {
 });
 
 suite('Pytest tests with additional positional arguments', () => {
-    const config: IWorkspaceConfiguration = createPytestConfiguration(
-        'pytest',
-        [
-            '--rootdir',
-            'test/inner_tests',
-            'test/inner_tests',
-            'test/other_tests'
-        ]);
+    const config: IWorkspaceConfiguration = createPytestConfiguration('pytest', [
+        '--rootdir',
+        'test/inner_tests',
+        'test/inner_tests',
+        'test/other_tests',
+    ]);
     const runner = new PytestTestRunner('some-id', logger());
 
     test('should discover tests', async () => {
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
-        const expectedSuites = [
-            'add_test.py',
-            'add_test.py'
-        ];
-        const labels = mainSuite!.children.map(x => x.label);
+        const expectedSuites = ['add_test.py', 'add_test.py'];
+        const labels = mainSuite!.children.map((x) => x.label);
         expect(labels).to.have.members(expectedSuites);
     });
 
@@ -208,14 +197,16 @@ suite('Pytest tests with additional positional arguments', () => {
         expect(mainSuite!.label).to.be.eq('Pytest tests');
         const states = await runner.run(config, runner.adapterId);
         expect(states).to.be.not.empty;
-        const labels = states.map(x => x.test);
+        const labels = states.map((x) => x.test);
         expect(labels).to.have.members([
             path.join(config.getCwd(), 'test', 'inner_tests', 'add_test.py') + '::test_one_plus_two_is_three_passed',
             path.join(config.getCwd(), 'test', 'inner_tests', 'add_test.py') + '::test_two_plus_two_is_five_failed',
-            path.join(config.getCwd(), 'test', 'other_tests', 'add_test.py') + '::test_same_filename_one_plus_two_is_three_passed',
-            path.join(config.getCwd(), 'test', 'other_tests', 'add_test.py') + '::test_same_filename_two_plus_two_is_five_failed'
+            path.join(config.getCwd(), 'test', 'other_tests', 'add_test.py') +
+                '::test_same_filename_one_plus_two_is_three_passed',
+            path.join(config.getCwd(), 'test', 'other_tests', 'add_test.py') +
+                '::test_same_filename_two_plus_two_is_five_failed',
         ]);
-        states.forEach(state => {
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
@@ -227,19 +218,17 @@ suite('Use junit-xml argument for pytest tests', () => {
 
     test('should create junit-xml report by custom path', async () => {
         const now = new Date().getTime();
-        const config: IWorkspaceConfiguration = createPytestConfiguration(
-            'pytest',
-            [
-                '--ignore=test/import_error_tests',
-                `--junitxml=example_${now}.xml`
-            ]);
+        const config: IWorkspaceConfiguration = createPytestConfiguration('pytest', [
+            '--ignore=test/import_error_tests',
+            `--junitxml=example_${now}.xml`,
+        ]);
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
 
         const states = await runner.run(config, runner.adapterId);
         expect(states).to.be.not.empty;
-        states.forEach(state => {
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
@@ -281,11 +270,9 @@ suite('Run pytest suite with pytest.ini in subdirectory', () => {
     const runner = new PytestTestRunner('some-id', logger());
 
     test('should discover and run all tests', async () => {
-        const config: IWorkspaceConfiguration = createPytestConfiguration(
-            'pytest',
-            [
-                '--ignore=test/import_error_tests'
-            ]);
+        const config: IWorkspaceConfiguration = createPytestConfiguration('pytest', [
+            '--ignore=test/import_error_tests',
+        ]);
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
@@ -299,21 +286,19 @@ suite('Run pytest suite with pytest.ini in subdirectory', () => {
 
         const states = await runner.run(config, runner.adapterId);
         expect(states).to.be.not.empty;
-        expect(states.map(s => s.test))
+        expect(states.map((s) => s.test))
             .and.to.include(submoduleTestToRun)
             .and.to.include(submoduleTestToSkip);
-        states.forEach(state => {
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });
     });
 
     test('should run suite in submodule', async () => {
-        const config: IWorkspaceConfiguration = createPytestConfiguration(
-            'pytest',
-            [
-                '--ignore=test/import_error_tests'
-            ]);
+        const config: IWorkspaceConfiguration = createPytestConfiguration('pytest', [
+            '--ignore=test/import_error_tests',
+        ]);
         const mainSuite = await runner.load(config);
         expect(mainSuite).to.be.not.undefined;
         expect(extractErroredTests(mainSuite!)).to.be.empty;
@@ -326,8 +311,10 @@ suite('Run pytest suite with pytest.ini in subdirectory', () => {
 
         const states = await runner.run(config, submoduleSuite.id);
         expect(states).to.be.not.empty;
-        expect(states.map(s => s.test)).to.be.lengthOf(1).and.to.include(submoduleTestToRun);
-        states.forEach(state => {
+        expect(states.map((s) => s.test))
+            .to.be.lengthOf(1)
+            .and.to.include(submoduleTestToRun);
+        states.forEach((state) => {
             const expectedState = extractExpectedState(state.test as string);
             expect(state.state).to.be.eq(expectedState);
         });

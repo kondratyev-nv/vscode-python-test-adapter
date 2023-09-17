@@ -31,6 +31,8 @@ import { empty, firstOrDefault } from './utilities/collections';
 import { concatNonEmpty } from './utilities/strings';
 import { IEnvironmentVariables, EnvironmentVariablesLoader } from './environmentVariablesLoader';
 import { LoggingOutputCollector } from './loggingOutputCollector';
+import { IWorkspaceConfiguration } from './configuration/workspaceConfiguration';
+import { IProcessOutputCollector } from './processRunner';
 
 type TestRunEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent;
 
@@ -150,16 +152,7 @@ export class PythonTestAdapter implements TestAdapter {
             this.testStatesEmitter.fire({ type: 'started', tests });
             const config = await this.configurationFactory.get(this.workspaceFolder);
 
-            let collector: LoggingOutputCollector | undefined;
-
-            if (config.collectOutputs()) {
-                const outputChannel = this.getOutputChannel();
-                collector = new LoggingOutputCollector(outputChannel);
-                outputChannel.clear();
-                if (config.showOutputsOnRun()) {
-                    outputChannel.show();
-                }
-            }
+            const collector = this.initCollector(config);
 
             const testRuns = tests.map(async (test) => {
                 try {
@@ -181,6 +174,20 @@ export class PythonTestAdapter implements TestAdapter {
         } finally {
             this.testStatesEmitter.fire({ type: 'finished' });
         }
+    }
+
+    private initCollector(config: IWorkspaceConfiguration): IProcessOutputCollector | undefined {
+        if (!config.collectOutputs()) {
+            return;
+        }
+
+        const outputChannel = this.getOutputChannel();
+        const collector = new LoggingOutputCollector(outputChannel);
+        outputChannel.clear();
+        if (config.showOutputsOnRun()) {
+            outputChannel.show();
+        }
+        return collector;
     }
 
     public async debug(tests: string[]): Promise<void> {

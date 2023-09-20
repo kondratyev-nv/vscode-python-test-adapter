@@ -16,6 +16,12 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         public readonly workspaceFolder: WorkspaceFolder,
         private readonly logger: ILogger
     ) {}
+    collectOutputs(): boolean {
+        return this.configuration.collectOutputs();
+    }
+    showOutputsOnRun(): boolean {
+        return this.configuration.showOutputsOnRun();
+    }
 
     public pythonPath(): string {
         return this.resolveExecutablePath(this.configuration.pythonPath());

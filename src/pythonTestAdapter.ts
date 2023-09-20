@@ -1,4 +1,13 @@
-import { debug, Event, EventEmitter, WorkspaceFolder, DebugConfiguration, workspace } from 'vscode';
+import {
+    debug,
+    Event,
+    EventEmitter,
+    WorkspaceFolder,
+    DebugConfiguration,
+    workspace,
+    OutputChannel,
+    window,
+} from 'vscode';
 import {
     TestAdapter,
     TestEvent,
@@ -21,6 +30,9 @@ import { isFileExists, readFile } from './utilities/fs';
 import { empty, firstOrDefault } from './utilities/collections';
 import { concatNonEmpty } from './utilities/strings';
 import { IEnvironmentVariables, EnvironmentVariablesLoader } from './environmentVariablesLoader';
+import { LoggingOutputCollector } from './loggingOutputCollector';
+import { IWorkspaceConfiguration } from './configuration/workspaceConfiguration';
+import { IProcessOutputCollector } from './processRunner';
 
 type TestRunEvent = TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent;
 
@@ -59,7 +71,10 @@ export class PythonTestAdapter implements TestAdapter {
     private readonly testsById = new Map<string, TestSuiteInfo | TestInfo>();
     private readonly testsByFsPath = new Map<string, TestSuiteInfo | TestInfo>();
 
+    private outputChannel: OutputChannel | undefined;
+
     constructor(
+        public readonly name: string,
         public readonly workspaceFolder: WorkspaceFolder,
         private readonly testRunner: ITestRunner,
         private readonly configurationFactory: IConfigurationFactory,
@@ -136,9 +151,12 @@ export class PythonTestAdapter implements TestAdapter {
         try {
             this.testStatesEmitter.fire({ type: 'started', tests });
             const config = await this.configurationFactory.get(this.workspaceFolder);
+
+            const collector = this.initCollector(config);
+
             const testRuns = tests.map(async (test) => {
                 try {
-                    const states = await this.testRunner.run(config, test);
+                    const states = await this.testRunner.run(config, test, collector);
                     return states.forEach((state) => {
                         const testId = state.test as string;
                         if (this.testsById.has(testId) && this.testsById.get(testId)?.type === 'suite') {
@@ -156,6 +174,20 @@ export class PythonTestAdapter implements TestAdapter {
         } finally {
             this.testStatesEmitter.fire({ type: 'finished' });
         }
+    }
+
+    private initCollector(config: IWorkspaceConfiguration): IProcessOutputCollector | undefined {
+        if (!config.collectOutputs()) {
+            return;
+        }
+
+        const outputChannel = this.getOutputChannel();
+        const collector = new LoggingOutputCollector(outputChannel);
+        outputChannel.clear();
+        if (config.showOutputsOnRun()) {
+            outputChannel.show();
+        }
+        return collector;
     }
 
     public async debug(tests: string[]): Promise<void> {
@@ -302,5 +334,16 @@ export class PythonTestAdapter implements TestAdapter {
         }
         const purpose = cfg.purpose as string[] | undefined;
         return purpose?.includes('debug-test') ?? false;
+    }
+
+    private getOutputChannel(): OutputChannel {
+        if (!this.outputChannel) {
+            this.outputChannel = window.createOutputChannel(
+                `${this.name} - ${this.workspaceFolder.name} - Execution`,
+                'Log'
+            );
+            this.disposables.push(this.outputChannel);
+        }
+        return this.outputChannel;
     }
 }

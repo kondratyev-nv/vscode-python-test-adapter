@@ -11,31 +11,20 @@ import { PytestTestRunner } from './pytest/pytestTestRunner';
 import { TestplanTestRunner } from './testplan/testplanTestRunner';
 import { PythonTestAdapter } from './pythonTestAdapter';
 import { UnittestTestRunner } from './unittest/unittestTestRunner';
+import { ITestRunner } from './testRunner';
 
 type LoggerFactory = (framework: string, wf: vscode.WorkspaceFolder) => ILogger;
+type TestRunnerClass = new (adapterId: string, logger: ILogger) => ITestRunner;
 
 function registerTestAdapters(
     wf: vscode.WorkspaceFolder,
     extension: vscode.Extension<TestHub>,
     loggerFactory: LoggerFactory
 ) {
-    const unittestLogger = loggerFactory('unittest', wf);
-    const unittestRunner = new UnittestTestRunner(nextId(), unittestLogger);
-
-    const pytestLogger = loggerFactory('pytest', wf);
-    const pytestRunner = new PytestTestRunner(nextId(), pytestLogger);
-
-    const testplanLogger = loggerFactory('testplan', wf);
-    const testplanRunner = new TestplanTestRunner(nextId(), pytestLogger);
-
-    const unittestConfigurationFactory = new DefaultConfigurationFactory(unittestLogger);
-    const pytestConfigurationFactory = new DefaultConfigurationFactory(pytestLogger);
-    const testplantConfigurationFactory = new DefaultConfigurationFactory(testplanLogger);
-
     const adapters = [
-        new PythonTestAdapter(wf, unittestRunner, unittestConfigurationFactory, unittestLogger),
-        new PythonTestAdapter(wf, pytestRunner, pytestConfigurationFactory, pytestLogger),
-        new PythonTestAdapter(wf, testplanRunner, testplantConfigurationFactory, testplanLogger),
+        createPythonTestAdapter('unittest', UnittestTestRunner, wf, loggerFactory),
+        createPythonTestAdapter('pytest', PytestTestRunner, wf, loggerFactory),
+        createPythonTestAdapter('testplan', TestplanTestRunner, wf, loggerFactory),
     ];
     adapters.forEach((adapter) => extension.exports.registerTestAdapter(adapter));
     return adapters;
@@ -92,4 +81,17 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
     context.subscriptions.push(workspaceFolderChangedSubscription);
+}
+
+function createPythonTestAdapter(
+    frameworkName: string,
+    runnerClass: TestRunnerClass,
+    wf: vscode.WorkspaceFolder,
+    loggerFactory: LoggerFactory
+) {
+    const logger = loggerFactory(frameworkName, wf);
+    const runner = new runnerClass(nextId(), logger);
+    const configurationFactory = new DefaultConfigurationFactory(logger);
+
+    return new PythonTestAdapter(frameworkName, wf, runner, configurationFactory, logger);
 }

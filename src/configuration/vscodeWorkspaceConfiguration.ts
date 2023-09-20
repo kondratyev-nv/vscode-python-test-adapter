@@ -21,6 +21,12 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
         this.pythonConfiguration = this.getPythonConfiguration(workspaceFolder);
         this.testExplorerConfiguration = this.getTestExplorerConfiguration(workspaceFolder);
     }
+    collectOutputs(): boolean {
+        return this.testExplorerConfiguration.get<boolean>('outputs.collectOutputs', true);
+    }
+    showOutputsOnRun(): boolean {
+        return this.testExplorerConfiguration.get<boolean>('outputs.showOutputsOnRun', false);
+    }
     public pythonPath() {
         return this.pythonConfiguration.get<string>('pythonPath', 'python');
     }

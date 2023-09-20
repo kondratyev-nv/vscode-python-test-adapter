@@ -18,6 +18,9 @@ import {
     findWorkspaceFolder,
     logger,
 } from '../utils/helpers';
+import { ITestRunner } from '../../src/testRunner';
+import sinon, { SinonSpy } from 'sinon';
+import { LoggingOutputCollector } from '../../src/loggingOutputCollector';
 
 [
     {
@@ -58,7 +61,7 @@ import {
         };
 
         test('discovery events should be successfully fired', async () => {
-            const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+            const adapter = new PythonTestAdapter(label, workspaceFolder, runner, configurationFactory, logger());
             let startedNotifications = 0;
             let finishedNotifications = 0;
             let finishedEvent: TestLoadFinishedEvent | undefined;
@@ -81,7 +84,7 @@ import {
         });
 
         test(`test execution events should be successfully fired for ${label}`, async () => {
-            const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+            const adapter = new PythonTestAdapter(label, workspaceFolder, runner, configurationFactory, logger());
             const mainSuite = await runner.load(await configurationFactory.get(workspaceFolder));
             // expect(errors).to.be.empty;
             expect(mainSuite).to.be.not.undefined;
@@ -115,7 +118,7 @@ import {
         });
 
         test('discovered tests should be sorted alphabetically', async () => {
-            const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+            const adapter = new PythonTestAdapter(label, workspaceFolder, runner, configurationFactory, logger());
             let startedNotifications = 0;
             let finishedNotifications = 0;
             let finishedEvent: TestLoadFinishedEvent | undefined;
@@ -157,7 +160,7 @@ suite('Adapter events with pytest runner and invalid files during discovery', ()
         },
     };
     const runner = new PytestTestRunner('some-id', logger());
-    const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+    const adapter = new PythonTestAdapter('pytest', workspaceFolder, runner, configurationFactory, logger());
 
     test('discovery events should be successfully fired', async () => {
         let startedNotifications = 0;
@@ -230,7 +233,7 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
         },
     };
     const runner = new UnittestTestRunner('some-id', logger());
-    const adapter = new PythonTestAdapter(workspaceFolder, runner, configurationFactory, logger());
+    const adapter = new PythonTestAdapter('unittest', workspaceFolder, runner, configurationFactory, logger());
 
     test('discovery events should be successfully fired', async () => {
         let startedNotifications = 0;
@@ -295,5 +298,55 @@ suite('Adapter events with unittest runner and invalid files during discovery', 
                 id: 'test_invalid_import_failed',
             },
         ]);
+    });
+});
+
+suite('Runner Output', () => {
+    const runner = <ITestRunner>{};
+    let collectOutputs = false;
+    let run: SinonSpy;
+    const testNames = ['Test1', 'Test2'];
+
+    setup('setup run spy', () => {
+        run = sinon.spy();
+        runner.run = run;
+    });
+
+    const workspaceFolder = findWorkspaceFolder('unittest')!;
+    const configurationFactory: IConfigurationFactory = {
+        get(_: vscode.WorkspaceFolder): Promise<IWorkspaceConfiguration> {
+            return Promise.resolve(<IWorkspaceConfiguration>{
+                collectOutputs: () => collectOutputs,
+                showOutputsOnRun: () => false,
+            });
+        },
+    };
+
+    test('should be collected when configured to collect', async () => {
+        // Given
+        collectOutputs = true;
+
+        // When
+        const adapter = new PythonTestAdapter('unittest', workspaceFolder, runner, configurationFactory, logger());
+        await adapter.run(testNames);
+
+        // Then
+        expect(run.calledTwice).is.true;
+        const collector = run.lastCall.lastArg;
+        expect(collector).is.not.undefined;
+        expect(collector).is.an.instanceOf(LoggingOutputCollector);
+    });
+
+    test('should not be collected when configured not to collect', async () => {
+        // Given
+        collectOutputs = false;
+
+        // When
+        const adapter = new PythonTestAdapter('unittest', workspaceFolder, runner, configurationFactory, logger());
+        await adapter.run(testNames);
+
+        // Then
+        expect(run.calledTwice).is.true;
+        expect(run.lastCall.lastArg).is.undefined;
     });
 });

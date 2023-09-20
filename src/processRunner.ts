@@ -5,6 +5,11 @@ export interface IProcessRunConfiguration {
     cwd?: string;
     environment?: { [key: string]: string | undefined };
     acceptedExitCodes?: readonly number[];
+    outputCollector?: IProcessOutputCollector;
+}
+
+export interface IProcessOutputCollector {
+    attach(process: ChildProcess): void;
 }
 
 export interface IProcessExecution {
@@ -31,6 +36,7 @@ class CommandProcessExecution implements IProcessExecution {
         });
         this.pid = this.commandProcess.pid || -1;
         this.acceptedExitCodes = configuration?.acceptedExitCodes || [0];
+        configuration?.outputCollector?.attach(this.commandProcess);
     }
 
     public async complete(): Promise<{ exitCode: number; output: string }> {

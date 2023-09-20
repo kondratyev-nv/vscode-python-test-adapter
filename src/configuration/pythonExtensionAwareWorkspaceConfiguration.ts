@@ -17,6 +17,12 @@ export class PythonExtensionAwareWorkspaceConfiguration implements IWorkspaceCon
         public readonly workspaceFolder: WorkspaceFolder,
         private readonly detectedPythonPath?: string
     ) {}
+    collectOutputs(): boolean {
+        return this.configuration.collectOutputs();
+    }
+    showOutputsOnRun(): boolean {
+        return this.configuration.showOutputsOnRun();
+    }
 
     public static async for(
         configuration: IWorkspaceConfiguration,

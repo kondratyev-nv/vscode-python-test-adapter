@@ -65,6 +65,9 @@ Property                                       | Description
 `pythonTestExplorer.testplanPath`              | Relative path to testplan main suite.
 `pythonTestExplorer.testplanArgs`              | Arguments passed in. Each argument is a separate item in the array.
 `pythonTestExplorer.testplanEnabled`           | Enable testing using Testplan. _Note that Testplan is only supported for Python 3.7+._
+`pythonTestExplorer.outputs.collectOutputs`    | Collect test run outputs in separate output channel.
+`pythonTestExplorer.outputs.showOutputsOnRun`  | Activate test outputs channel on run.
+
 
 Configuration supports a placeholders for the workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.
 

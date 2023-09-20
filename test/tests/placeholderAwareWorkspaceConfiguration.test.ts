@@ -21,12 +21,39 @@ function getConfiguration(configuration: IWorkspaceConfiguration) {
     return new PlaceholderAwareWorkspaceConfiguration(configuration, wf, logger());
 }
 
+const constPartOfConfiguration = {
+    autoTestDiscoverOnSaveEnabled(): boolean {
+        return true;
+    },
+    getPytestConfiguration(): IPytestConfiguration {
+        return {
+            pytestPath: () => 'pytest',
+            isPytestEnabled: true,
+            pytestArguments: [],
+        };
+    },
+    getTestplanConfiguration(): ITestplanConfiguration {
+        return {
+            testplanPath: () => 'test_plan.py',
+            isTestplanEnabled: true,
+            testplanArguments: [],
+        };
+    },
+    collectOutputs() {
+        return false;
+    },
+    showOutputsOnRun() {
+        return false;
+    },
+};
+
 suite('Placeholder aware workspace configuration', () => {
     test('should resolve values from configuration with resolved placeholders', () => {
         process.env.SOME_PATH_USED_IN_CWD = '/some/prefix';
         expect(Object.keys(process.env)).to.include('SOME_PATH_USED_IN_CWD');
 
         const configuration = getConfiguration({
+            ...constPartOfConfiguration,
             pythonPath(): string {
                 return '${workspaceFolder}/some/local/python';
             },
@@ -36,9 +63,6 @@ suite('Placeholder aware workspace configuration', () => {
             envFile(): string {
                 return '${workspaceFolder}/.env';
             },
-            autoTestDiscoverOnSaveEnabled(): boolean {
-                return true;
-            },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
                     isUnittestEnabled: true,
@@ -46,20 +70,6 @@ suite('Placeholder aware workspace configuration', () => {
                         startDirectory: '${workspaceFolder}/./',
                         pattern: 'test_*.py',
                     },
-                };
-            },
-            getPytestConfiguration(): IPytestConfiguration {
-                return {
-                    pytestPath: () => 'pytest',
-                    isPytestEnabled: true,
-                    pytestArguments: [],
-                };
-            },
-            getTestplanConfiguration(): ITestplanConfiguration {
-                return {
-                    testplanPath: () => 'test_plan.py',
-                    isTestplanEnabled: true,
-                    testplanArguments: [],
                 };
             },
         });
@@ -76,6 +86,7 @@ suite('Placeholder aware workspace configuration', () => {
         expect(Object.keys(process.env)).to.include('SOME_RELATIVE_PATH_USED_IN_CWD');
 
         const configuration = getConfiguration({
+            ...constPartOfConfiguration,
             pythonPath(): string {
                 return 'python';
             },
@@ -84,9 +95,6 @@ suite('Placeholder aware workspace configuration', () => {
             },
             envFile(): string {
                 return '${workspaceFolder}/.env';
-            },
-            autoTestDiscoverOnSaveEnabled(): boolean {
-                return true;
             },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
@@ -102,13 +110,6 @@ suite('Placeholder aware workspace configuration', () => {
                     pytestPath: () => 'pytest',
                     isPytestEnabled: true,
                     pytestArguments: ['--result-log=${workspaceFolder}/${env:RELATIVE_PYTEST_LOG_PATH}'],
-                };
-            },
-            getTestplanConfiguration(): ITestplanConfiguration {
-                return {
-                    testplanPath: () => 'test_plan.py',
-                    isTestplanEnabled: true,
-                    testplanArguments: [],
                 };
             },
         });
@@ -127,6 +128,7 @@ suite('Placeholder aware workspace configuration', () => {
         expect(Object.keys(process.env)).to.include('SOME_RELATIVE_PATH_USED_IN_CWD');
 
         const configuration = getConfiguration({
+            ...constPartOfConfiguration,
             pythonPath(): string {
                 return 'python';
             },
@@ -136,9 +138,6 @@ suite('Placeholder aware workspace configuration', () => {
             envFile(): string {
                 return '${workspaceFolder}/.env';
             },
-            autoTestDiscoverOnSaveEnabled(): boolean {
-                return true;
-            },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
                     isUnittestEnabled: true,
@@ -146,20 +145,6 @@ suite('Placeholder aware workspace configuration', () => {
                         startDirectory: './',
                         pattern: 'test_*.py',
                     },
-                };
-            },
-            getPytestConfiguration(): IPytestConfiguration {
-                return {
-                    pytestPath: () => 'pytest',
-                    isPytestEnabled: true,
-                    pytestArguments: [],
-                };
-            },
-            getTestplanConfiguration(): ITestplanConfiguration {
-                return {
-                    testplanPath: () => 'test_plan.py',
-                    isTestplanEnabled: true,
-                    testplanArguments: [],
                 };
             },
         });
@@ -171,6 +156,7 @@ suite('Placeholder aware workspace configuration', () => {
 
     test('should resolve relative path from configuration', () => {
         const configuration = getConfiguration({
+            ...constPartOfConfiguration,
             pythonPath(): string {
                 return 'python';
             },
@@ -180,9 +166,6 @@ suite('Placeholder aware workspace configuration', () => {
             envFile(): string {
                 return '~/.env';
             },
-            autoTestDiscoverOnSaveEnabled(): boolean {
-                return true;
-            },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
                     isUnittestEnabled: true,
@@ -190,20 +173,6 @@ suite('Placeholder aware workspace configuration', () => {
                         startDirectory: 'test',
                         pattern: 'test_*.py',
                     },
-                };
-            },
-            getPytestConfiguration(): IPytestConfiguration {
-                return {
-                    pytestPath: () => 'pytest',
-                    isPytestEnabled: true,
-                    pytestArguments: [],
-                };
-            },
-            getTestplanConfiguration(): ITestplanConfiguration {
-                return {
-                    testplanPath: () => 'test_plan.py',
-                    isTestplanEnabled: true,
-                    testplanArguments: [],
                 };
             },
         });
@@ -221,6 +190,7 @@ suite('Placeholder aware workspace configuration', () => {
         expect(Object.keys(process.env)).to.include('SOME_RELATIVE_PATH_USED_IN_CWD');
 
         const configuration = getConfiguration({
+            ...constPartOfConfiguration,
             pythonPath(): string {
                 return 'python';
             },
@@ -230,9 +200,6 @@ suite('Placeholder aware workspace configuration', () => {
             envFile(): string {
                 return '~/.env';
             },
-            autoTestDiscoverOnSaveEnabled(): boolean {
-                return true;
-            },
             getUnittestConfiguration(): IUnittestConfiguration {
                 return {
                     isUnittestEnabled: true,
@@ -240,20 +207,6 @@ suite('Placeholder aware workspace configuration', () => {
                         startDirectory: './',
                         pattern: 'test_*.py',
                     },
-                };
-            },
-            getPytestConfiguration(): IPytestConfiguration {
-                return {
-                    pytestPath: () => 'pytest',
-                    isPytestEnabled: true,
-                    pytestArguments: [],
-                };
-            },
-            getTestplanConfiguration(): ITestplanConfiguration {
-                return {
-                    testplanPath: () => 'test_plan.py',
-                    isTestplanEnabled: true,
-                    testplanArguments: [],
                 };
             },
         });
@@ -270,6 +223,7 @@ suite('Placeholder aware workspace configuration', () => {
     ].forEach(([placeholder, expectedPath]) => {
         test(`should resolve placeholder ${placeholder} from configuration`, () => {
             const configuration = getConfiguration({
+                ...constPartOfConfiguration,
                 pythonPath(): string {
                     return `${placeholder}/some/local/python`;
                 },
@@ -291,20 +245,6 @@ suite('Placeholder aware workspace configuration', () => {
                         },
                     };
                 },
-                getPytestConfiguration(): IPytestConfiguration {
-                    return {
-                        pytestPath: () => 'pytest',
-                        isPytestEnabled: true,
-                        pytestArguments: [],
-                    };
-                },
-                getTestplanConfiguration(): ITestplanConfiguration {
-                    return {
-                        testplanPath: () => 'test_plan.py',
-                        isTestplanEnabled: true,
-                        testplanArguments: [],
-                    };
-                },
             });
 
             expect(configuration.pythonPath()).to.be.eq(path.resolve(expectedPath, 'some', 'local', 'python'));
@@ -317,6 +257,7 @@ suite('Placeholder aware workspace configuration', () => {
     ].forEach(([placeholder, expectedPath]) => {
         test(`should resolve placeholder ${placeholder} from configuration`, () => {
             const configuration = getConfiguration({
+                ...constPartOfConfiguration,
                 pythonPath(): string {
                     return `/some/prefix/${placeholder}/some/local/python`;
                 },
@@ -326,9 +267,6 @@ suite('Placeholder aware workspace configuration', () => {
                 envFile(): string {
                     return '${workspaceFolder}/.env';
                 },
-                autoTestDiscoverOnSaveEnabled(): boolean {
-                    return true;
-                },
                 getUnittestConfiguration(): IUnittestConfiguration {
                     return {
                         isUnittestEnabled: true,
@@ -336,20 +274,6 @@ suite('Placeholder aware workspace configuration', () => {
                             startDirectory: './',
                             pattern: 'test_*.py',
                         },
-                    };
-                },
-                getPytestConfiguration(): IPytestConfiguration {
-                    return {
-                        pytestPath: () => 'pytest',
-                        isPytestEnabled: true,
-                        pytestArguments: [],
-                    };
-                },
-                getTestplanConfiguration(): ITestplanConfiguration {
-                    return {
-                        testplanPath: () => 'test_plan.py',
-                        isTestplanEnabled: true,
-                        testplanArguments: [],
                     };
                 },
             });

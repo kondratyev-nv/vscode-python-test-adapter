@@ -1,3 +1,9 @@
+## 0.8.0
+
+* Extended runtime log collection (#300, thanks to @kn-ms)
+* Standart code formatting (#299, thanks to @kn-ms)
+* Update dependencies, CI configuration, and typo in testplan CLI options (#298, thanks to @kn-ms)
+
 ## 0.7.1
 
 * Add support for "purpose":["debug-test"] in debug configuration (Issue #280)

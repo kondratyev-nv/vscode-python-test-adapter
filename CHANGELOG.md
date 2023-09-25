@@ -1,3 +1,7 @@
+## 0.8.1
+
+* Removed unused files from extension package (#301)
+
 ## 0.8.0
 
 * Extended runtime log collection (#300, thanks to @kn-ms)

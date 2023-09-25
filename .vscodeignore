@@ -12,3 +12,6 @@ tslint.json
 .tox
 tox.ini
 requirements.txt
+.venv
+.github
+**/*.map

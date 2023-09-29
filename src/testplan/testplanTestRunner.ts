@@ -11,7 +11,8 @@ import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities/collections';
 import { setDescriptionForEqualLabels } from '../utilities/tests';
 import { parseTestStates } from './testplanJunitTestStatesParser';
-import { parseTestSuites } from './testplanTestCollectionParser';
+// import { TestplanPatternBasedTestLoader } from './testplanPatternsBasedTestLoader';
+import { TestPlanJSONBasedTestLoader } from './testplanJSONBasedTestLoader';
 
 // --- Testplan Exit Codes ---
 // 0: All tests were collected and passed successfully
@@ -59,11 +60,16 @@ export class TestplanTestRunner implements ITestRunner {
         const additionalEnvironment = await this.loadEnvironmentVariables(config);
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
-        const discoveryArguments = this.getDiscoveryArguments(config.getTestplanConfiguration().testplanArguments);
+        const [_, baseArguments] = this.getTestplanArgs(config.getTestplanConfiguration().testplanArguments);
+
+        // const testLoader = new TestplanPatternBasedTestLoader();
+        const testLoader = new TestPlanJSONBasedTestLoader();
+        const discoveryArguments = testLoader.getArgs(baseArguments);
+
         this.logger.log('info', `Running testplan with arguments: ${discoveryArguments.join(', ')}`);
 
         const result = await this.runTestPlan(config, additionalEnvironment, discoveryArguments).complete();
-        const tests = parseTestSuites(result.output);
+        const tests = testLoader.parseOutput(result.output);
         if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
@@ -154,16 +160,13 @@ export class TestplanTestRunner implements ITestRunner {
         return await this.createTemporaryDirectory();
     }
 
-    private getDiscoveryArguments(rawTestplanArguments: string[]): string[] {
+    private getTestplanArgs(rawTestplanArguments: string[]) {
         const argumentParser = this.configureCommonArgumentParser();
-        const [, argumentsToPass] = argumentParser.parse_known_args(rawTestplanArguments);
-        return ['--info', 'pattern-full'].concat(argumentsToPass);
+        return argumentParser.parse_known_args(rawTestplanArguments);
     }
 
     private getRunArguments(test: string, rawTestplanArguments: string[]): IRunArguments {
-        const argumentParser = this.configureCommonArgumentParser();
-
-        const [knownArguments, argumentsToPass] = argumentParser.parse_known_args(rawTestplanArguments);
+        const [knownArguments, argumentsToPass] = this.getTestplanArgs(rawTestplanArguments);
         return {
             junitReportPath: (knownArguments as { xmlpath?: string }).xmlpath,
             argumentsToPass: argumentsToPass.concat(

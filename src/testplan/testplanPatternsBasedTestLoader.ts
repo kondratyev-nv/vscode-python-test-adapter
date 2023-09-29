@@ -1,4 +1,14 @@
-import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
+import { TestSuiteInfo, TestInfo } from 'vscode-test-adapter-api';
+import { ITestPlanTestLoader } from './testplanTestLoader';
+
+export class TestplanPatternBasedTestLoader implements ITestPlanTestLoader {
+    getArgs(baseArguments: string[]): string[] {
+        return ['--info', 'pattern-full'].concat(baseArguments);
+    }
+    parseOutput(output: string): (TestSuiteInfo | TestInfo)[] {
+        return parseTestSuites(output);
+    }
+}
 
 enum TestObjectType {
     APP = 0,

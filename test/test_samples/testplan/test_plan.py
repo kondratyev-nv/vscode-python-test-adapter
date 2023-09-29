@@ -55,8 +55,14 @@ class AlphaSuite(object):
 
 @testsuite
 class BetaSuite(object):
+    """
+    This is the Beta Suite suite
+
+    Nice to have some documentations as well.
+    """
     @testcase
     def testcase_one_passed(self, env, result):
+        "simple passing testcase"
         result.equal(1, 1, description="passing equality")
 
     @testcase

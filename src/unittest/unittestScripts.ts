@@ -10,7 +10,33 @@ import base64
 import json
 import traceback
 
-TEST_RESULT_PREFIX = '${TEST_RESULT_PREFIX}'
+def setup_django_test_env(root):
+    """Configure Django environment for running Django tests.
+    It checks if Django is installed by attempting to import the django module.
+    Looks for manage.py file to extract the value of DJANGO_SETTINGS_MODULE.
+    Sets DJANGO_SETTINGS_MODULE environment variable and initializes Django setup.
+    If any errors occur during this process, the function fails silently.
+    Args:
+        root (str): The root directory of the Django project.
+    Returns:
+        None.
+    """
+    import os
+    try:
+        # Check if Django is installed
+        import django
+        # Check if manage.py exists
+        with open(os.path.join(root, "manage.py"), "r") as manage_py:
+            # Look for a line that sets the DJANGO_SETTINGS_MODULE environment variable
+            for line in manage_py.readlines():
+                if line.strip().startswith("os.environ.setdefault"):
+                    eval(line.strip())
+                    django.setup()
+                    return
+    except (ModuleNotFoundError, FileNotFoundError):
+        return
+
+TEST_RESULT_PREFIX = '${ TEST_RESULT_PREFIX }'
 
 STDOUT_LINE = '\\nStdout:\\n%s'
 STDERR_LINE = '\\nStderr:\\n%s'
@@ -198,6 +224,7 @@ def extract_errors(tests):
 action = sys.argv[1]
 start_directory = sys.argv[2]
 pattern = sys.argv[3]
+setup_django_test_env(start_directory)
 if action == "discover":
     valid_tests, invalid_tests = discover_tests(start_directory, pattern)
     print('==DISCOVERED TESTS BEGIN==')

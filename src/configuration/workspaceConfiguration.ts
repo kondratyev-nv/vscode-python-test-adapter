@@ -17,6 +17,7 @@ export interface IPytestConfiguration {
 export interface ITestplanConfiguration {
     testplanPath(): string;
     testplanArguments: string[];
+    testplanUseLegacyDiscovery: boolean;
     isTestplanEnabled: boolean;
 }
 

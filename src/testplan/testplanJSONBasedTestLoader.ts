@@ -2,6 +2,7 @@ import * as tmp from 'tmp';
 import * as fs from 'fs';
 import { TestSuiteInfo, TestInfo } from 'vscode-test-adapter-api';
 import { ITestPlanTestLoader } from './testplanTestLoader';
+import { ILogger } from '../logging/logger';
 
 interface BasicInfo {
     name: string;
@@ -34,55 +35,61 @@ interface TestPlanMetadata extends BasicInfo {
 export class TestPlanJSONBasedTestLoader implements ITestPlanTestLoader {
     private tmp_file: string;
 
-    constructor() {
+    constructor(private readonly logger: ILogger) {
         this.tmp_file = tmp.tmpNameSync({
             prefix: 'testplan-info',
             postfix: '.json',
         });
     }
 
-    getArgs(_: string[]): string[] {
-        return ['--info', `json:${this.tmp_file}`];
+    getArgs(baseArguments: string[]): string[] {
+        return ['--info', `json:${this.tmp_file}`].concat(baseArguments);
     }
     parseOutput(_: string): (TestSuiteInfo | TestInfo)[] {
-        const data = fs.readFileSync(this.tmp_file, 'utf8');
-        // parse json and convert nulls to undefined
-        const metadata = <TestPlanMetadata>JSON.parse(data, (_, value) => value ?? undefined);
+        try {
+            const data = fs.readFileSync(this.tmp_file, 'utf8');
 
-        const parsed = metadata.tests.map(
-            (test) =>
-                <TestSuiteInfo>{
-                    type: 'suite',
-                    id: test.id,
-                    label: test.name,
-                    description: test.description,
-                    children: test.test_suites.map(
-                        (suite) =>
-                            <TestSuiteInfo>{
-                                type: 'suite',
-                                id: suite.id,
-                                label: suite.name,
-                                description: suite.description?.split('\n', 2)[0],
-                                tooltip: suite.description,
-                                file: suite.location?.file,
-                                line: suite.location?.line_no,
-                                children: suite.test_cases.map(
-                                    (tc) =>
-                                        <TestInfo>{
-                                            type: 'test',
-                                            id: tc.id,
-                                            label: tc.name,
-                                            description: tc.description?.split('\n', 2)[0],
-                                            tooltip: tc.description,
-                                            file: tc.location?.file,
-                                            line: tc.location?.line_no,
-                                        }
-                                ),
-                            }
-                    ),
-                }
-        );
+            // parse json and convert nulls to undefined
+            const metadata = <TestPlanMetadata>JSON.parse(data, (_, value) => value ?? undefined);
 
-        return parsed;
+            const parsed = metadata.tests.map(
+                (test) =>
+                    <TestSuiteInfo>{
+                        type: 'suite',
+                        id: test.id,
+                        label: test.name,
+                        description: test.description,
+                        children: test.test_suites.map(
+                            (suite) =>
+                                <TestSuiteInfo>{
+                                    type: 'suite',
+                                    id: suite.id,
+                                    label: suite.name,
+                                    description: suite.description?.split('\n', 2)[0],
+                                    tooltip: suite.description,
+                                    file: suite.location?.file,
+                                    line: suite.location?.line_no,
+                                    children: suite.test_cases.map(
+                                        (tc) =>
+                                            <TestInfo>{
+                                                type: 'test',
+                                                id: tc.id,
+                                                label: tc.name,
+                                                description: tc.description?.split('\n', 2)[0],
+                                                tooltip: tc.description,
+                                                file: tc.location?.file,
+                                                line: tc.location?.line_no,
+                                            }
+                                    ),
+                                }
+                        ),
+                    }
+            );
+
+            return parsed;
+        } catch (error) {
+            this.logger.log('crit', `Discovering testplan tests failed: ${error}`);
+            return [];
+        }
     }
 }

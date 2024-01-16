@@ -50,23 +50,24 @@ Right now, the three available options are `unittest`, `pytest` and `testplan`. 
 
 List of currently used properties:
 
-Property                                       | Description
------------------------------------------------|---------------------------------------------------------------
-`python.pythonPath`                            | Path to Python.
-`python.envFile`                               | Path to environment variable definitions file.
-`python.testing.cwd`                           | Optional working directory for unit tests.
-`python.testing.unittestEnabled`               | Whether to enable or disable unit testing using unittest (enables or disables test discovery for Test Explorer).
-`python.testing.unittestArgs`                  | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered).
-`python.testing.pyTestEnabled`                 | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer).
-`python.testing.pytestPath`                    | Path to pytest executable or a pytest compatible module.
-`python.testing.pyTestArgs`                    | Arguments passed to the pytest. Each argument is a separate item in the array.
-`python.testing.autoTestDiscoverOnSaveEnabled` | When `true` tests will be automatically rediscovered when saving a test file.
-`pythonTestExplorer.testFramework`             | Test framework to use (overrides Python extension properties `python.testing.unittestEnabled` and `python.testing.pyTestEnabled`).
-`pythonTestExplorer.testplanPath`              | Relative path to testplan main suite.
-`pythonTestExplorer.testplanArgs`              | Arguments passed in. Each argument is a separate item in the array.
-`pythonTestExplorer.testplanEnabled`           | Enable testing using Testplan. _Note that Testplan is only supported for Python 3.7+._
-`pythonTestExplorer.outputs.collectOutputs`    | Collect test run outputs in separate output channel.
-`pythonTestExplorer.outputs.showOutputsOnRun`  | Activate test outputs channel on run.
+Property                                        | Description
+------------------------------------------------|---------------------------------------------------------------
+`python.pythonPath`                             | Path to Python.
+`python.envFile`                                | Path to environment variable definitions file.
+`python.testing.cwd`                            | Optional working directory for unit tests.
+`python.testing.unittestEnabled`                | Whether to enable or disable unit testing using unittest (enables or disables test discovery for Test Explorer).
+`python.testing.unittestArgs`                   | Arguments used for test discovery (currently only `-s` and `-p` arguments are considered).
+`python.testing.pyTestEnabled`                  | Whether to enable or disable unit testing using pytest (enables or disables test discovery for Test Explorer).
+`python.testing.pytestPath`                     | Path to pytest executable or a pytest compatible module.
+`python.testing.pyTestArgs`                     | Arguments passed to the pytest. Each argument is a separate item in the array.
+`python.testing.autoTestDiscoverOnSaveEnabled`  | When `true` tests will be automatically rediscovered when saving a test file.
+`pythonTestExplorer.testFramework`              | Test framework to use (overrides Python extension properties `python.testing.unittestEnabled` and `python.testing.pyTestEnabled`).
+`pythonTestExplorer.testplanPath`               | Relative path to testplan main suite.
+`pythonTestExplorer.testplanArgs`               | Arguments passed in. Each argument is a separate item in the array.
+`pythonTestExplorer.testplanUseLegacyDiscovery` | Use old style of test listing for discovery _(compatible with older versions of Testplan)_
+`pythonTestExplorer.testplanEnabled`            | Enable testing using Testplan. _Note that Testplan is only supported for Python 3.7+._
+`pythonTestExplorer.outputs.collectOutputs`     | Collect test run outputs in separate output channel.
+`pythonTestExplorer.outputs.showOutputsOnRun`   | Activate test outputs channel on run.
 
 
 Configuration supports a placeholders for the workspace folder as `${workspaceFolder}` and environment variables in a form of `${env:YOUR_ENVIRONMENT_VARIABLE}`.

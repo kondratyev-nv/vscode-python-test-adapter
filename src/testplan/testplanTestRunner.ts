@@ -11,7 +11,7 @@ import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities/collections';
 import { setDescriptionForEqualLabels } from '../utilities/tests';
 import { parseTestStates } from './testplanJunitTestStatesParser';
-// import { TestplanPatternBasedTestLoader } from './testplanPatternsBasedTestLoader';
+import { TestplanPatternBasedTestLoader } from './testplanPatternsBasedTestLoader';
 import { TestPlanJSONBasedTestLoader } from './testplanJSONBasedTestLoader';
 
 // --- Testplan Exit Codes ---
@@ -60,15 +60,21 @@ export class TestplanTestRunner implements ITestRunner {
         const additionalEnvironment = await this.loadEnvironmentVariables(config);
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
-        const [_, baseArguments] = this.getTestplanArgs(config.getTestplanConfiguration().testplanArguments);
+        const testplanConfig = config.getTestplanConfiguration();
+        const [_, baseArguments] = this.getTestplanArgs(testplanConfig.testplanArguments);
 
-        // const testLoader = new TestplanPatternBasedTestLoader();
-        const testLoader = new TestPlanJSONBasedTestLoader();
+        const testLoader = testplanConfig.testplanUseLegacyDiscovery
+            ? new TestplanPatternBasedTestLoader()
+            : new TestPlanJSONBasedTestLoader(this.logger);
         const discoveryArguments = testLoader.getArgs(baseArguments);
 
-        this.logger.log('info', `Running testplan with arguments: ${discoveryArguments.join(', ')}`);
+        this.logger.log('info', `Running testplan (discovery) with arguments: ${discoveryArguments.join(', ')}`);
 
         const result = await this.runTestPlan(config, additionalEnvironment, discoveryArguments).complete();
+        if (result.exitCode !== 0) {
+            this.logger.log('crit', `Discovering testplan tests failed ${result.output}`);
+            return undefined;
+        }
         const tests = testLoader.parseOutput(result.output);
         if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');

@@ -151,6 +151,12 @@
                     },
                     "scope": "resource"
                 },
+                "pythonTestExplorer.testplanUseLegacyDiscovery": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use old style of test listing for discovery (compatible with older versions of Testplan)",
+                    "scope": "resource"
+                },
                 "pythonTestExplorer.testplanEnabled": {
                     "type": "boolean",
                     "default": false,

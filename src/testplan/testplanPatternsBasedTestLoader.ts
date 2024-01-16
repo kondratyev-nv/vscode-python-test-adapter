@@ -36,7 +36,7 @@ export function parseTestSuites(content: string): (TestSuiteInfo | TestInfo)[] {
         .filter((line) => line)
         .map((line) => line!)
         .forEach((line) => {
-            const data = line.split('::');
+            const data = line.split(/:+/);
             const testRank = data.length - 1;
 
             while (testRank < parentStack.length) {

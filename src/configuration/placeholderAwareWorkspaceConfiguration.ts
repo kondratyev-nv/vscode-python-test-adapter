@@ -63,6 +63,7 @@ export class PlaceholderAwareWorkspaceConfiguration implements IWorkspaceConfigu
         const original = this.configuration.getTestplanConfiguration();
         return {
             testplanPath: () => this.resolveExecutablePath(original.testplanPath()),
+            testplanUseLegacyDiscovery: original.testplanUseLegacyDiscovery,
             isTestplanEnabled: original.isTestplanEnabled,
             testplanArguments: original.testplanArguments.map((argument) => this.resolvePlaceholders(argument)),
         };

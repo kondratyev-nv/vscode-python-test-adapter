@@ -170,6 +170,7 @@ export function createTestplanConfiguration(folder: string, args?: string[], cwd
                 return {
                     testplanPath: () => 'test_plan.py',
                     isTestplanEnabled: true,
+                    testplanUseLegacyDiscovery: true,
                     testplanArguments: args || [],
                 };
             },

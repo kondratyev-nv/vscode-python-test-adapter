@@ -1,4 +1,4 @@
-import { runTests } from 'vscode-test';
+import { runTests } from '@vscode/test-electron';
 import { getPythonExecutable } from './utils/testConfiguration';
 import { runScript } from '../src/pythonRunner';
 import * as path from 'path';

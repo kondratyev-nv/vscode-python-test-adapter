@@ -33,21 +33,21 @@ interface TestPlanMetadata extends BasicInfo {
 }
 
 export class TestPlanJSONBasedTestLoader implements ITestPlanTestLoader {
-    private tmp_file: string;
+    private tmpFile: string;
 
     constructor(private readonly logger: ILogger) {
-        this.tmp_file = tmp.tmpNameSync({
+        this.tmpFile = tmp.tmpNameSync({
             prefix: 'testplan-info',
             postfix: '.json',
         });
     }
 
     getArgs(baseArguments: string[]): string[] {
-        return ['--info', `json:${this.tmp_file}`].concat(baseArguments);
+        return ['--info', `json:${this.tmpFile}`].concat(baseArguments);
     }
-    parseOutput(_: string): (TestSuiteInfo | TestInfo)[] {
+    parseOutput(_output: string): (TestSuiteInfo | TestInfo)[] {
         try {
-            const data = fs.readFileSync(this.tmp_file, 'utf8');
+            const data = fs.readFileSync(this.tmpFile, 'utf8');
 
             // parse json and convert nulls to undefined
             const metadata = <TestPlanMetadata>JSON.parse(data, (_, value) => value ?? undefined);

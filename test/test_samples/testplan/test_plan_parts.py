@@ -138,7 +138,5 @@ def main(plan):
     plan.add(multi_test_1_4)
     plan.add(multi_test_2)
 
-    raise Exception("Error")
-
 if __name__ == "__main__":
     sys.exit(not main())

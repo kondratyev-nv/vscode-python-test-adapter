@@ -5,7 +5,7 @@ export class TestplanPatternBasedTestLoader implements ITestPlanTestLoader {
     getArgs(baseArguments: string[]): string[] {
         return ['--info', 'pattern-full'].concat(baseArguments);
     }
-    parseOutput(output: string): (TestSuiteInfo | TestInfo)[] {
+    async parseOutput(output: string): Promise<(TestSuiteInfo | TestInfo)[]> {
         return parseTestSuites(output);
     }
 }

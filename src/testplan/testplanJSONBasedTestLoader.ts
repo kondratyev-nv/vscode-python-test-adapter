@@ -1,5 +1,5 @@
-import * as tmp from 'tmp';
-import * as fs from 'fs';
+import { tmpName } from 'tmp-promise';
+import { readFile } from 'fs/promises';
 import { TestSuiteInfo, TestInfo } from 'vscode-test-adapter-api';
 import { ITestPlanTestLoader } from './testplanTestLoader';
 import { ILogger } from '../logging/logger';
@@ -33,21 +33,23 @@ interface TestPlanMetadata extends BasicInfo {
 }
 
 export class TestPlanJSONBasedTestLoader implements ITestPlanTestLoader {
-    private tmpFile: string;
+    private constructor(private readonly logger: ILogger, private readonly tmpFile: string) {}
 
-    constructor(private readonly logger: ILogger) {
-        this.tmpFile = tmp.tmpNameSync({
+    static async build(logger: ILogger): Promise<TestPlanJSONBasedTestLoader> {
+        const tmpFile = await tmpName({
             prefix: 'testplan-info',
             postfix: '.json',
         });
+
+        return new TestPlanJSONBasedTestLoader(logger, tmpFile);
     }
 
     getArgs(baseArguments: string[]): string[] {
         return ['--info', `json:${this.tmpFile}`].concat(baseArguments);
     }
-    parseOutput(_output: string): (TestSuiteInfo | TestInfo)[] {
+    async parseOutput(_output: string): Promise<(TestSuiteInfo | TestInfo)[]> {
         try {
-            const data = fs.readFileSync(this.tmpFile, 'utf8');
+            const data = await readFile(this.tmpFile, 'utf8');
 
             // parse json and convert nulls to undefined
             const metadata = <TestPlanMetadata>JSON.parse(data, (_, value) => value ?? undefined);

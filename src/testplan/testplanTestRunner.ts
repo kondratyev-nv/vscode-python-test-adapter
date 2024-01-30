@@ -3,7 +3,7 @@ import * as tmp from 'tmp';
 import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 
 import { ArgumentParser } from 'argparse';
-import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
+import { ITestplanConfiguration, IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { IEnvironmentVariables, EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { IProcessExecution, IProcessOutputCollector, runProcess } from '../processRunner';
@@ -13,6 +13,7 @@ import { setDescriptionForEqualLabels } from '../utilities/tests';
 import { parseTestStates } from './testplanJunitTestStatesParser';
 import { TestplanPatternBasedTestLoader } from './testplanPatternsBasedTestLoader';
 import { TestPlanJSONBasedTestLoader } from './testplanJSONBasedTestLoader';
+import { ITestPlanTestLoader } from './testplanTestLoader';
 
 // --- Testplan Exit Codes ---
 // 0: All tests were collected and passed successfully
@@ -63,9 +64,7 @@ export class TestplanTestRunner implements ITestRunner {
         const testplanConfig = config.getTestplanConfiguration();
         const [_, baseArguments] = this.getTestplanArgs(testplanConfig.testplanArguments);
 
-        const testLoader = testplanConfig.testplanUseLegacyDiscovery
-            ? new TestplanPatternBasedTestLoader()
-            : new TestPlanJSONBasedTestLoader(this.logger);
+        const testLoader = await this.getTestLoader(testplanConfig);
         const discoveryArguments = testLoader.getArgs(baseArguments);
 
         this.logger.log('info', `Running testplan (discovery) with arguments: ${discoveryArguments.join(', ')}`);
@@ -75,7 +74,7 @@ export class TestplanTestRunner implements ITestRunner {
             this.logger.log('crit', `Discovering testplan tests failed ${result.output}`);
             return undefined;
         }
-        const tests = testLoader.parseOutput(result.output);
+        const tests = await testLoader.parseOutput(result.output);
         if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
@@ -200,5 +199,11 @@ export class TestplanTestRunner implements ITestRunner {
                 resolve({ dirName, cleanupCallback });
             });
         });
+    }
+
+    private async getTestLoader(testplanConfig: ITestplanConfiguration): Promise<ITestPlanTestLoader> {
+        return testplanConfig.testplanUseLegacyDiscovery
+            ? new TestplanPatternBasedTestLoader()
+            : TestPlanJSONBasedTestLoader.build(this.logger);
     }
 }

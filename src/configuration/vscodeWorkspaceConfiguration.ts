@@ -65,6 +65,7 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
     public getTestplanConfiguration(): ITestplanConfiguration {
         return {
             testplanPath: () => this.getTestplanPath(),
+            testplanUseLegacyDiscovery: this.shouldTestplanUseLegacyDiscovery(),
             isTestplanEnabled: this.isTestplanTestEnabled(),
             testplanArguments: this.getTestplanArguments(),
         };
@@ -138,6 +139,10 @@ export class VscodeWorkspaceConfiguration implements IWorkspaceConfiguration {
             return 'testplan' === overriddenTestFramework;
         }
         return this.testExplorerConfiguration.get<boolean>('testplanEnabled', false);
+    }
+
+    private shouldTestplanUseLegacyDiscovery(): boolean {
+        return this.testExplorerConfiguration.get<boolean>('testplanUseLegacyDiscovery', true);
     }
 
     private getTestplanPath(): string {

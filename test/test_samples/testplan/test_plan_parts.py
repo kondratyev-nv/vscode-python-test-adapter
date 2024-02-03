@@ -127,11 +127,16 @@ style_4_b = Style(passing=StyleEnum.TEST, failing=StyleEnum.TESTSUITE)
 )
 def main(plan):
 
-    multi_test_1 = MultiTest(name="Primary", suites=[AlphaSuite()])
+    multi_test_1_1 = MultiTest(name="Primary", suites=[AlphaSuite(), BetaSuite()], part=(0,4))
+    multi_test_1_2 = MultiTest(name="Primary", suites=[AlphaSuite(), BetaSuite()], part=(1,4))
+    multi_test_1_3 = MultiTest(name="Primary", suites=[AlphaSuite(), BetaSuite()], part=(2,4))
+    multi_test_1_4 = MultiTest(name="Primary", suites=[AlphaSuite(), BetaSuite()], part=(3,4))
     multi_test_2 = MultiTest(name="Secondary", suites=[BetaSuite()])
-    plan.add(multi_test_1)
+    plan.add(multi_test_1_1)
+    plan.add(multi_test_1_2)
+    plan.add(multi_test_1_3)
+    plan.add(multi_test_1_4)
     plan.add(multi_test_2)
-
 
 if __name__ == "__main__":
     sys.exit(not main())

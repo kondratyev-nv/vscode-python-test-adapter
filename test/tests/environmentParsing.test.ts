@@ -54,6 +54,7 @@ function getConfig() {
             return {
                 testplanPath: () => 'test_plan.py',
                 isTestplanEnabled: true,
+                testplanUseLegacyDiscovery: false,
                 testplanArguments: [],
             };
         },

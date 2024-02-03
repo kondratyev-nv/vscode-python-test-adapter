@@ -161,7 +161,12 @@ export function createUnittestConfiguration(folder: string): IWorkspaceConfigura
     );
 }
 
-export function createTestplanConfiguration(folder: string, args?: string[], cwd?: string): IWorkspaceConfiguration {
+export function createTestplanConfiguration(
+    folder: string,
+    useLegacyTestDiscovery: boolean = true,
+    args?: string[],
+    cwd?: string
+): IWorkspaceConfiguration {
     const wf = findWorkspaceFolder(folder)!;
     return new PlaceholderAwareWorkspaceConfiguration(
         {
@@ -170,6 +175,7 @@ export function createTestplanConfiguration(folder: string, args?: string[], cwd
                 return {
                     testplanPath: () => 'test_plan.py',
                     isTestplanEnabled: true,
+                    testplanUseLegacyDiscovery: useLegacyTestDiscovery,
                     testplanArguments: args || [],
                 };
             },

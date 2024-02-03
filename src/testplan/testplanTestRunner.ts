@@ -3,7 +3,7 @@ import * as tmp from 'tmp';
 import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 
 import { ArgumentParser } from 'argparse';
-import { IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
+import { ITestplanConfiguration, IWorkspaceConfiguration } from '../configuration/workspaceConfiguration';
 import { IEnvironmentVariables, EnvironmentVariablesLoader } from '../environmentVariablesLoader';
 import { ILogger } from '../logging/logger';
 import { IProcessExecution, IProcessOutputCollector, runProcess } from '../processRunner';
@@ -11,7 +11,9 @@ import { IDebugConfiguration, ITestRunner } from '../testRunner';
 import { empty } from '../utilities/collections';
 import { setDescriptionForEqualLabels } from '../utilities/tests';
 import { parseTestStates } from './testplanJunitTestStatesParser';
-import { parseTestSuites } from './testplanTestCollectionParser';
+import { TestplanPatternBasedTestLoader } from './testplanPatternsBasedTestLoader';
+import { TestPlanJSONBasedTestLoader } from './testplanJSONBasedTestLoader';
+import { ITestPlanTestLoader } from './testplanTestLoader';
 
 // --- Testplan Exit Codes ---
 // 0: All tests were collected and passed successfully
@@ -59,11 +61,20 @@ export class TestplanTestRunner implements ITestRunner {
         const additionalEnvironment = await this.loadEnvironmentVariables(config);
         this.logger.log('info', `Discovering tests using python path '${config.pythonPath()}' in ${config.getCwd()}`);
 
-        const discoveryArguments = this.getDiscoveryArguments(config.getTestplanConfiguration().testplanArguments);
-        this.logger.log('info', `Running testplan with arguments: ${discoveryArguments.join(', ')}`);
+        const testplanConfig = config.getTestplanConfiguration();
+        const [_, baseArguments] = this.getTestplanArgs(testplanConfig.testplanArguments);
+
+        const testLoader = await this.getTestLoader(testplanConfig);
+        const discoveryArguments = testLoader.getArgs(baseArguments);
+
+        this.logger.log('info', `Running testplan (discovery) with arguments: ${discoveryArguments.join(', ')}`);
 
         const result = await this.runTestPlan(config, additionalEnvironment, discoveryArguments).complete();
-        const tests = parseTestSuites(result.output);
+        if (result.exitCode !== 0) {
+            this.logger.log('crit', `Discovering testplan tests failed ${result.output}`);
+            return undefined;
+        }
+        const tests = await testLoader.parseOutput(result.output);
         if (empty(tests)) {
             this.logger.log('warn', 'No tests discovered');
             return undefined;
@@ -154,16 +165,13 @@ export class TestplanTestRunner implements ITestRunner {
         return await this.createTemporaryDirectory();
     }
 
-    private getDiscoveryArguments(rawTestplanArguments: string[]): string[] {
+    private getTestplanArgs(rawTestplanArguments: string[]) {
         const argumentParser = this.configureCommonArgumentParser();
-        const [, argumentsToPass] = argumentParser.parse_known_args(rawTestplanArguments);
-        return ['--info', 'pattern-full'].concat(argumentsToPass);
+        return argumentParser.parse_known_args(rawTestplanArguments);
     }
 
     private getRunArguments(test: string, rawTestplanArguments: string[]): IRunArguments {
-        const argumentParser = this.configureCommonArgumentParser();
-
-        const [knownArguments, argumentsToPass] = argumentParser.parse_known_args(rawTestplanArguments);
+        const [knownArguments, argumentsToPass] = this.getTestplanArgs(rawTestplanArguments);
         return {
             junitReportPath: (knownArguments as { xmlpath?: string }).xmlpath,
             argumentsToPass: argumentsToPass.concat(
@@ -191,5 +199,11 @@ export class TestplanTestRunner implements ITestRunner {
                 resolve({ dirName, cleanupCallback });
             });
         });
+    }
+
+    private async getTestLoader(testplanConfig: ITestplanConfiguration): Promise<ITestPlanTestLoader> {
+        return testplanConfig.testplanUseLegacyDiscovery
+            ? new TestplanPatternBasedTestLoader()
+            : TestPlanJSONBasedTestLoader.build(this.logger);
     }
 }

@@ -1,4 +1,14 @@
-import { TestInfo, TestSuiteInfo } from 'vscode-test-adapter-api';
+import { TestSuiteInfo, TestInfo } from 'vscode-test-adapter-api';
+import { ITestPlanTestLoader } from './testplanTestLoader';
+
+export class TestplanPatternBasedTestLoader implements ITestPlanTestLoader {
+    getArgs(baseArguments: string[]): string[] {
+        return ['--info', 'pattern-full'].concat(baseArguments);
+    }
+    async parseOutput(output: string): Promise<(TestSuiteInfo | TestInfo)[]> {
+        return parseTestSuites(output);
+    }
+}
 
 enum TestObjectType {
     APP = 0,
@@ -26,7 +36,7 @@ export function parseTestSuites(content: string): (TestSuiteInfo | TestInfo)[] {
         .filter((line) => line)
         .map((line) => line!)
         .forEach((line) => {
-            const data = line.split('::');
+            const data = line.split(/:+/);
             const testRank = data.length - 1;
 
             while (testRank < parentStack.length) {

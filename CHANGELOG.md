@@ -1,3 +1,7 @@
+## 0.8.2
+
+* Improved testplan user experience by supporting a new test discovery method (thanks to @kn-ms)
+
 ## 0.8.1
 
 * Removed unused files from extension package (#301)
